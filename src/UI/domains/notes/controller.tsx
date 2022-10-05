@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { NotesControllerType, NavState, PageMetaData } from "./interfaces";
-//import {MDParser} from '../../../mdparser-dev/index'
 //import {MDParser} from '@z3ro/mdparser'
-import {marked} from 'marked'
 import { IAppController } from '../../../App';
+
+import {marked} from 'marked';
 
 export function NotesController(props: {AppController: IAppController}) {
   const appController = props.AppController;
