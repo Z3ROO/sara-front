@@ -10,9 +10,7 @@
     "@types/node": "^16.11.31",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.0",
-    "@z3ro/mdparser": "^0.0.10",
-    "he": "^1.2.0",
-    "mdparserz3": "file:../../../packages/mdparser",
+    "marked": "^4.1.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
@@ -47,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@types/marked": "^4.0.7",
     "@types/styled-components": "^5.1.25",
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.14",

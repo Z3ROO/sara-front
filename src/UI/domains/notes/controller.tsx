@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { NotesControllerType, NavState, PageMetaData } from "./interfaces";
 //import {MDParser} from '../../../mdparser-dev/index'
-import {MDParser} from '@z3ro/mdparser'
+//import {MDParser} from '@z3ro/mdparser'
+import {marked} from 'marked'
 import { IAppController } from '../../../App';
 
 export function NotesController(props: {AppController: IAppController}) {
@@ -29,7 +30,7 @@ export function NotesController(props: {AppController: IAppController}) {
     setEditorTextareaField(val)
     setIsSaved(false)
     if (viewerRef.current)
-      viewerRef.current.innerHTML = new MDParser(val).parsedText
+      viewerRef.current.innerHTML = marked.parse(val);
   }
 
   const [categoryContent, setCategoryContent] = useState<string[]>([]);
@@ -131,7 +132,7 @@ export function NotesController(props: {AppController: IAppController}) {
     setEditorTextareaField(res);
 
     if (viewerRef.current)
-      viewerRef.current.innerHTML = new MDParser(res).parsedText;
+      viewerRef.current.innerHTML = marked.parse(res);
 
     setIsSaved(true)
   }
@@ -246,7 +247,7 @@ export function NotesController(props: {AppController: IAppController}) {
 
 
   async function saveNote() {
-    if (pageState === []) return
+    if (!Array.isArray(pageState) || pageState.length === 0) return
 
     const {category, notebook, section, page} = pageState[0];
 

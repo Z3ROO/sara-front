@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 import { IAppController } from "../../../App";
-import { MDParser } from '../../../mdparser-dev/index'
+import {marked} from 'marked';
 import colors from "../../components/colors";
 
 type FlashcardsControllerType = {
@@ -122,7 +122,7 @@ function FlashcardsController() {
 
     setAnswer(res);
 
-    answerRef.current!.innerHTML = new MDParser(res).parsedText;
+    answerRef.current!.innerHTML = marked.parse(res);
   }
 
   async function setScore(score: number) {
