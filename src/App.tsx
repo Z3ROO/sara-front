@@ -1,17 +1,11 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import styled from 'styled-components';
 import { Flashcards } from './UI/domains/flashcards/Flashcards';
 import { Notes } from './UI/domains/notes/Notes'
 import TestPage from './TestPage'
 import { ContextMenu } from './UI/components/ContextMenu';
-import colors from './UI/components/colors';
 import Stats from './UI/domains/stats/Stats';
 
-const App_css = styled.div`
-    height: 100vh;
-    background-color: ${colors.g.one};
-  `
 export type IAppController = {
   modal: any;
   modalHandler(ModalContent?: any, controller?: any): void
@@ -31,8 +25,6 @@ export function AppController(): IAppController {
   function contextMenuHandler(event: React.MouseEvent<HTMLDivElement|HTMLLIElement, MouseEvent>, options: {title: string, action(): void}[]) {
     event.preventDefault();
     setContextMenu(<ContextMenu xPos={event.clientX} yPos={event.clientY} options={options}/>);
-    // event.clientX
-    // event.clientY
   }
 
   function modalHandler(Component?:any) {
@@ -64,7 +56,7 @@ export function AppController(): IAppController {
 function App() {
   const controller = AppController()
 
-  return  <App_css>
+  return  <div className="h-screen bg-gray-800">
             <AppControllerContext.Provider value={controller}>
               <BrowserRouter>
                 <Routes>
@@ -77,7 +69,7 @@ function App() {
               {controller.contextMenu}
               {controller.modal && <Modal controller={controller} />}
             </AppControllerContext.Provider>
-          </App_css>
+          </div>
 }
 
 export function Modal(props: any) {
