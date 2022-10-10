@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { NotesControllerType, NavState, PageMetaData } from "./interfaces";
-//import {MDParser} from '@z3ro/mdparser'
+import mdParser,{Editor} from '@z3ro/mdparser'
+import he from 'he';
+import Prism from 'prismjs';
 import { IAppController } from '../../../App';
 
 import {marked} from 'marked';
+import hljs from 'highlight.js';
 
 export function NotesController(props: {AppController: IAppController}) {
   const appController = props.AppController;
@@ -15,22 +18,26 @@ export function NotesController(props: {AppController: IAppController}) {
   const [inputAux, setInputAux] = useState<string>('');
 
   const [editorTextareaField, setEditorTextareaField] = useState<string>('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLPreElement>(null);
 
   const [isSaved, setIsSaved] = useState<boolean>(true);
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
 
-  function onEditorTextareaFieldChange(event: React.ChangeEvent<HTMLTextAreaElement>|string) {
-    let val:string;
-    if (typeof event === 'string')
-      val = event;
-    else
-      val = event.target.value;
+  function onEditorTextareaFieldChange(event: Event) {
 
-    setEditorTextareaField(val)
+      let val = ((event.target! as Element).textContent||'');
+      //console.log(event.target.textContent)
+    console.log('enter')
+
+    //setEditorTextareaField(mdParser.parse(val))
     setIsSaved(false)
+
     if (viewerRef.current)
       viewerRef.current.innerHTML = marked.parse(val);
+    // if (textareaRef.current) {
+    //   textareaRef.current.innerHTML = val;
+    //   hljs.highlightElement(textareaRef.current)
+    // }
   }
 
   const [categoryContent, setCategoryContent] = useState<string[]>([]);
@@ -125,7 +132,7 @@ export function NotesController(props: {AppController: IAppController}) {
       }
     }
 
-    console.log(section)
+    //console.log(section)
     const post = await fetch(`/notes/${category}/${notebook}/section/page`, headers);
     const res = await post.json();
 
@@ -133,6 +140,13 @@ export function NotesController(props: {AppController: IAppController}) {
 
     if (viewerRef.current)
       viewerRef.current.innerHTML = marked.parse(res);
+    if (textareaRef.current) {
+
+      textareaRef.current.innerHTML = mdParser.parse(he.escape(res));
+
+      // textareaRef.current.innerHTML = he.escape(res);
+      // hljs.highlightElement(textareaRef.current);
+    }
 
     setIsSaved(true)
   }

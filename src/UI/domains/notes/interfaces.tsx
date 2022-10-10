@@ -9,8 +9,8 @@ export type NotesControllerType = {
   setInputAux: React.Dispatch<React.SetStateAction<string>>;
 
   editorTextareaField: string;
-  onEditorTextareaFieldChange(event:React.ChangeEvent<HTMLTextAreaElement>): void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  onEditorTextareaFieldChange(event:Event): void;
+  textareaRef: React.RefObject<HTMLPreElement>;
   
   pageState: PageMetaData[];
   

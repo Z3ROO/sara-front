@@ -13,30 +13,35 @@
     @apply p-1 m-1 border rounded cursor-pointer
   }
 
+  .marker {
+    @apply text-red-400
+  }
+
   .heading {
     @apply font-medium leading-tight mt-0 mb-2
   }
-  h1 {
+
+  h1, .mdsyntax-h1 {
     @apply heading text-5xl
   }
 
-  h2 {
+  h2, .mdsyntax-h2 {
     @apply heading text-4xl
   }
 
-  h3 {
+  h3, .mdsyntax-h3 {
     @apply heading text-3xl
   }
 
-  h4 {
+  h4, .mdsyntax-h4 {
     @apply heading text-2xl
   }
 
-  h5 {
+  h5, .mdsyntax-h5 {
     @apply heading text-xl
   }
 
-  h6 {
+  h6, .mdsyntax-h6 {
     @apply heading text-base
   }
 }

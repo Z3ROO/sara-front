@@ -5,6 +5,7 @@ import { DefaultProps } from './interfaces';
 import { NotesController } from './controller';
 import colors from '../../components/colors';
 import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';
+import { Editor } from '@z3ro/mdparser';
 
 const Notes_css = styled.div`
   height: 100%;
@@ -168,16 +169,25 @@ const MdArea_css = styled.div<{isEditorOpen: boolean}>`
       
       background-color: ${colors.g.six};
       color: ${colors.g.fourteen};
-      padding: 1em;
-      font-size: 1rem;
-      padding-bottom: 200px;
-      
-      :focus {
-        outline: none;
-        border: 1px solid ${colors.n.two};
-        box-shadow: inset 5px 5px 5px 2px rgba(0,0,0,.1);
-      }
 
+      > pre {
+        margin:0;
+        height: 100%;
+        padding: 1em;
+        font-size: 1rem;
+        padding-bottom: 200px;
+        overflow: auto;
+
+        :focus {
+          outline: none;
+          border: 1px solid ${colors.n.two};
+          box-shadow: inset 5px 5px 5px 2px rgba(0,0,0,.1);
+        }
+      }
+    }
+
+    span.marker {
+      color: purble;
     }
 
     .md-viewer {
@@ -378,7 +388,8 @@ function Page(props: DefaultProps) {
   const { category, notebook, section, page } = controller.pageState[0];
 
   useEffect(()=>{
-    controller.getPageContent(category, notebook, section, page)
+    controller.getPageContent(category, notebook, section, page);
+    Editor(controller.textareaRef.current as Element, controller.onEditorTextareaFieldChange)
   },[])
 
   return  <Page_css>
@@ -393,40 +404,20 @@ function Page(props: DefaultProps) {
               </div>
             </div>
             <MdArea_css isEditorOpen={controller.isEditorOpen}>
-              <textarea
-                className='md-editor md-base' 
-                ref={controller.textareaRef} 
-                onChange={controller.onEditorTextareaFieldChange} 
-                value={controller.editorTextareaField} 
-                onKeyDown={(e) => textareaKeyDownHandler(e, controller.textareaRef.current, controller.onEditorTextareaFieldChange)}
-                /> 
+              <div className='md-editor'>
+                  <pre
+                    className='language-markdown' 
+                    ref={controller.textareaRef}
+                    // onInput={controller.onEditorTextareaFieldChange}
+                    contentEditable
+                  ></pre>
+              </div> 
               <div className='md-viewer'>
-                <pre ref={controller.viewerRef} className='md-base'>
+                <pre ref={controller.viewerRef}>
 
                 </pre>
               </div>
             </MdArea_css>
           </Page_css>
 }
-
-function textareaKeyDownHandler(event: React.KeyboardEvent<HTMLTextAreaElement>, textareaRef: HTMLTextAreaElement|null, onEditorTextareaFieldChange:(event: any) => void ) {
-  if (event.key == 'Tab' && textareaRef) {
-    event.preventDefault();
-    var start = textareaRef.selectionStart;
-    var end = textareaRef.selectionEnd;
-    
-    // set textarea value to: text before caret + tab + text after caret
-    textareaRef.value = textareaRef.value.substring(0, start) +
-      "\t" + textareaRef.value.substring(end);
-
-    onEditorTextareaFieldChange(textareaRef.value)
-
-    // put caret at right position again
-    textareaRef.selectionStart =
-      textareaRef.selectionEnd = start + 1;
-  }
-
-  //textareaRef?.scrollTo(0,textareaRef.scrollHeight/2)
-}
-
 
