@@ -1,10 +1,6 @@
-import { stringify } from "querystring";
 import { useEffect, useRef, useState } from "react";
-import { Link, Routes, Route } from "react-router-dom";
-import styled from "styled-components";
 import { IAppController } from "../../../App";
 import {marked} from 'marked';
-import colors from "../../components/colors";
 
 type FlashcardsControllerType = {
   state: string;
@@ -20,66 +16,15 @@ type FlashcardsControllerType = {
   nextCard: () => void;
 }
 
-const SilverTape_css = styled.div`
-    padding: 1em;
-    border-radius: 5px;
-    background-color: ${colors.g.five};
-    color: ${colors.n.one};
-    max-height: 90vh;
-    max-width: 1100px;
-    overflow: auto;
+function SilverTape({children}:{children:JSX.Element}) {
+  return <div
+            className="p-4 rounded-md bg-gray-600 text-slate-300 max-h-[90vh] max-w-[1080px] overflow-auto"
+            >
+            {children}
+          </div>
+}
 
-    .questions {
-      font-size: 1.2rem;
-      font-weight: bold;
-      
-      > div {
-        margin: 10px;
-      }
 
-      margin-bottom: 25px;      
-    }
-
-    .markdown {
-      min-height: 0;
-      background-color: ${colors.g.six};
-      color: ${colors.g.fourteen};
-      padding: 1em;
-      font-size: 1.2rem;
-      box-shadow: inset 5px 5px 5px 2px rgba(0,0,0,.1);
-      
-      
-      > pre {
-        width: 1000px;
-        
-    
-        
-        h1, h2, h3, h4, h5, h6 {
-          color: ${colors.g.thirteen};
-        }
-
-        strong {
-          color: white;
-        }
-
-        a {
-          color: ${colors.n.four}
-        }
-        
-        #code-block {
-          padding: .5em;
-          background-color: ${colors.g.eight};
-          border-radius: 5px;
-        }
-      }
-    }
-  `
-const FC_css = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  `
 function FlashcardsController() {
   const [state,setState] = useState<string>('sleep');
   const [card, setCard] = useState<{pageDir: string, questions: string[]}|null>(null);
@@ -202,66 +147,79 @@ export function Flashcards(props: {AppController: IAppController}) {
   else if (controller.state === 'final')
     content = <Final controller={controller} />
   
-  return  <FC_css>
+  return  <div className="flex justify-center items-center h-full">
             {content}
-          </FC_css>
+          </div>
 }
 
 function SleepScreen(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return <SilverTape_css><h2>Loading...</h2></SilverTape_css>
+  return <SilverTape><h2>Loading...</h2></SilverTape>
 }
 
 function StartScreen(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return  <SilverTape_css>
-            <h2>Tire uma carta</h2>
-            <button onClick={()=> controller.startGame()}>Carta</button>
-          </SilverTape_css>
+  return  <SilverTape>
+            <>
+              <h2>Tire uma carta</h2>
+              <button onClick={()=> controller.startGame()}>Carta</button>
+            </>
+          </SilverTape>
 }
 
 function Questions(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return  <SilverTape_css>
-            <h2>{controller.card?.pageDir}</h2>
-            <div className="questions">
-              {controller.card?.questions.map((question)=><div>{question}</div>)}
-            </div>
-            <button onClick={() => controller.getAnswer()}>Mostrar respostas</button>
-          </SilverTape_css>
+  return  <SilverTape>
+            <>
+              <h2>{controller.card?.pageDir}</h2>
+              <div className="text-lg font-bold mb-6">
+                {controller.card?.questions.map((question)=>(
+                  <div className="m-3">{question}</div>
+                  ))}
+              </div>
+              <button onClick={() => controller.getAnswer()}>Mostrar respostas</button>
+            </>
+          </SilverTape>
 }
 
 function Answers(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return  <SilverTape_css>
-            <h3>{controller.card?.pageDir}</h3>
-            {[0,1,2,3,4,5].map(num => <button onClick={() => controller.setScore(num)}>{num}</button>)}
-            <div className="markdown">
-              <pre ref={controller.answerRef}>
+  return  <SilverTape>
+            <>
+              <h3>{controller.card?.pageDir}</h3>
+              {[0,1,2,3,4,5].map(num => <button onClick={() => controller.setScore(num)}>{num}</button>)}
+              <div className="min-h-0 bg-gray-550 text-gray-300 p-4 text-lg shadow-inner">
+                <pre ref={controller.answerRef}>
 
-              </pre>
-            </div>
-          </SilverTape_css>
+                </pre>
+              </div>
+            </>
+          </SilverTape>
 }
 
 function Result(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return <SilverTape_css><h2>Resultado registrado</h2><button onClick={() => controller.nextCard()}>Proxima pergunta.</button></SilverTape_css>
+  return  <SilverTape>
+            <>
+              <h2>Resultado registrado</h2>
+              <button onClick={() => controller.nextCard()}>Proxima pergunta.</button>
+            </>
+          </SilverTape>
 }
 
 function Err(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return <SilverTape_css><h2>Algum erro ocorreu.</h2></SilverTape_css>
+  return <SilverTape><h2>Algum erro ocorreu.</h2></SilverTape>
 }
 
 function Final(props: {controller: FlashcardsControllerType}) {
   const {controller} = props;
 
-  return <SilverTape_css><h2>Todos os cards foram respondidos.</h2></SilverTape_css>
+  return <SilverTape><h2>Todos os cards foram respondidos.</h2></SilverTape>
 }
