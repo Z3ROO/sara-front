@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { NotesControllerType, NavState, PageMetaData } from "./interfaces";
 import mdParser,{Editor} from '@z3ro/mdparser'
 import he from 'he';
-import { IAppController } from '../../../App';
+import { IAppController } from '../../core/App';
 
 import {marked} from 'marked';
 

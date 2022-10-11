@@ -12,7 +12,9 @@ export function ContextMenu(props: {xPos: number, yPos: number, options: {title:
             options.map( option => (
               <li 
                 className="w-52 m-1 p-0 px-1 rounded-md text-blue-300 hover:bg-gray-600 cursor-pointer select-none"
-                onClick={option.action}>{option.title}</li>
+                onClick={option.action}>
+                {option.title}
+              </li>
             ))
             }
           </div>

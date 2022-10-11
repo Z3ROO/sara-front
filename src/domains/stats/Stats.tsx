@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { AppControllerContext, IAppController } from "../../../App"
+import { AppControllerContext, IAppController } from "../../core/App"
 import StatsController, { IDayProgress, IQuestLine, IStatsController } from "./StatsController";
 
 interface IStatsProps {

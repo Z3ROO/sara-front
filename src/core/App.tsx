@@ -1,10 +1,10 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Flashcards } from './UI/domains/flashcards/Flashcards';
-import { Notes } from './UI/domains/notes/Notes'
-import TestPage from './TestPage'
-import { ContextMenu } from './UI/components/ContextMenu';
-import Stats from './UI/domains/stats/Stats';
+import { Flashcards } from '../domains/flashcards/Flashcards';
+import { Notes } from '../domains/notes/Notes'
+import TestPage from '../TestPage'
+import { ContextMenu } from '../domains/_general/ContextMenu';
+import Stats from '../domains/stats/Stats';
 
 export type IAppController = {
   modal: any;

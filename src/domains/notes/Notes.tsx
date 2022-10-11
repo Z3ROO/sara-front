@@ -1,5 +1,5 @@
 import {useState, createContext, useRef, useEffect} from 'react'
-import { IAppController } from '../../../App';
+import { IAppController } from '../../core/App';
 import { DefaultProps } from './interfaces';
 import { NotesController } from './controller';
 import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';

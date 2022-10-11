@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IAppController } from "../../../App";
+import { IAppController } from "../../core/App";
 import {marked} from 'marked';
 
 type FlashcardsControllerType = {
