@@ -1,7 +1,7 @@
 import {useState, createContext, useRef, useEffect} from 'react'
 import { IAppController } from '../../core/App';
 import { DefaultProps } from './interfaces';
-import { NotesController } from './controller';
+import { NotesController, NotesControllerContext, useNotesController } from './controller';
 import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';
 import { Editor } from '@z3ro/mdparser';
 
@@ -9,10 +9,12 @@ export function Notes(props: {AppController: IAppController}) {
   //const AppController = props.AppController;
   const controller = NotesController({AppController: props.AppController});
 
-  return  <div className="h-full">
-            {controller.navState.length === 0 && <Home controller={controller}/>}
-            {controller.navState.length >= 1 && <NotesManager controller={controller}/>}
-          </div>
+  return  <NotesControllerContext.Provider value={controller}>
+            <div className="h-full">
+              {controller.navState.length === 0 && <Home controller={controller}/>}
+              {controller.navState.length >= 1 && <NotesManager controller={controller}/>}
+            </div>
+          </NotesControllerContext.Provider>
 }
 
 function Home(props: DefaultProps) {
@@ -71,9 +73,9 @@ function Navigation(props: DefaultProps) {
   if (controller.navState.length === 1)
     content = <CategoryContentList controller={controller} />
   else if (controller.navState.length === 2)
-    content = <NotebookContentList controller={controller} />
+    content = <ContentList controller={controller} type="notebook" />
   else if (controller.navState.length >= 3)
-    content = <SectionContentList controller={controller} />
+    content = <ContentList controller={controller} type="section" />
 
   return  <div className="flex">
             <div className="w-12 h-full bg-gray-750">
@@ -124,18 +126,22 @@ function CategoryContentList(props: DefaultProps) {
               ))
             }
             {
-              inputAux && <li className="list-input">
-                            <input 
-                              className={contentListInput}
-                              value={newItemInputField} onChange={(e)=> setNewItemInputField(e.target.value)} onBlur={() => createNew(inputAux)} placeholder={'new '+inputAux} autoFocus />
-                          </li>
+              inputAux && <NewItem />
             }
           </ul>
 }
+function ContentList(props: DefaultProps) {//fix name of states
+  const { setSection, setPage, inputAux, createNew, newItemInputField, setNewItemInputField, navState, listItemContextMenu } = props.controller;
+  let type:string = props.type;
+  let sectionContent: string[]; 
 
-function NotebookContentList(props: DefaultProps) {//fix name of states
-  const { notebookContent, setSection, setPage, inputAux, createNew, newItemInputField, setNewItemInputField, navState, notebookListItemContextMenu} = props.controller;
+  if (type === 'notebook')
+    sectionContent = props.controller.notebookContent;
+  else
+    sectionContent = props.controller.sectionContent;
   
+  
+
   return  <ul className={contentListUlClass}>
             <li className={contentListLIFirstChild}>
               <li className={contentListLIFirstChildFirstChild}>
@@ -147,50 +153,28 @@ function NotebookContentList(props: DefaultProps) {//fix name of states
             </li>
             <li className={contentListLISecondChild}>Sections</li>
             {
-              notebookContent.map( item => !item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setSection(item)} onContextMenu={(e) => notebookListItemContextMenu(e, item)}>{item}</li>)
+              sectionContent.map( item => !item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setSection(item)} onContextMenu={(e) => listItemContextMenu(e, item)}>{item}</li>)
             }
             <li className={contentListLISecondChild}>Pages</li>
             {
-              notebookContent.map( item => item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setPage(item)} onContextMenu={(e) => notebookListItemContextMenu(e, item)}>{item}</li>)
+              sectionContent.map( item => item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setPage(item)} onContextMenu={(e) => listItemContextMenu(e, item)}>{item}</li>)
             }
             {
-              inputAux && <li className="list-input">
-                            <input  
-                              className={contentListInput}
-                              value={newItemInputField} onChange={(e)=> setNewItemInputField(e.target.value)} onBlur={() => createNew(inputAux)} placeholder={'new '+inputAux} autoFocus />
-                          </li>
+              inputAux && <NewItem />
             }
           </ul>
 }
 
-function SectionContentList(props: DefaultProps) {//fix name of states
-  const { sectionContent, setSection, setPage, inputAux, createNew, newItemInputField, setNewItemInputField, navState, sectionListItemContextMenu } = props.controller;
+function NewItem() {
+  const {createNew, inputAux} = useNotesController()!;
+  const [inputField, setInputField] = useState<string>('');
 
-  return  <ul className={contentListUlClass}>
-            <li className={contentListLIFirstChild}>
-              <li className={contentListLIFirstChildFirstChild}>
-                {navState.slice(0,navState.length-1).toString().replace(/,/g, '/')}
-              </li>
-              <li>
-                {navState[navState.length-1]}
-              </li>
-            </li>
-            <li className={contentListLISecondChild}>Sections</li>
-            {
-              sectionContent.map( item => !item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setSection(item)} onContextMenu={(e) => sectionListItemContextMenu(e, item)}>{item}</li>)
-            }
-            <li className={contentListLISecondChild}>Pages</li>
-            {
-              sectionContent.map( item => item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setPage(item)} onContextMenu={(e) => sectionListItemContextMenu(e, item)}>{item}</li>)
-            }
-            {
-              inputAux && <li className="list-input">
-                            <input  
-                              className={contentListInput}
-                              value={newItemInputField} onChange={(e)=> setNewItemInputField(e.target.value)} onBlur={() => createNew(inputAux)} placeholder={'new '+inputAux} autoFocus />
-                          </li>
-            }
-          </ul>
+  return  <li className="list-input">
+            <input  
+              className={contentListInput}
+              value={inputField} onChange={(e)=> setInputField(e.target.value)} onBlur={() => createNew(inputAux, inputField)} placeholder={'new '+inputAux} autoFocus />
+          </li>
+
 }
 
 function Page(props: DefaultProps) {

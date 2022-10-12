@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import * as NotesAPI from './NotesAPI';
+import React, { useState, useRef, createContext, useContext } from 'react';
 import { NotesControllerType, NavState, PageMetaData } from "./interfaces";
 import mdParser,{Editor} from '@z3ro/mdparser'
 import he from 'he';
@@ -6,14 +7,19 @@ import { IAppController } from '../../core/App';
 
 import {marked} from 'marked';
 
-export function NotesController(props: {AppController: IAppController}) {
+export const NotesControllerContext = createContext<NotesControllerType|null>(null);
+
+export function useNotesController() {
+  return useContext(NotesControllerContext);
+}
+
+export function NotesController(props: {AppController: IAppController}): NotesControllerType {
   const appController = props.AppController;
   
   const [navState, setNavState] = useState<string[]>([]);
   const [pageState, setPageState] = useState<PageMetaData[]>([]);
 
-  const [newItemInputField, setNewItemInputField] = useState<string>('');
-  const [inputAux, setInputAux] = useState<string>('');
+  const [inputAux, setInputAux] = useState<string>('');//aux to add folder/page - maintains which and if present the input field is also present
 
   const [editorTextareaField, setEditorTextareaField] = useState<string>('');
   const textareaRef = useRef<HTMLPreElement>(null);
@@ -43,87 +49,46 @@ export function NotesController(props: {AppController: IAppController}) {
       }},
       {title: 'Editar', action:()=>{}},
       {title: 'Excluir', action:()=>{
-        deleteNotebook(item);
+        //deleteNotebook(item);
       }}
     ]);
   }
 
-  function notebookListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string) {
+  function listItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string) {
     appController.contextMenuHandler(event, [
       {title: 'Abrir', action:()=>{
         if (item.match(/\.md$/))
-          setPage(item)
+          setPage(item);
         else
-          setSection(item)
+          setSection(item);
       }},
       {title: 'Editar', action:()=>{}},
       {title: 'Excluir', action:()=>{
-        if (item.match(/\.md$/))
-          deletePage(item)
-        else
-          deleteSection(item)
-      }}
-    ]);
-  }
-
-  function sectionListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string) {
-    appController.contextMenuHandler(event, [
-      {title: 'Abrir', action:()=>{
-        if (item.match(/\.md$/))
-          setPage(item)
-        else
-          setSection(item)
-      }},
-      {title: 'Editar', action:()=>{}},
-      {title: 'Excluir', action:()=>{
-        if (item.match(/\.md$/))
-          deletePage(item)
-        else
-          deleteSection(item)
+        // if (item.match(/\.md$/))
+        //   deletePage(item);
+        // else
+        //   deleteSection(item);
       }}
     ]);
   }
 
   async function getCategoryContent(category: string) {
-    const get = await fetch(`/notes/${category}/content`);
-    const res = await get.json();
-    
+    const res = await NotesAPI.getCategoryContent(category);
     setCategoryContent(res);
   }
 
   async function getNotebookContent(category: string, notebook: string) {
-    const get = await fetch(`/notes/${category}/${notebook}/content`);
-    const res = await get.json();
-    console.log(res)
+    const res = await NotesAPI.getNotebookContent(category, notebook);
     setNotebookContent(res);
   }
 
   async function getSectionContent(category: string, notebook: string, section: string) {
-    const headers = {
-      method: 'post',
-      body: JSON.stringify({section}),
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    }
-
-    const post = await fetch(`/notes/${category}/${notebook}/section/content`, headers);
-    const res = await post.json();
-
+    const res = await NotesAPI.getSectionContent(category, notebook, section);
     setSectionContent(res);
   }
 
   async function getPageContent(category: string, notebook: string, section: string, page: string) {
-    const headers = {
-      method: 'post',
-      body: JSON.stringify({section, page}),
-      headers: {
-        'Content-Type':'application/json; charset=utf-8'
-      }
-    }
-
-    const post = await fetch(`/notes/${category}/${notebook}/section/page`, headers);
-    const res = await post.json();
+    const res = await NotesAPI.getPageContent(category, notebook, section, page);
 
     setEditorTextareaField(res);
 
@@ -174,27 +139,21 @@ export function NotesController(props: {AppController: IAppController}) {
     }]);
   }
 
-  function createNew(type: string) {
-    if (newItemInputField === '') return setInputAux('')
+  function createNew(type: string, title: string) {
+    if (title === '') 
+      return setInputAux('');
+    
     if (type === 'section')
-      createSection()
+      createSection(title);
     else if (type === 'page')
-      createPage()
+      createPage(title);
   }
 
-  async function createSection() {
-    const pathDir = navState.toString().replace(/,/g,'/')
-    const headers = {
-      method: 'post',
-      body: JSON.stringify({name: newItemInputField, pathDir}),
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    }
-    const post = await fetch('/notes/new-section', headers);
-    const res = await post.json();
+  async function createSection(name: string) {
+    const pathDir = navState.toString().replace(/,/g,'/');
+    const res = NotesAPI.createSection(name, pathDir)
+
     setInputAux('');
-    setNewItemInputField('');
 
     if (navState.length === 1)
       getCategoryContent(navState[0])
@@ -204,21 +163,12 @@ export function NotesController(props: {AppController: IAppController}) {
       getSectionContent(navState[0], navState[1], navState.slice(2,navState.length).toString().replace(/,/g, '/'))
   }
 
-  async function createPage() {
+  async function createPage(name: string) {
     const pathDir = navState.toString().replace(/,/g,'/')
     
-    const headers = {
-      method: 'post',
-      body: JSON.stringify({name: newItemInputField, pathDir}),
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    }
+    const res = NotesAPI.createPage(name, pathDir);
 
-    const post = await fetch('/notes/new-page', headers);
-    const res = await post.json();
     setInputAux('');
-    setNewItemInputField('');
 
     if (navState.length === 1)
       getCategoryContent(navState[0])
@@ -240,96 +190,24 @@ export function NotesController(props: {AppController: IAppController}) {
 
       return setNavState(newNavState);
     }
-      
     setNavState( state => state.concat(arg))
   }
 
 
   async function saveNote() {
-    if (!Array.isArray(pageState) || pageState.length === 0) return
+    if (!Array.isArray(pageState) || pageState.length === 0)
+      return;
 
     const {category, notebook, section, page} = pageState[0];
 
-    const put = await fetch(`/notes/${category}/${notebook}/section/page/save`, {
-      method: 'put',
-      body: JSON.stringify({content: editorTextareaField, section, page}),
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    });
-    const res = await put.json();
+    const res = await NotesAPI.saveNote(category, notebook, section, page, editorTextareaField);
 
     setIsSaved(true);
-  }
-
-  async function deleteNotebook(item: string) {
-
-    const delete_ = await fetch(`/notes/${navState[0]}/${item}/notebook/delete`, {method: 'delete'});
-    const res = await delete_.json();
-    
-    if (res.ok)
-      if (navState.length === 1)
-        getCategoryContent(navState[0])
-      else if (navState.length === 2)
-        getNotebookContent(navState[0], navState[1])
-      else if (navState.length >= 3)
-        getSectionContent(navState[0], navState[1], navState.slice(2,navState.length).toString().replace(/,/g, '/'))
-  }
-
-  async function deleteSection(item: string) {
-    const headers = {
-      method: 'delete',
-      body: JSON.stringify({section:navState.slice(2,navState.length).toString().replace(/,/g, '/')+'/'+item}),
-      headers: {
-        'Content-type':'application/json; charset=utf-8'
-      }
-    }
-
-    const delete_ = await fetch(`/notes/${navState[0]}/${navState[1]}/section/delete`, headers);
-    const res = await delete_.json();
-    
-    if (res.ok)
-      if (navState.length === 1)
-        getCategoryContent(navState[0])
-      else if (navState.length === 2)
-        getNotebookContent(navState[0], navState[1])
-      else if (navState.length >= 3)
-        getSectionContent(navState[0], navState[1], navState.slice(2,navState.length).toString().replace(/,/g, '/'))
-  }
-
-  async function deletePage(item: string) {
-    let body: {category: string, notebook: string, section: string, page: string};
-
-    if (item)
-      body = {category: navState[0], notebook: navState[1], section: navState.slice(2,navState.length).toString().replace(/,/g, '/'), page: item}
-    else 
-      body = {category: pageState[0].category, notebook: pageState[0].notebook, section: pageState[0].section, page: pageState[0].page}
-
-    
-    const headers = {
-      method: 'delete',
-      body: JSON.stringify({section: body.section, page: body.page}),
-      headers: {
-        'Content-type':'application/json; charset=utf-8'
-      }
-    }
-
-    const delete_ = await fetch(`/notes/${body.category}/${body.notebook}/page/delete`, headers);
-    const res = await delete_.json();
-    
-    if (res.ok)
-      if (navState.length === 1)
-        getCategoryContent(navState[0])
-      else if (navState.length === 2)
-        getNotebookContent(navState[0], navState[1])
-      else if (navState.length >= 3)
-        getSectionContent(navState[0], navState[1], navState.slice(2,navState.length).toString().replace(/,/g, '/'))
   }
 
 
   return {
     navState,
-    newItemInputField, setNewItemInputField,
     editorTextareaField, onEditorTextareaFieldChange,
     textareaRef,
     isEditorOpen, setIsEditorOpen,
@@ -343,8 +221,7 @@ export function NotesController(props: {AppController: IAppController}) {
     setPath,
 
     categoryListItemContextMenu,
-    notebookListItemContextMenu,
-    sectionListItemContextMenu,
+    listItemContextMenu,
 
     categoryContent,
     notebookContent,

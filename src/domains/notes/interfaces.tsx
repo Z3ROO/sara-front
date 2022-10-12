@@ -1,7 +1,5 @@
 export type NotesControllerType = {
   navState: string[];
-  newItemInputField: string;
-  setNewItemInputField: React.Dispatch<React.SetStateAction<string>>;
   isEditorOpen: boolean;
   setIsEditorOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isSaved: boolean;
@@ -23,8 +21,7 @@ export type NotesControllerType = {
   sectionContent: string[];
 
   categoryListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string): void;
-  notebookListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string): void;
-  sectionListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string): void;
+  listItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string): void;
 
   setCategory(category: string): void;
   setNotebook(notebook: string): void;
@@ -33,8 +30,9 @@ export type NotesControllerType = {
 
   getPageContent(category: string, notebook: string, section: string, page: string): void;
   
-  createNew(type: string): void;
+  createNew(type: string, title: string): void;
   saveNote(): void;
+  [key: string]: any
 }
 
 export type NavState = {
@@ -43,7 +41,8 @@ export type NavState = {
 }
 
 export interface DefaultProps {
-  controller: NotesControllerType
+  controller: NotesControllerType,
+  [key:string]:any
 }
 
 export type PageMetaData = {
