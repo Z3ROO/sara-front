@@ -13,7 +13,7 @@ export function Router(props:any) {
   if (Array.isArray(props.children))
     return  (
       <RouterContext.Provider value={routerStateController}>
-        ({
+        {
           props.children.find((child:any) => {
             const parsedChildPath = splitedLocation(child.props.path);
 
@@ -23,7 +23,7 @@ export function Router(props:any) {
               return true;
             }
           })
-        })
+        }
       </RouterContext.Provider>
     )
 
