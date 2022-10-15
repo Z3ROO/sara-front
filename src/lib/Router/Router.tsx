@@ -40,11 +40,14 @@ export function Routes(props: any) {
       {
         props.children.find((child: any) => {
           const parsedChildPath = splitedLocation(child.props.path);
-          
+          let starred = false;
           for (let i = 0; i < path.length; i++) {
             const isNotParameter = !(parsedChildPath[i]||'').match(/^:.+/);
             
-            if (parsedChildPath[i] !== path[i] && isNotParameter)
+            if (parsedChildPath[i] === '*')
+              starred = true;
+
+            if (parsedChildPath[i] !== path[i] && isNotParameter && !starred)
               return false;
           }
 

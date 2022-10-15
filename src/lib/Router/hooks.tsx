@@ -24,12 +24,13 @@ export function useParams(pattern?: string) {
     //   return {}
 
     for (let i = 0; i < path.length; i++) {
-      if (splitedPattern[i].match(/^:.+/)){
-        result[splitedPattern[i].replace(':', '')] = path[i];
-        //missin fail
+      if (splitedPattern[i]) {
+        if (splitedPattern[i].match(/^:.+/)){
+          result[splitedPattern[i].replace(':', '')] = path[i];
+        }
+        else if (splitedPattern[i] !== path[i])
+          return {};
       }
-      else if (splitedPattern[i] !== path[i])
-        return {};
     }
 
     return result;
