@@ -1,10 +1,11 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Routes } from 'react-router-dom';
 import { Flashcards } from '../domains/flashcards/Flashcards';
 import { Notes } from '../domains/notes/Notes'
 import TestPage from '../TestPage'
 import { ContextMenu } from '../domains/_general/ContextMenu';
 import Stats from '../domains/stats/Stats';
+import { Router, Route } from '../lib/Router/Router';
 
 export type IAppController = {
   modal: any;
@@ -58,14 +59,20 @@ function App() {
 
   return  <div className="h-screen bg-gray-800">
             <AppControllerContext.Provider value={controller}>
-              <BrowserRouter>
+              {/* <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Stats />} />
                   <Route path="/teste" element={<TestPage />} />
                   <Route path="/notes" element={<Notes AppController={controller} />} />
                   <Route path="/fc" element={<Flashcards AppController={controller} />} />
                 </Routes>
-              </BrowserRouter>
+              </BrowserRouter> */}
+              <Router>                
+                <Stats path="/" />
+                <Route path="/teste" element={<TestPage />} />
+                <Notes path="/notes" AppController={controller} />
+                <Route path="/fc" element={<Flashcards AppController={controller} />} />
+              </Router>
               {controller.contextMenu}
               {controller.modal && <Modal controller={controller} />}
             </AppControllerContext.Provider>

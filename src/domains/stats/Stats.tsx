@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AppControllerContext, IAppController } from "../../core/App"
+import { Link } from "../../lib/Router/Router";
 import StatsController, { IDayProgress, IQuestLine, IStatsController } from "./StatsController";
 
 interface IStatsProps {
   AppController?: IAppController;
+  path?: string;
 }
 
 function mlToHours(milliseconds:number): {hours:number, minutes:number} {
@@ -20,6 +22,8 @@ function Stats(props:IStatsProps) {
 
   return  <div className="h-full w-full flex">
             <div className="flex flex-col p-3 text-white bg-slate-800">
+              <Link href="/notes">Testando testes</Link>
+              <Link href="/">Testando testes só que para home</Link>
                 <PlayerInfo controller={controller} />
                 <PassiveSkills controller={controller} />
                 <Hashiras controller={controller} />

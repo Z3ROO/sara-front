@@ -1,28 +1,30 @@
 import {useState, createContext, useRef, useEffect} from 'react'
 import { IAppController } from '../../core/App';
-import { DefaultProps } from './interfaces';
+import { DefaultProps, INotesTree } from './interfaces';
 import { NotesController, NotesControllerContext, useNotesController } from './controller';
-import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';
 import { Editor } from '@z3ro/mdparser';
+import { Link, Route, Routes } from '../../lib/Router/Router';
+import { useLocation, useParams } from '../../lib/Router/hooks';
 
-export function Notes(props: {AppController: IAppController}) {
+export function Notes(props: {AppController: IAppController, path?:string}) {
   //const AppController = props.AppController;
   const controller = NotesController({AppController: props.AppController});
+  const {path, traversePath} = useLocation()!;
 
   return  <NotesControllerContext.Provider value={controller}>
-            <div className="h-full">
-              {controller.navState.length === 0 && <Home controller={controller}/>}
-              {controller.navState.length >= 1 && <NotesManager controller={controller}/>}
-            </div>
+            <Routes>
+              <Home path="/notes" controller={controller}/>
+              <NotesManager path="/notes/:category" controller={controller} />
+            </Routes>
           </NotesControllerContext.Provider>
 }
 
 function Home(props: DefaultProps) {
   const { controller } = props
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const boxButtonClass = `
-    bg-gray-700 text-slate-300 flex justify-center items-center transition-all
+    bg-gray-700 text-slate-300 transition-all
     hover:scale-105 hover:cursor-pointer hover:bg-slate-500 hover:shadow-md
     `
   const boxTextClass = "text-5xl font-bold"
@@ -30,151 +32,123 @@ function Home(props: DefaultProps) {
 
   return  <div className="h-full w-full flex justify-center items-center ">
             <div className="h-[90vh] w-[90vh] grid grid-cols-2 grid-rows-2">
-              <div 
-                className={boxButtonClass} 
-                onClick={() => {controller.setCategory('projects')}}>
-                <span className={boxTextClass}>Projects</span>
+              <div className={boxButtonClass}>
+                <Link href="/notes/general" className="w-full h-full flex justify-center items-center">
+                  <span className={boxTextClass}>General</span>
+                </Link>
               </div>
-              <div 
-                className={boxButtonClass}
-                onClick={() => {controller.setCategory('study')}}
-              >
-                <span className={boxTextClass}>Study</span>
+              <div className={boxButtonClass}>
+                <Link href="/notes/projects" className="w-full h-full flex justify-center items-center">
+                  <span className={boxTextClass}>Projects</span>
+                </Link>
               </div>
-              <div 
-                className={boxButtonClass}
-                onClick={() => {controller.setCategory('journal')}}
-              >
-                <span className={boxTextClass}>Journal</span>
+              <div className={boxButtonClass}>
+                <Link href="/notes/study" className="w-full h-full flex justify-center items-center">
+                  <span className={boxTextClass}>Study</span>
+                </Link>
               </div>
-              <div  
-                className={boxButtonClass}
-                onClick={() => {controller.setCategory('misc')}}
-              >
-                <span className={boxTextClass}>Misc</span>
+              <div className={boxButtonClass}>
+                <Link href="/notes/journal" className="w-full h-full flex justify-center items-center">
+                  <span className={boxTextClass}>Journal</span>
+                </Link>
               </div>
             </div>
           </div>
 }
 
 function NotesManager(props: DefaultProps) {
-  const { controller } = props;
+  const { updateNotesTree } = useNotesController()!
+  const { category } = useParams(props.path)!;
+  console.log(category)
+  useEffect(() => {
+    if (category != null)
+      updateNotesTree([category]);
+  },[]);
+
   return  <div className="h-full w-full flex">
-            <Navigation controller={controller}/>
-            {controller.pageState.length > 0 && <Page controller={controller} />}
+            <ContentExplorer />
+            {/* <Page controller={controller} /> */}
           </div>
 }
 
-function Navigation(props: DefaultProps) {
-  const { controller } = props;
-
-  let content: JSX.Element|null = null;
-
-  if (controller.navState.length === 1)
-    content = <CategoryContentList controller={controller} />
-  else if (controller.navState.length === 2)
-    content = <ContentList controller={controller} type="notebook" />
-  else if (controller.navState.length >= 3)
-    content = <ContentList controller={controller} type="section" />
-
-  return  <div className="flex">
-            <div className="w-12 h-full bg-gray-750">
-              <button 
-                className="m-1"
-                onClick={()=> controller.setPath('__back')}>
-                {'\u{1f519}'}
-              </button>
-            </div>
-            <div className="w-72 h-full bg-gray-550">
-              <div className="w-72 bg-gray-750">
-                <button 
-                  className="m-1"
-                  onClick={() => controller.setInputAux('section')}
-                >
-                  {'\u2795 s'}
-                </button>
-                { controller.navState.length > 1 && <button className="m-1" onClick={() => controller.setInputAux('page') }>{'\u2795 p'}</button> }
-              </div>
-              { content }
-            </div>            
-          </div>
+function ContentExplorer(props: any) {
+  return (
+    <div>
+      <ContentList/>
+    </div>
+  )
 }
 
-const contentListUlClass = `list-none p-0 m-0 text-slate-300 overflow-auto`;
-const contentListLIFirstChild = `bg-gray-650 text-base text-slate-300`;
-const contentListLIFirstChildFirstChild = `text-xs`;
-const contentListLISecondChild = `list-title bg-gray-600 text-sm p-1 text-slate-400`;
-const contentListLIItems = `list-item bg-gray-550 hover:bg-gray-500 hover:cursor-pointer`;
-const contentListInput = `outline-none border-none p-1 text-slate-300 bg-gray-600 shadow-md w-full`;
+function ContentList(props: any) {
 
-function CategoryContentList(props: DefaultProps) {
-  const { categoryContent, setNotebook, inputAux, createNew, newItemInputField, setNewItemInputField, navState, categoryListItemContextMenu } = props.controller;
-
-  return  <ul className={contentListUlClass}>
-            <li className={contentListLIFirstChild}>
-              <li className={contentListLIFirstChildFirstChild}>
-                {navState.slice(0,navState.length-1).toString().replace(/,/g, '/')}
-              </li>
-              <li>
-                {navState[navState.length-1]}
-              </li>
-            </li>
-            <li className={contentListLISecondChild}>Notebooks</li>
-            {
-              categoryContent.map( item => (
-                <li className={contentListLIItems} onClick={() => setNotebook(item)} onContextMenu={(event)=> categoryListItemContextMenu(event, item)}>{item}</li>
-              ))
-            }
-            {
-              inputAux && <NewItem />
-            }
-          </ul>
-}
-function ContentList(props: DefaultProps) {//fix name of states
-  const { setSection, setPage, inputAux, createNew, newItemInputField, setNewItemInputField, navState, listItemContextMenu } = props.controller;
-  let type:string = props.type;
-  let sectionContent: string[]; 
-
-  if (type === 'notebook')
-    sectionContent = props.controller.notebookContent;
-  else
-    sectionContent = props.controller.sectionContent;
-  
-  
-
-  return  <ul className={contentListUlClass}>
-            <li className={contentListLIFirstChild}>
-              <li className={contentListLIFirstChildFirstChild}>
-                {navState.slice(0,navState.length-1).toString().replace(/,/g, '/')}
-              </li>
-              <li>
-                {navState[navState.length-1]}
-              </li>
-            </li>
-            <li className={contentListLISecondChild}>Sections</li>
-            {
-              sectionContent.map( item => !item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setSection(item)} onContextMenu={(e) => listItemContextMenu(e, item)}>{item}</li>)
-            }
-            <li className={contentListLISecondChild}>Pages</li>
-            {
-              sectionContent.map( item => item.match(/\.md$/) && <li className={contentListLIItems} onClick={() => setPage(item)} onContextMenu={(e) => listItemContextMenu(e, item)}>{item}</li>)
-            }
-            {
-              inputAux && <NewItem />
-            }
-          </ul>
+  return (
+    <div className="bg-gray-700 text-slate-300 h-full p-2 w-72">
+      <FolderContent />
+    </div>
+  )
 }
 
-function NewItem() {
-  const {createNew, inputAux} = useNotesController()!;
-  const [inputField, setInputField] = useState<string>('');
+function FolderContent(props: any) {
+  const {notesTree, updateNotesTree, openMarkdownFile} = useNotesController()!;
+  const {path} = useLocation()!;
+  const {category} = useParams('/notes/:category')!;
+  let notes = (notesTree as INotesTree)[category].children!;
+  const depth:string[] = props.depth || [];
+  //file U+1F5CE
+  //folder open U+1F5C1
+  //folder closed U+1F5C0
 
-  return  <li className="list-input">
-            <input  
-              className={contentListInput}
-              value={inputField} onChange={(e)=> setInputField(e.target.value)} onBlur={() => createNew(inputAux, inputField)} placeholder={'new '+inputAux} autoFocus />
-          </li>
+  if (props.depth) {
+    depth.forEach(dir => {
+      notes = notes[dir].children!
+    })
+  }
 
+  if (notes == null)
+    return <></>
+
+  return (
+    <ul> 
+      {
+      Object.keys(notes).map(itemName => {
+        const {name, path, title, type, state} = notes[itemName];
+        const icon = type === 'folder' ? (state === 'closed' ? '\u{1F5C0}' : '\u{1F5C1}') : '\u{1F5CE}'
+        
+        if (type === 'folder') {
+
+          if (state === 'open')
+            return (
+              <>
+                <li 
+                  className='p-1 pl-4'
+                  onClick={() => {
+                    updateNotesTree();
+                    notes[itemName].state = 'closed';
+                  }}
+                >{icon} {title}</li>
+                <li className='p-1 pl-4'>
+                  <FolderContent depth={[...depth, itemName]}/>
+                </li>
+              </>
+            )
+
+          return (
+            <li className='p-1 pl-4' onClick={() => {
+              updateNotesTree([category,...depth, itemName]);
+              notes[itemName].state = 'open';
+            }}>{icon} {title}</li>
+          );
+        }
+
+        return (
+          <li className='p-1 pl-4' onClick={
+            () => openMarkdownFile(['notes',...path])
+          }>{icon} {title}</li>
+        );
+      })
+      }
+    </ul>
+  )
 }
 
 function Page(props: DefaultProps) {
