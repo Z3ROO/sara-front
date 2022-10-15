@@ -1,5 +1,5 @@
 export interface IRouterStateController {
   path: string[];
-  traversePath: (newPath: string) => void;
+  traversePath: (newPath: string|string[]) => void;
   fullPath: string;
 }

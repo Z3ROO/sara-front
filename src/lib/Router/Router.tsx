@@ -34,6 +34,29 @@ export function Router(props:any) {
 
 export function Routes(props: any) {
   const {path} = useLocation()!;
+
+  return (
+    <>
+      {
+        props.children.find((child: any) => {
+          const parsedChildPath = splitedLocation(child.props.path);
+          
+          for (let i = 0; i < path.length; i++) {
+            const isNotParameter = !(parsedChildPath[i]||'').match(/^:.+/);
+            
+            if (parsedChildPath[i] !== path[i] && isNotParameter)
+              return false;
+          }
+
+          return true;
+        }) || <div className="flex justify-center items-center w-full h-full"><span className="text-7xl text-red-500">404</span></div>
+      }
+    </>
+  )
+}
+
+function Routess(props: any) {
+  const {path} = useLocation()!;
   return (
     <>
       {
@@ -63,13 +86,18 @@ export function Link(props: any) {
   const {path, traversePath} = useLocation()!;
 
   return (
-    <span onClick={(e) => linkHandler(e, href, traversePath)} style={{color:'blue'}}>{props.children}</span>
+    <a
+      onClick={(e) => linkHandler(e, href, traversePath)}
+      {...props}
+    >
+      {props.children}
+    </a>
   )
 }
 
 
 function linkHandler(event: React.MouseEvent<HTMLSpanElement, MouseEvent>, href: string, traversePath: (newPath: string) => void|null) {
-  window.history.pushState({}, '', href);
+  // window.history.pushState({}, '', href);
   
   if (traversePath === null)
     console.log('pooooorqueeeeee');

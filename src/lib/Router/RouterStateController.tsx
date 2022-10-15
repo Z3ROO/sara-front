@@ -6,11 +6,15 @@ export function RouterStateController(): IRouterStateController {
   const currentPath = splitedLocation();
   const [path, setPath] = useState(currentPath);
 
-  function traversePath(newPath: string) {
+  function traversePath(newPath: string|string[]) {
     if (newPath === '__back') {
       //missing history.pushState()
       return setPath((currentPath) => currentPath.slice(0,-1));
     }
+
+    if (Array.isArray(newPath))
+      return setPath(newPath);
+
     setPath(splitedLocation(newPath));
   }
 
@@ -24,6 +28,10 @@ export function RouterStateController(): IRouterStateController {
 
     return () => window.removeEventListener('popstate', handler);
   },[]);
+
+  useEffect(() => {
+    window.history.pushState({}, '', '/'+path.join('/'));
+  },[path])
 
   return {
     path,
