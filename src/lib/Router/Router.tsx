@@ -33,25 +33,18 @@ export function Router(props:any) {
 }
 
 export function Routes(props: any) {
-  const {path} = useLocation()!;
+  const {path, fullPath} = useLocation()!;
 
   return (
     <>
       {
         props.children.find((child: any) => {
-          const parsedChildPath = splitedLocation(child.props.path);
-          let starred = false;
-          for (let i = 0; i < path.length; i++) {
-            const isNotParameter = !(parsedChildPath[i]||'').match(/^:.+/);
-            
-            if (parsedChildPath[i] === '*')
-              starred = true;
+          let parsedChildPath = splitedLocation(child.props.path);
 
-            if (parsedChildPath[i] !== path[i] && isNotParameter && !starred)
-              return false;
-          }
+          const pattern = parsePath(parsedChildPath);
+          
+          return !!fullPath.match(pattern);
 
-          return true;
         }) || <div className="flex justify-center items-center w-full h-full"><span className="text-7xl text-red-500">404</span></div>
       }
     </>
@@ -100,8 +93,6 @@ export function Link(props: any) {
 
 
 function linkHandler(event: React.MouseEvent<HTMLSpanElement, MouseEvent>, href: string, traversePath: (newPath: string) => void|null) {
-  // window.history.pushState({}, '', href);
-  
   if (traversePath === null)
     console.log('pooooorqueeeeee');
   else
@@ -109,3 +100,29 @@ function linkHandler(event: React.MouseEvent<HTMLSpanElement, MouseEvent>, href:
 }
 
 export const splitedLocation = (path?:string) => (path ? path : window.location.pathname).split('/').filter(dir => dir.trim() !== '');
+
+
+export function parsePath(splitedPathPattern: string[]) {
+  splitedPathPattern = splitedPathPattern.map((pathChunk, index) => {
+    if (pathChunk === '*') 
+      return '([^/]+)(?:/([^/]+))*';
+    if (pathChunk === '**')
+      return '?(?:([^/]+)(?:/([^/]+))*)?';
+
+    if (pathChunk.length > 1){
+      if (pathChunk.charAt(0) === ':')
+        return '([^/]+)';
+
+      if (pathChunk.charAt(0) === '*')
+        return '([^/]+'+pathChunk.slice(1).replace(/(\.|\+)/g,'\\$1')+')';
+      if (pathChunk[pathChunk.length-1] === '*')
+        return '('+pathChunk.slice(0,-1).replace(/(\.|\+)/g,'\\$1')+'[^/]+)';
+    }
+    
+    return '('+pathChunk.replace(/(\.|\+)/g,'\\$1')+')';
+  });
+
+  const regExpPattern = new RegExp('^/'+splitedPathPattern.join('/')+'$');
+
+  return regExpPattern;
+}

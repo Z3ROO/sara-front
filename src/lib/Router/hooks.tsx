@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { RouterContext, splitedLocation } from "./Router";
+import { parsePath, RouterContext, splitedLocation } from "./Router";
 
 export function useLocation() {
   return useContext(RouterContext);
@@ -14,27 +14,18 @@ export function usePathName(directory?:string) {
 }
 
 export function useParams(pattern?: string) {
-  const {path} = useContext(RouterContext)!;
+  const {fullPath} = useContext(RouterContext)!;
 
   if (pattern) {
-    const splitedPattern = splitedLocation(pattern);
-    const result: {[key:string]:string} = {};
+    let splitedPattern = splitedLocation(pattern);
 
-    // if (splitedPattern.length !== path.length)
-    //   return {}
-
-    for (let i = 0; i < path.length; i++) {
-      if (splitedPattern[i]) {
-        if (splitedPattern[i].match(/^:.+/)){
-          result[splitedPattern[i].replace(':', '')] = path[i];
-        }
-        else if (splitedPattern[i] !== path[i])
-          return {};
-      }
-    }
-
-    return result;
+    const regExpPattern = parsePath(splitedPattern);
+    console.log(fullPath.match(regExpPattern))
+    const match = fullPath.match(regExpPattern)
+    
+    if (match)
+      return match.filter((v:any) => v);
   }
 
-  return {};
+  return null;
 }
