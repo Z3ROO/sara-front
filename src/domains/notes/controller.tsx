@@ -1,11 +1,9 @@
 import * as NotesAPI from './NotesAPI';
 import React, { useState, useRef, createContext, useContext } from 'react';
-import { INotesController, NavState, PageMetaData, INotesTree, ITree } from "./interfaces";
-import mdParser,{Editor} from '@z3ro/mdparser'
-import he from 'he';
+import { INotesController, INotesTree, ITree, INotesTreeNode } from "./interfaces";
+
 import { IAppController } from '../../core/App';
 
-import {marked} from 'marked';
 import Tree from '../../lib/Tree';
 import { useLocation } from '../../lib/Router/hooks';
 
@@ -17,56 +15,43 @@ export function useNotesController() {
 
 export function NotesController(props: {AppController: IAppController}): INotesController {
   const appController = props.AppController;
+  
   const notesTreeRef = useRef<ITree>(new Tree(['general', 'projects', 'study', 'journal']))
   const [notesTree, setNotesTree] = useState<ITree>(notesTreeRef.current);
+  const [openedPage, setOpenedPage] = useState<any>({});
+
   const {traversePath} = useLocation()!
 
-  async function updateNotesTree(directory?: string[]) {
-    if (!directory) {
-      setNotesTree({...notesTree});
-      return;
-    }
+  async function updateNotesTree(category?: string) {
+    if (category == null)
+      return setNotesTree({...notesTreeRef.current});
 
-    const fetchedBranch = await NotesAPI.getNotesTreeListingBranch(directory);
+    const fetchedBranch = await NotesAPI.getNotesTreeListing();
 
-    notesTreeRef.current.insert(fetchedBranch, directory);
-
+    notesTreeRef.current.updateTree(fetchedBranch);
+    console.log(notesTreeRef.current)
     setNotesTree({...notesTreeRef.current});
   }
 
-  function openMarkdownFile(directory: string[]) {
-    traversePath(directory);
+  async function openMarkdownFile(path: string[]) {
+    await updateNotesTree(path[0]);
+    let node = notesTreeRef.current.findNode(path.slice(1));
+    const content = await NotesAPI.getPageContent(node.path);
+    setOpenedPage({...node, content});
+  }
+
+  async function saveNote(path: string[], content: string) {
+    NotesAPI.saveNote(path, content);
   }
 
   return {
     notesTree,
+    openedPage,
     updateNotesTree,
-    openMarkdownFile
+    openMarkdownFile,
+    saveNote
   }
 }
-
-
-// function parseFetchedNotes(notes:any[]):INotesTreeBranch {
-//   const result: INotesTreeBranch = {}
-
-//   for (const node of notes) {
-//     result[node.name] = {
-//       title: node.name.replace(/_/g, ' '),
-//       type: node.type,
-//       state: node.type === 'folder' ? 'closed' : 'upToDate'
-//     }
-    
-//     if (node.type === 'folder')
-//       result[node.name].content = {};
-//   }
-
-//   return result;
-// }
-
-
-
-
-
 
   // function categoryListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string) {
   //   appController.contextMenuHandler(event, [

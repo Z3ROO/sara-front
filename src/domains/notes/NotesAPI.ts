@@ -1,69 +1,69 @@
 import Requester from "../../lib/Requester";
 
+export type ITreeListing = {name:string, type:string, content?:ITreeListing}[];
 
-export async function getNotesTreeListingBranch(directory: string[]) {
-  const parsedDirectory = '/'+directory.join('/');
+export async function getNotesTreeListing(category?: string):Promise<ITreeListing> {
   
-  if (parsedDirectory === '/general')
-    return [
-      {
-        name: 'folder_1',
-        type: 'folder'
-      },
-      {
-        name: 'file_1.md',
-        type: 'file'
-      }
-    ]
-  else if (parsedDirectory === '/general/folder_1')
-    return [
-      {
-        name: 'folder_2',
-        type: 'folder'
-      },
-      {
-        name: 'file_2.md',
-        type: 'file'
-      }
-    ]
-  else if (parsedDirectory === '/general/folder_1/folder_2')
-    return [
-      {
-        name: 'folder_3',
-        type: 'folder'
-      },
-      {
-        name: 'file_3.md',
-        type: 'file'
-      }
-    ]
-  else if (parsedDirectory === '/general/folder_1/folder_2/folder_3')
-    return [
-      {
-        name: 'folder_4',
-        type: 'folder'
-      },
-      {
-        name: 'file_4.md',
-        type: 'file'
-      }
-    ]
-  else if (parsedDirectory === '/general/folder_1/folder_2/folder_3/folder_4')
-    return [
-      {
-        name: 'folder_5',
-        type: 'folder'
-      },
-      {
-        name: 'file_5.md',
-        type: 'file'
-      }
-    ]
+  return [
+    {
+      name: 'general',
+      type: 'category',
+      content: [
+        {
+          name: 'folder_1',
+          type: 'folder',
+          content: [
+            {
+              name: 'folder_2',
+              type: 'folder',
+              content: [
+                {
+                  name: 'folder_3',
+                  type: 'folder',
+                  content: [
+                    {
+                      name: 'folder_4',
+                      type: 'folder',
+                      content: [
+                        {
+                          name: 'folder_5',
+                          type: 'folder'
+                        },
+                        {
+                          name: 'file_5.md',
+                          type: 'file'
+                        }
+                      ]
+                    },
+                    {
+                      name: 'file_4.md',
+                      type: 'file'
+                    }
+                  ]
+                },
+                {
+                  name: 'file_3.md',
+                  type: 'file'
+                }
+              ]
+            },
+            {
+              name: 'file_2.md',
+              type: 'file'
+            }
+          ]
+        },
+        {
+          name: 'file_1.md',
+          type: 'file'
+        }
+      ]
+    }
+  ]
+
   
-  return [];
-  
-  const response = await Requester.get(`/notes/listing/${parsedDirectory}`);
-  return response;
+  // const response = await Requester.get(`/notes/listing/${parsedDirectory}`);
+  // return response;
 }
 
 // export async function getCategoryContent(category: string) {
@@ -85,13 +85,21 @@ export async function getNotesTreeListingBranch(directory: string[]) {
 //   return response;
 // }
 
-export async function getPageContent(category: string, notebook: string, section: string, page: string){
-  const response = await Requester.post(
-    `/notes/${category}/${notebook}/section/page`,
-    JSON.stringify({section, page})
-  );
+export async function getPageContent(path: string[]){
+  return `
+## asdasdasd
 
-  return response;
+asd**asd**asd
+asdasdasdas
+a**sas**dasd
+adasdasd
+  `
+  // const response = await Requester.post(
+  //   `/notes/${category}/${notebook}/section/page`,
+  //   JSON.stringify({section, page})
+  // );
+
+  //return response;
 }
 
 export async function createSection(name:string, pathDir:string){
@@ -104,11 +112,12 @@ export async function createPage(name:string, pathDir:string){
   return response
 }
 
-export async function saveNote(category:string, notebook:string, section:string, page:string, content: string) {
-  const response = await Requester.put(
-    `/notes/${category}/${notebook}/section/page/save`,
-    JSON.stringify({content, section, page})
-  );
+export async function saveNote(path:string[], content: string) {
+  
+  // const response = await Requester.put(
+  //   `/notes/${category}/${notebook}/section/page/save`,
+  //   JSON.stringify({content, section, page})
+  // );
 
-  return response;
+  // return response;
 }

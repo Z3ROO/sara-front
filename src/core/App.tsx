@@ -59,14 +59,6 @@ function App() {
 
   return  <div className="h-screen bg-gray-800">
             <AppControllerContext.Provider value={controller}>
-              {/* <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Stats />} />
-                  <Route path="/teste" element={<TestPage />} />
-                  <Route path="/notes" element={<Notes AppController={controller} />} />
-                  <Route path="/fc" element={<Flashcards AppController={controller} />} />
-                </Routes>
-              </BrowserRouter> */}
               <Router>                
                 <Stats path="/" />
                 <Route path="/teste" element={<TestPage />} />

@@ -1,13 +1,12 @@
+import { ITreeListing } from "./NotesAPI"
+
 export interface INotesController {
   notesTree: ITree
-  updateNotesTree: (directory?: string[]) => Promise<void>
-  openMarkdownFile: (directory: string[]) => void
+  openedPage: any
+  updateNotesTree: (category?: string) => Promise<void>
+  openMarkdownFile: (node: any) => Promise<void>
+  saveNote: (path: string[], content: string) => Promise<void>  
   [key: string]: any
-}
-
-export type NavState = {
-  title: string;
-  type: string;
 }
 
 export interface DefaultProps {
@@ -15,21 +14,13 @@ export interface DefaultProps {
   [key:string]:any
 }
 
-export type PageMetaData = {
-  category: string;
-  notebook: string;
-  section: string;
-  page: string;
-}
-
-//export type INotesTree = INotesTreeNode[]
-
 export type ITree = {
-  insert: (values:{[key: string]: string}[], nodePath: string[]) => void
+  updateTree: (tree:ITreeListing, currentPath?: string[]) => void
   remove: (nodePath: string[]) => void
   findNode: (nodePath: string[]) => INotesTreeNode
   [key: string]: INotesTreeNode|((...params: any) => any)
 }
+
 export type INotesTree = {
   [key: string]: INotesTreeNode
 }
