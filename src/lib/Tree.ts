@@ -1,10 +1,5 @@
-// interface ITreeNode {
-//   parent: any;
-//   children: any;
-//   [key: string]: any;
-// }
-
 import { INotesTree, INotesTreeNode, ITree } from "../domains/notes/interfaces";
+import { ITreeListing } from "../domains/notes/NotesAPI";
 
 class TreeNode implements INotesTreeNode {
   name = '';
@@ -33,23 +28,37 @@ export default class Tree implements ITree{
     }
   }
 
-  insert(values:{[key:string]:string}[], nodePath: string[]) {
-    const focusedNode = this.findNode(nodePath);
-
-    values.forEach((value) => {
-      const {name, type} = value;
-      const isFolder = type === 'folder';
+  updateTree(tree: ITreeListing, currentPath:string[] = []) {
+    
+    tree.forEach((node) => {
+      const {name, type, content} = node;
+      const focusedNode = currentPath.length > 0 ? this.findNode(currentPath) : null;
+      const isFolder = type === 'folder' || type === 'category';
       
-      const newNode = new TreeNode({
+      let newCurrentPath = currentPath.concat(name);
+      
+      const newNode: INotesTreeNode = {
         name,
-        path: nodePath.concat(name),
+        path: newCurrentPath,
         title: name.replace(/_/g, ' '),
         type,
         parent: focusedNode,
         children: isFolder ? {} : null
-      });
+      };
 
-      focusedNode.children[name] = newNode;
+      const presentVersion = this.findNode(newCurrentPath);
+      if (presentVersion) {
+        newNode.state = presentVersion.state;
+        newNode.children = presentVersion.children;
+      }
+
+      if (focusedNode)
+        focusedNode.children[name] = new TreeNode(newNode);
+      else
+        this[name] = new TreeNode(newNode);
+
+      if (content && content.length > 0)
+        this.updateTree(content, newCurrentPath);
     });
   }
 
