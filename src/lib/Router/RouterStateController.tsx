@@ -18,17 +18,6 @@ export function RouterStateController(): IRouterStateController {
     setPath(splitedLocation(newPath));
   }
 
-  
-  useEffect(()=> {
-    const handler = (e: PopStateEvent) => {
-      setPath(splitedLocation(window.location.pathname));
-    };
-    
-    window.addEventListener('popstate',handler);
-
-    return () => window.removeEventListener('popstate', handler);
-  },[]);
-
   useEffect(() => {
     window.history.pushState({}, '', '/'+path.join('/'));
   },[path])

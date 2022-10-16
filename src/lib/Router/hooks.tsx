@@ -20,11 +20,11 @@ export function useParams(pattern?: string) {
     let splitedPattern = splitedLocation(pattern);
 
     const regExpPattern = parsePath(splitedPattern);
-    console.log(fullPath.match(regExpPattern))
+    
     const match = fullPath.match(regExpPattern)
     
     if (match)
-      return match.filter((v:any) => v);
+      return splitedLocation(fullPath)
   }
 
   return null;
