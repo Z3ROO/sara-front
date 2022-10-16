@@ -2,6 +2,10 @@ export interface IJSONValidObject {
   [key: string]: string|IJSONValidObject|(string|IJSONValidObject)[]
 }
 
+export interface IreponseWrapper {
+  
+}
+
 export type IRequestBody = string|IJSONValidObject|(IRequestBody)[]
 
 export default class Requester {
@@ -13,7 +17,7 @@ export default class Requester {
 
     const response = await request.json();
 
-    return response;
+    return Requester.responseWrapper(response);
   }
 
   static async post(URL: string, headers?: IJSONValidObject | string, body?: IRequestBody) {
@@ -54,6 +58,20 @@ export default class Requester {
 
     const response = await request.json();
 
-    return response;
+    return Requester.responseWrapper(response);
+  }
+
+  static responseWrapper(reponse: any) {
+    const { status, err, body } = reponse;
+    if (typeof status !== 'string' ||
+        typeof err !== 'string' || 
+        body == null) 
+      throw new Error('Server response does not meet standards!')
+
+    return {
+      status,
+      err,
+      body
+    }
   }
 }
