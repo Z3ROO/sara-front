@@ -75,8 +75,25 @@ function NotesManager(props: DefaultProps) {
 
 function ContentExplorer(props: any) {
   return (
-    <div>
+    <div className='flex flex-col'>
+      <FileExplorerOptions />
       <ContentList/>
+    </div>
+  )
+}
+
+function FileExplorerOptions() {
+  const { traversePath } = useLocation()!;
+  return (
+    <div>
+      <button 
+      onClick={() => {traversePath('/notes')}}
+      className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>back</button>
+      <span className='text-white'> | </span>
+      <button 
+      className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>pasta</button>
+      <button 
+      className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>arquivo</button>
     </div>
   )
 }
@@ -84,7 +101,7 @@ function ContentExplorer(props: any) {
 function ContentList(props: any) {
 
   return (
-    <div className="bg-gray-700 text-slate-300 h-full p-2 w-72">
+    <div className="bg-gray-700 text-slate-300 h-full p-2 w-72 overflow-auto">
       <FolderContent />
     </div>
   )
