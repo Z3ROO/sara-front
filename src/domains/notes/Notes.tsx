@@ -1,5 +1,5 @@
 import {useState, createContext, useRef, useEffect} from 'react'
-import { IAppController } from '../../core/App';
+import { IAppController, useMainStateController } from '../../core/App';
 import { DefaultProps, INotesTree } from './interfaces';
 import { NotesController, NotesControllerContext, useNotesController } from './controller';
 import mdParser, { Editor } from '@z3ro/mdparser';
@@ -95,6 +95,7 @@ function FolderContent(props: any) {
   const {notesTree, updateNotesTree, openMarkdownFile} = useNotesController()!;
   const {path, traversePath} = useLocation()!;
   const category = useParams('/notes/:category/**')![1];
+  const {contextMenuHandler} = useMainStateController()!;
 
   let notes = (notesTree as INotesTree)[category].children!;
   const depth:string[] = props.depth || [];
@@ -103,6 +104,19 @@ function FolderContent(props: any) {
     depth.forEach(dir => {
       notes = notes[dir].children!
     })
+  }
+
+  function contextMenuWrapper(event: React.MouseEvent<Element, MouseEvent>) {
+    const options = [
+        {title: 'Abrir', action:()=>{
+          //setNotebook(item);
+        }},
+        {title: 'Editar', action:()=>{}},
+        {title: 'Excluir', action:()=>{
+          //deleteNotebook(item);
+        }}
+      ]
+    return contextMenuHandler(event, options)
   }
 
   return (
@@ -123,6 +137,7 @@ function FolderContent(props: any) {
                     updateNotesTree();
                     notes[itemName].state = 'closed';
                   }}
+                  onContextMenu={contextMenuWrapper}
                 >{icon} {title}</ListItem>
                 {
                   hasChildren &&
@@ -139,6 +154,7 @@ function FolderContent(props: any) {
                 updateNotesTree();
                 notes[itemName].state = 'open';
               }}
+              onContextMenu={contextMenuWrapper}
             >{icon} {title}</ListItem>
           );
         }
@@ -148,6 +164,7 @@ function FolderContent(props: any) {
             onClick={
               () => traversePath(['notes', ...path])
             }
+            onContextMenu={contextMenuWrapper}
           >{icon} {title}</ListItem>
         );
       })

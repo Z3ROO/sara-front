@@ -11,7 +11,7 @@ export type IAppController = {
   modal: any;
   modalHandler(ModalContent?: any, controller?: any): void
   contextMenu: null|JSX.Element;
-  contextMenuHandler(event: React.MouseEvent<HTMLDivElement|HTMLLIElement, MouseEvent>, options: {
+  contextMenuHandler(event: React.MouseEvent<Element, MouseEvent>, options: {
     title: string;
     action(): void;
   }[]): void
@@ -19,11 +19,15 @@ export type IAppController = {
 
 export const AppControllerContext = createContext<IAppController|null>(null);
 
+export function useMainStateController() {
+  return useContext(AppControllerContext);
+}
+
 export function AppController(): IAppController {
   const [modal, setModal] = useState<any>(null);
   const [contextMenu, setContextMenu] = useState<null|JSX.Element>(null);
 
-  function contextMenuHandler(event: React.MouseEvent<HTMLDivElement|HTMLLIElement, MouseEvent>, options: {title: string, action(): void}[]) {
+  function contextMenuHandler(event: React.MouseEvent<Element, MouseEvent>, options: {title: string, action(): void}[]) {
     event.preventDefault();
     setContextMenu(<ContextMenu xPos={event.clientX} yPos={event.clientY} options={options}/>);
   }
@@ -44,7 +48,7 @@ export function AppController(): IAppController {
     if (contextMenu)
       window.addEventListener('click', handler)
       
-  }, [contextMenu])
+  }, [contextMenu]);
 
   return {
     modal,
