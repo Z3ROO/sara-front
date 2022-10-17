@@ -105,50 +105,63 @@ function FolderContent(props: any) {
     })
   }
 
-  if (notes == null)
-    return <></>
-
   return (
-    <ul> 
+    <ul className={`${depth.length > 0 && 'border-l-[1px] border-l-gray-500  border-b-[1px] border-b-gray-550 bg-gray-500 bg-opacity-5'} m-0 p-0`}> 
       {
       Object.keys(notes).map(itemName => {
-        const {name, path, title, type, state} = notes[itemName];
+        const {name, path, title, type, state, children} = notes[itemName];
         const icon = type === 'folder' ? (state === 'closed' ? '\u{1F5C0}' : '\u{1F5C1}') : '\u{1F5CE}'
+        const hasChildren = children && Object.keys(children).length > 0;
         
         if (type === 'folder') {
 
           if (state === 'open')
             return (
               <>
-                <li 
-                  className='p-1 pl-4'
+                <ListItem
                   onClick={() => {
                     updateNotesTree();
                     notes[itemName].state = 'closed';
                   }}
-                >{icon} {title}</li>
-                <li className='p-1 pl-4'>
-                  <FolderContent depth={[...depth, itemName]}/>
-                </li>
+                >{icon} {title}</ListItem>
+                {
+                  hasChildren &&
+                  <li className='pl-4'>
+                    <FolderContent depth={[...depth, itemName]}/>
+                  </li>
+                }
               </>
             )
 
           return (
-            <li className='p-1 pl-4' onClick={() => {
-              updateNotesTree();
-              notes[itemName].state = 'open';
-            }}>{icon} {title}</li>
+            <ListItem 
+              onClick={() => {
+                updateNotesTree();
+                notes[itemName].state = 'open';
+              }}
+            >{icon} {title}</ListItem>
           );
         }
 
         return (
-          <li className='p-1 pl-4' onClick={
-            () => {traversePath(['notes', ...path])}
-          }>{icon} {title}</li>
+          <ListItem
+            onClick={
+              () => traversePath(['notes', ...path])
+            }
+          >{icon} {title}</ListItem>
         );
       })
       }
     </ul>
+  )
+}
+
+function ListItem(props: any) {
+  return (
+    <li 
+      {...props}
+      className='ml-1.5 m-0.5 p-0.5 pl-1.5 hover:bg-gray-550 rounded-sm select-none cursor-pointer' 
+    >{props.children}</li>
   )
 }
 
