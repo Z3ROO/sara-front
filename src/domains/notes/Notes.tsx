@@ -62,7 +62,6 @@ function NotesManager(props: DefaultProps) {
   const category = useParams('/notes/:category/**')![1];
   const params = useParams('/notes/:category/**/*.md')!;
   
-  
   useEffect(() => {
     if (category != null)
       updateNotesTree(category);
@@ -115,7 +114,7 @@ function FolderContent(props: any) {
         {title: 'Excluir', action:()=>{
           //deleteNotebook(item);
         }}
-      ]
+      ];
     return contextMenuHandler(event, options)
   }
 
@@ -124,7 +123,7 @@ function FolderContent(props: any) {
       {
       Object.keys(notes).map(itemName => {
         const {name, path, title, type, state, children} = notes[itemName];
-        const icon = type === 'folder' ? (state === 'closed' ? '\u{1F5C0}' : '\u{1F5C1}') : '\u{1F5CE}'
+        const icon = type === 'folder' ? (state === 'closed' ? '\u{1F5C0}' : '\u{1F5C1}') : '\u{1F5CE}';
         const hasChildren = children && Object.keys(children).length > 0;
         
         if (type === 'folder') {

@@ -26,7 +26,7 @@ export function NotesController(props: {AppController: IAppController}): INotesC
     if (category == null)
       return setNotesTree({...notesTreeRef.current});
 
-    const fetchedBranch = await NotesAPI.getNotesTreeListing();
+    const fetchedBranch = await NotesAPI.getNotesTreeListing(category);
 
     notesTreeRef.current.updateTree(fetchedBranch);
     console.log(notesTreeRef.current)
@@ -34,7 +34,9 @@ export function NotesController(props: {AppController: IAppController}): INotesC
   }
 
   async function openMarkdownFile(path: string[]) {
-    await updateNotesTree(path[0]);
+    const category = path[1];
+    //if (notesTreeRef.current[category].content)
+    await updateNotesTree(path[1]);
     let node = notesTreeRef.current.findNode(path.slice(1));
     const content = await NotesAPI.getPageContent(node.path);
     setOpenedPage({...node, content});
