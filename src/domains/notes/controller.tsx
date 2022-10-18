@@ -19,6 +19,7 @@ export function NotesController(props: {AppController: IAppController}): INotesC
   const notesTreeRef = useRef<ITree>(new Tree(['general', 'projects', 'study', 'journal']))
   const [notesTree, setNotesTree] = useState<ITree>(notesTreeRef.current);
   const [openedPage, setOpenedPage] = useState<any>({});
+  const [newItemField, setNewItemField] = useState<'file'|'folder'|null>('folder');
 
   const {traversePath} = useLocation()!
 
@@ -51,7 +52,8 @@ export function NotesController(props: {AppController: IAppController}): INotesC
     openedPage,
     updateNotesTree,
     openMarkdownFile,
-    saveNote
+    saveNote,
+    newItemField, setNewItemField
   }
 }
 

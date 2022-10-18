@@ -68,51 +68,53 @@ function NotesManager(props: DefaultProps) {
   },[]);
 
   return  <div className="h-full w-full flex">
-            <ContentExplorer />
+            <FileExplorer />
             {params && <Page />}
           </div>
 }
 
-function ContentExplorer(props: any) {
+function FileExplorer(props: any) {
   return (
     <div className='flex flex-col'>
       <FileExplorerOptions />
-      <ContentList/>
+      <ContentList />
     </div>
   )
 }
 
 function FileExplorerOptions() {
   const { traversePath } = useLocation()!;
+  const {setNewItemField} = useNotesController()!;
   return (
     <div>
       <button 
       onClick={() => {traversePath('/notes')}}
       className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>back</button>
       <span className='text-white'> | </span>
-      <button 
+      <button onClick={() => setNewItemField('folder')}
       className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>pasta</button>
-      <button 
+      <button onClick={() => setNewItemField('file')}
       className='text-white text-sm rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'>arquivo</button>
     </div>
   )
 }
 
 function ContentList(props: any) {
-
+  const [focusedItem, setFocusedItem] = useState<string>('');
   return (
     <div className="bg-gray-700 text-slate-300 h-full p-2 w-72 overflow-auto">
-      <FolderContent />
+      <FolderContent {...{focusedItem, setFocusedItem}} />
     </div>
   )
 }
 
 function FolderContent(props: any) {
-  const {notesTree, updateNotesTree, openMarkdownFile} = useNotesController()!;
+  const {notesTree, updateNotesTree, openMarkdownFile, newItemField, setNewItemField} = useNotesController()!;
   const {path, traversePath} = useLocation()!;
   const category = useParams('/notes/:category/**')![1];
   const {contextMenuHandler} = useMainStateController()!;
-
+  const { focusedItem, setFocusedItem } = props;
+  
   let notes = (notesTree as INotesTree)[category].children!;
   const depth:string[] = props.depth || [];
 
@@ -121,7 +123,7 @@ function FolderContent(props: any) {
       notes = notes[dir].children!
     })
   }
-
+  console.log([category,...depth].filter(el => !el.match(/\.md$/)).join('/'), 'b: '+focusedItem)
   function contextMenuWrapper(event: React.MouseEvent<Element, MouseEvent>) {
     const options = [
         {title: 'Abrir', action:()=>{
@@ -137,6 +139,12 @@ function FolderContent(props: any) {
 
   return (
     <ul className={`${depth.length > 0 && 'border-l-[1px] border-l-gray-500  border-b-[1px] border-b-gray-550 bg-gray-500 bg-opacity-5'} m-0 p-0`}> 
+      {
+        (newItemField && [category,...depth].join('/') === focusedItem.replace(/\/[^\/]+\.md$/,'')) 
+        &&  <li className='pl-3'>
+              <input autoFocus onBlur={() => setNewItemField(null)} className='bg-gray-600 w-full text-slate-300 text-sm outline-none focus:shadow-inner p-0.5 px-1' type="text" />
+            </li>
+      }
       {
       Object.keys(notes).map(itemName => {
         const {name, path, title, type, state, children} = notes[itemName];
@@ -154,11 +162,11 @@ function FolderContent(props: any) {
                     notes[itemName].state = 'closed';
                   }}
                   onContextMenu={contextMenuWrapper}
-                >{icon} {title}</ListItem>
+                >{icon} {title}</ListItem>                
                 {
                   hasChildren &&
                   <li className='pl-4'>
-                    <FolderContent depth={[...depth, itemName]}/>
+                    <FolderContent depth={[...depth, itemName]} {...{focusedItem, setFocusedItem}}/>
                   </li>
                 }
               </>
@@ -169,6 +177,7 @@ function FolderContent(props: any) {
               onClick={() => {
                 updateNotesTree();
                 notes[itemName].state = 'open';
+                setFocusedItem(path.join('/'))
               }}
               onContextMenu={contextMenuWrapper}
             >{icon} {title}</ListItem>
@@ -178,7 +187,10 @@ function FolderContent(props: any) {
         return (
           <ListItem
             onClick={
-              () => traversePath(['notes', ...path])
+              () => {
+                traversePath(['notes', ...path]);
+                setFocusedItem(path.join('/'));
+              }
             }
             onContextMenu={contextMenuWrapper}
           >{icon} {title}</ListItem>
