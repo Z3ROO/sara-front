@@ -22,6 +22,16 @@ export function RouterStateController(): IRouterStateController {
     window.history.pushState({}, '', '/'+path.join('/'));
   },[path])
 
+  useEffect(() => {
+    const handler = () => {
+      traversePath(window.location.pathname);
+    }
+
+    window.addEventListener('popstate', handler)
+
+    return () => window.removeEventListener('popstate', handler)
+  },[])
+
   return {
     path,
     traversePath,
