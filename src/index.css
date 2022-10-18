@@ -13,10 +13,6 @@
     @apply p-1 m-1 border rounded cursor-pointer
   }
 
-  .marker {
-    @apply text-red-400
-  }
-
   .heading {
     @apply font-medium leading-tight mt-0 mb-2
   }
@@ -44,6 +40,10 @@
   h6, .mdsyntax-h6 {
     @apply heading text-base
   }
+}
+
+span.marker {
+  color: rgb(248 113 113);
 }
 
 * {
