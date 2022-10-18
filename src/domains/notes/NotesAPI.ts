@@ -39,3 +39,28 @@ export async function deleteFolder(directory: string[]) {
 export async function saveNote(path: string[], content: string) {
   const response = await Requester.put('/notes/save-note', JSON.stringify({directory: path, content}))
 }
+
+export class ErrorTest{
+  setErrorState: React.Dispatch<any>;
+  constructor(setErrorState: React.Dispatch<any>) {
+    this.setErrorState = setErrorState
+  }
+
+  callToAPI(fn: () => void) {
+    try{
+      fn();
+    }
+    catch(e) {
+      this.setErrorState({
+        type: '500',
+        msg: 'Deu um erro daqueles paizão'
+      })
+    }
+  }
+
+  apiCall() {
+    const response = this.callToAPI(() => {
+      throw new Error('errreiiii')
+    });
+  }
+}

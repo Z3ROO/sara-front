@@ -1,5 +1,5 @@
 import * as NotesAPI from './NotesAPI';
-import React, { useState, useRef, createContext, useContext } from 'react';
+import React, { useState, useRef, createContext, useContext, useEffect } from 'react';
 import { INotesController, INotesTree, ITree, INotesTreeNode } from "./interfaces";
 
 import { IAppController } from '../../core/App';
@@ -15,7 +15,6 @@ export function useNotesController() {
 
 export function NotesController(props: {AppController: IAppController}): INotesController {
   const appController = props.AppController;
-  
   const notesTreeRef = useRef<ITree>(new Tree(['general', 'projects', 'study', 'journal']))
   const [notesTree, setNotesTree] = useState<ITree>(notesTreeRef.current);
   const [newItemField, setNewItemField] = useState<'file'|'folder'|null>(null);
@@ -49,6 +48,8 @@ export function NotesController(props: {AppController: IAppController}): INotesC
       
       if (newItemField === 'file')
         await NotesAPI.createNote(directory, name);
+
+      await updateNotesTree(directory[0])
     }
     
     setNewItemField(null);
@@ -56,10 +57,14 @@ export function NotesController(props: {AppController: IAppController}): INotesC
 
   async function deleteNote(directory: string[]) {
     await NotesAPI.deleteNote(directory);
+    notesTreeRef.current.remove(directory);
+    await updateNotesTree()
   }
 
   async function deleteFolder(directory: string[]) {
     await NotesAPI.deleteFolder(directory);
+    notesTreeRef.current.remove(directory);
+    await updateNotesTree()
   }
 
   async function saveNote(path: string[], content: string) {
@@ -77,15 +82,3 @@ export function NotesController(props: {AppController: IAppController}): INotesC
     newItemField, setNewItemField
   }
 }
-
-  // function categoryListItemContextMenu(event: React.MouseEvent<HTMLLIElement, MouseEvent>, item: string) {
-  //   appController.contextMenuHandler(event, [
-  //     {title: 'Abrir', action:()=>{
-  //       setNotebook(item);
-  //     }},
-  //     {title: 'Editar', action:()=>{}},
-  //     {title: 'Excluir', action:()=>{
-  //       //deleteNotebook(item);
-  //     }}
-  //   ]);
-  // }
