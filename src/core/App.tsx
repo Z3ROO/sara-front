@@ -5,7 +5,7 @@ import { Notes } from '../domains/notes/Notes'
 import TestPage from '../TestPage'
 import { ContextMenu } from '../domains/_general/ContextMenu';
 import Stats from '../domains/stats/Stats';
-import { Router, Route } from '../lib/Router/Router';
+import { Router, Route } from '../lib/Router';
 
 export type IAppController = {
   modal: any;
@@ -61,18 +61,18 @@ export function AppController(): IAppController {
 function App() {
   const controller = AppController()
 
-  return  <div className="h-screen bg-gray-800">
-            <AppControllerContext.Provider value={controller}>
+  return  <AppControllerContext.Provider value={controller}>
+            <div className="h-screen bg-gray-800">
               <Router>                
                 <Stats path="/" />
                 <Route path="/teste" element={<TestPage />} />
-                <Notes path="/notes" AppController={controller} />
+                <Notes path="/notes" />
                 <Route path="/fc" element={<Flashcards AppController={controller} />} />
               </Router>
               {controller.contextMenu}
               {controller.modal && <Modal controller={controller} />}
-            </AppControllerContext.Provider>
-          </div>
+            </div>
+          </AppControllerContext.Provider>
 }
 
 export function Modal(props: any) {

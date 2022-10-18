@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { splitedLocation } from "./Router";
-import { IRouterStateController } from "./types";
+import { splitedLocation } from ".";
+import { IRouterStateController } from "./RouterTypes";
 
 export function RouterStateController(): IRouterStateController {
   const currentPath = splitedLocation();

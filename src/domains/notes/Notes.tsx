@@ -1,16 +1,15 @@
 import {useState, createContext, useRef, useEffect} from 'react'
 import { IAppController, useMainStateController } from '../../core/App';
-import { DefaultProps, INotesTree } from './interfaces';
-import { NotesController, NotesControllerContext, useNotesController } from './controller';
+import { DefaultProps, INotesTree } from './NotesTypes';
+import { NotesController, NotesControllerContext, useNotesController } from './NotesStateController';
 import mdParser, { Editor } from '@z3ro/mdparser';
-import { Link, Route, Routes } from '../../lib/Router/Router';
-import { useLocation, useParams } from '../../lib/Router/hooks';
+import { Link, Route, Routes } from '../../lib/Router';
+import { useLocation, useParams } from '../../lib/Router/RouterHooks';
 import { marked } from 'marked';
 
-export function Notes(props: {AppController: IAppController, path?:string}) {
-  //const AppController = props.AppController;
-  const controller = NotesController({AppController: props.AppController});
-  const {path, traversePath} = useLocation()!;
+export function Notes(props: {path?:string}) {
+  const mainStateController = useMainStateController()!;
+  const controller = NotesController({AppController: mainStateController});
 
   return  <NotesControllerContext.Provider value={controller}>
             <Routes>
@@ -21,8 +20,6 @@ export function Notes(props: {AppController: IAppController, path?:string}) {
 }
 
 function Home(props: DefaultProps) {
-  const { controller } = props
-  //const navigate = useNavigate();
 
   const boxButtonClass = `
     bg-gray-700 text-slate-300 transition-all

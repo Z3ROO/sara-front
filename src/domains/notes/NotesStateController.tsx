@@ -1,11 +1,11 @@
 import * as NotesAPI from './NotesAPI';
 import React, { useState, useRef, createContext, useContext, useEffect } from 'react';
-import { INotesController, INotesTree, ITree, INotesTreeNode } from "./interfaces";
+import { INotesController, INotesTree, ITree, INotesTreeNode } from "./NotesTypes";
 
 import { IAppController } from '../../core/App';
 
-import Tree from '../../lib/Tree';
-import { useLocation } from '../../lib/Router/hooks';
+import Tree from './NotesTreeDS';
+import { useLocation } from '../../lib/Router/RouterHooks';
 
 export const NotesControllerContext = createContext<INotesController|null>(null);
 

@@ -1,5 +1,5 @@
-import { INotesTree, INotesTreeNode, ITree } from "../domains/notes/interfaces";
-import { ITreeListing } from "../domains/notes/NotesAPI";
+import { INotesTree, INotesTreeNode, ITree } from "./NotesTypes";
+import { ITreeListing } from "./NotesAPI";
 
 class TreeNode implements INotesTreeNode {
   name = '';

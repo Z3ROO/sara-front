@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AppControllerContext, IAppController } from "../../core/App"
-import { Link } from "../../lib/Router/Router";
-import StatsController, { IDayProgress, IQuestLine, IStatsController } from "./StatsController";
+import { Link } from "../../lib/Router";
+import StatsController, { IDayProgress, IQuestLine, IStatsController } from "./StatsStateController";
 
 interface IStatsProps {
   AppController?: IAppController;
