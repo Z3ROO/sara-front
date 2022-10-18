@@ -116,7 +116,7 @@ function ContentList(props: any) {
 }
 
 function FolderContent(props: any) {
-  const {notesTree, updateNotesTree, openMarkdownFile, newItemField, setNewItemField, createNewItem, deleteNote, deleteFolder} = useNotesController()!;
+  const {notesTree, updateNotesTree, getMarkdownFileContent, newItemField, setNewItemField, createNewItem, deleteNote, deleteFolder} = useNotesController()!;
   const {path, traversePath} = useLocation()!;
   const category = useParams('/notes/:category/**')![1];
   const {contextMenuHandler} = useMainStateController()!;
@@ -232,8 +232,9 @@ function ListItem(props: any) {
 
 function Page(props: any) {
   const controller = useNotesController()!;
-  const { openedPage, saveNote, openMarkdownFile } = controller;
+  const { saveNote, getMarkdownFileContent } = controller;
   const {path} = useLocation()!
+  const [openedPage, setOpenedPage] = useState<any>({});
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const editorNodeRef = useRef<HTMLPreElement|null>(null);
   const previewNodeRef = useRef<HTMLPreElement|null>(null);
@@ -241,7 +242,12 @@ function Page(props: any) {
   const params = useParams('/notes/:category/**/*.md')!;
 
   useEffect(()=> {
-    openMarkdownFile(params)
+    (async function() {
+      const content = await getMarkdownFileContent(params);
+      setOpenedPage(content);
+    })().catch(err => {
+      throw err;
+    });
   },[path]);
   
   

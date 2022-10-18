@@ -18,7 +18,6 @@ export function NotesController(props: {AppController: IAppController}): INotesC
   
   const notesTreeRef = useRef<ITree>(new Tree(['general', 'projects', 'study', 'journal']))
   const [notesTree, setNotesTree] = useState<ITree>(notesTreeRef.current);
-  const [openedPage, setOpenedPage] = useState<any>({});
   const [newItemField, setNewItemField] = useState<'file'|'folder'|null>(null);
 
   const {traversePath} = useLocation()!
@@ -34,13 +33,14 @@ export function NotesController(props: {AppController: IAppController}): INotesC
     setNotesTree({...notesTreeRef.current});
   }
 
-  async function openMarkdownFile(path: string[]) {
+  async function getMarkdownFileContent(path: string[]) {
     const category = path[1];
     //if (notesTreeRef.current[category].content)
     await updateNotesTree(path[1]);
     let node = notesTreeRef.current.findNode(path.slice(1));
     const content = await NotesAPI.getPageContent(node.path);
-    setOpenedPage({...node, content});
+    return {...node, content};
+    //setOpenedPage({...node, content});
   }
 
   async function createNewItem(directory: string[], name: string) {
@@ -69,9 +69,8 @@ export function NotesController(props: {AppController: IAppController}): INotesC
 
   return {
     notesTree,
-    openedPage,
     updateNotesTree,
-    openMarkdownFile,
+    getMarkdownFileContent,
     createNewItem,
     saveNote,
     deleteNote,
