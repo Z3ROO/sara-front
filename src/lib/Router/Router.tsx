@@ -82,12 +82,12 @@ export function Link(props: any) {
   const {path, traversePath} = useLocation()!;
 
   return (
-    <a
+    <span
       onClick={(e) => linkHandler(e, href, traversePath)}
       {...props}
     >
       {props.children}
-    </a>
+    </span>
   )
 }
 
