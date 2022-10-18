@@ -37,5 +37,5 @@ export async function deleteFolder(directory: string[]) {
 }
 
 export async function saveNote(path: string[], content: string) {
-  
+  const response = await Requester.put('/notes/save-note', JSON.stringify({directory: path, content}))
 }

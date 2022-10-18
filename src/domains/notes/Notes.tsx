@@ -275,7 +275,7 @@ function Page(props: any) {
             <div className='bg-gray-500 text-slate-300 shrink-0 flex flex-col'>
               <div className='p-2'>
                 <button className='p-1' onClick={() => setIsEditorOpen((prev) => !prev)}>{isEditorOpen ? 'close' : 'open'}</button>
-                <button className='p-1' onClick={() => saveNote(openedPage.path, mdParser.extractRawMarkdown(openedPage.content)) }>save</button>
+                <button className='p-1' onClick={() => saveNote(openedPage.path, mdParser.extractRawMarkdown(editorNodeRef.current!.innerHTML)) }>save</button>
               </div>
               <div className='text-lg font-bold p-1'>
                 <span className="text-xs">{`${openedPage.path.join('/')}`}</span>

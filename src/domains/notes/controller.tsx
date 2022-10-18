@@ -40,7 +40,6 @@ export function NotesController(props: {AppController: IAppController}): INotesC
     let node = notesTreeRef.current.findNode(path.slice(1));
     const content = await NotesAPI.getPageContent(node.path);
     return {...node, content};
-    //setOpenedPage({...node, content});
   }
 
   async function createNewItem(directory: string[], name: string) {
