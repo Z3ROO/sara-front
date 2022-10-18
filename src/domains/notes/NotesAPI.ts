@@ -16,16 +16,26 @@ export async function getPageContent(path: string[]){
   return response.body;
 }
 
-export async function createSection(name:string, pathDir:string){
-  const response = await Requester.post('/notes/new-section',JSON.stringify({name, pathDir}));
-  return response
+export async function createFolder(directory: string[], name: string){
+  const response = await Requester.post('/notes/folder',JSON.stringify({directory, name}));
+  return response.body;
 }
 
-export async function createPage(name:string, pathDir:string){
-  const response = await Requester.post('/notes/new-page',JSON.stringify({name, pathDir}));
-  return response
+export async function createNote(directory: string[], name: string){
+  const response = await Requester.post('/notes/note',JSON.stringify({directory, name}));
+  return response.body;
 }
 
-export async function saveNote(path:string[], content: string) {
+export async function deleteNote(directory: string[]) {
+  const response = await Requester.delete('/notes/note', JSON.stringify({directory}))
+  return response.body;
+}
+
+export async function deleteFolder(directory: string[]) {
+  const response = await Requester.delete('/notes/folder', JSON.stringify({directory}))
+  return response.body;
+}
+
+export async function saveNote(path: string[], content: string) {
   
 }

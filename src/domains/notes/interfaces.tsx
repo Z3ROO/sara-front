@@ -5,9 +5,12 @@ export interface INotesController {
   openedPage: any
   updateNotesTree: (category?: string) => Promise<void>
   openMarkdownFile: (node: any) => Promise<void>
+  createNewItem: (directory: string[], name: string) => Promise<void>
   saveNote: (path: string[], content: string) => Promise<void>
   newItemField: "folder" | "file" | null
   setNewItemField: React.Dispatch<React.SetStateAction<"folder" | "file" | null>>
+  deleteNote: (directory: string[]) => Promise<void>
+  deleteFolder: (directory: string[]) => Promise<void>
   [key: string]: any
 }
 

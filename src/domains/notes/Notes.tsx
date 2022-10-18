@@ -100,20 +100,27 @@ function FileExplorerOptions() {
 }
 
 function ContentList(props: any) {
+  const category = useParams('/notes/:category/**')![1];
   const [focusedItem, setFocusedItem] = useState<string>('');
+  const [newItemInputField, setNewItemInputField] = useState<string>('');
+
+  useEffect(() => {
+    setFocusedItem(category);
+  },[])
+
   return (
     <div className="bg-gray-700 text-slate-300 h-full p-2 w-72 overflow-auto">
-      <FolderContent {...{focusedItem, setFocusedItem}} />
+      <FolderContent {...{focusedItem, setFocusedItem, newItemInputField, setNewItemInputField}} />
     </div>
   )
 }
 
 function FolderContent(props: any) {
-  const {notesTree, updateNotesTree, openMarkdownFile, newItemField, setNewItemField} = useNotesController()!;
+  const {notesTree, updateNotesTree, openMarkdownFile, newItemField, setNewItemField, createNewItem, deleteNote, deleteFolder} = useNotesController()!;
   const {path, traversePath} = useLocation()!;
   const category = useParams('/notes/:category/**')![1];
   const {contextMenuHandler} = useMainStateController()!;
-  const { focusedItem, setFocusedItem } = props;
+  const { focusedItem, setFocusedItem, newItemInputField, setNewItemInputField } = props;
   
   let notes = (notesTree as INotesTree)[category].children!;
   const depth:string[] = props.depth || [];
@@ -123,15 +130,20 @@ function FolderContent(props: any) {
       notes = notes[dir].children!
     })
   }
-  console.log([category,...depth].filter(el => !el.match(/\.md$/)).join('/'), 'b: '+focusedItem)
-  function contextMenuWrapper(event: React.MouseEvent<Element, MouseEvent>) {
+
+  function contextMenuWrapper(event: React.MouseEvent<Element, MouseEvent>, info: any) {
+    const { type, directory } = info;
+
     const options = [
         {title: 'Abrir', action:()=>{
           //setNotebook(item);
         }},
         {title: 'Editar', action:()=>{}},
         {title: 'Excluir', action:()=>{
-          //deleteNotebook(item);
+          if (type === 'note')
+            deleteNote(directory);
+          else
+            deleteFolder(directory);
         }}
       ];
     return contextMenuHandler(event, options)
@@ -142,7 +154,15 @@ function FolderContent(props: any) {
       {
         (newItemField && [category,...depth].join('/') === focusedItem.replace(/\/[^\/]+\.md$/,'')) 
         &&  <li className='pl-3'>
-              <input autoFocus onBlur={() => setNewItemField(null)} className='bg-gray-600 w-full text-slate-300 text-sm outline-none focus:shadow-inner p-0.5 px-1' type="text" />
+              <input 
+                autoFocus 
+                type="text"
+                value={newItemInputField}
+                placeholder={newItemField}
+                onChange={(e) => setNewItemInputField(e.target.value) }
+                onBlur={() => createNewItem([category,...depth], newItemInputField) } 
+                className='bg-gray-600 w-full text-slate-300 text-sm outline-none focus:shadow-inner p-0.5 px-1' 
+                 />
             </li>
       }
       {
@@ -161,12 +181,12 @@ function FolderContent(props: any) {
                     updateNotesTree();
                     notes[itemName].state = 'closed';
                   }}
-                  onContextMenu={contextMenuWrapper}
+                  onContextMenu={(e:React.MouseEvent<Element, MouseEvent>) => contextMenuWrapper(e, {type: 'folder', directory: path})}
                 >{icon} {title}</ListItem>                
                 {
-                  hasChildren &&
+                  (hasChildren || newItemField) &&
                   <li className='pl-4'>
-                    <FolderContent depth={[...depth, itemName]} {...{focusedItem, setFocusedItem}}/>
+                    <FolderContent depth={[...depth, itemName]} {...{focusedItem, setFocusedItem, newItemInputField, setNewItemInputField}}/>
                   </li>
                 }
               </>
@@ -179,7 +199,7 @@ function FolderContent(props: any) {
                 notes[itemName].state = 'open';
                 setFocusedItem(path.join('/'))
               }}
-              onContextMenu={contextMenuWrapper}
+              onContextMenu={(e:React.MouseEvent<Element, MouseEvent>) => contextMenuWrapper(e, {type: 'folder', directory: path})}
             >{icon} {title}</ListItem>
           );
         }
@@ -192,7 +212,7 @@ function FolderContent(props: any) {
                 setFocusedItem(path.join('/'));
               }
             }
-            onContextMenu={contextMenuWrapper}
+            onContextMenu={(e:React.MouseEvent<Element, MouseEvent>) => contextMenuWrapper(e, {type: 'note', directory: path})}
           >{icon} {title}</ListItem>
         );
       })
