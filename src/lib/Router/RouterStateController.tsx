@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { splitedLocation } from "./Router";
-import { IRouterStateController } from "./types";
+import { splitedLocation } from ".";
+import { IRouterStateController } from "./RouterTypes";
 
 export function RouterStateController(): IRouterStateController {
   const currentPath = splitedLocation();
@@ -21,6 +21,16 @@ export function RouterStateController(): IRouterStateController {
   useEffect(() => {
     window.history.pushState({}, '', '/'+path.join('/'));
   },[path])
+
+  useEffect(() => {
+    const handler = () => {
+      traversePath(window.location.pathname);
+    }
+
+    window.addEventListener('popstate', handler)
+
+    return () => window.removeEventListener('popstate', handler)
+  },[])
 
   return {
     path,

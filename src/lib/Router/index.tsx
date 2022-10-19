@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useLocation } from "./hooks";
+import { useLocation } from "./RouterHooks";
 import { RouterStateController } from "./RouterStateController";
-import { IRouterStateController } from "./types";
+import { IRouterStateController } from "./RouterTypes";
 
 export const RouterContext = createContext<IRouterStateController|null>(null);
 
@@ -82,12 +82,12 @@ export function Link(props: any) {
   const {path, traversePath} = useLocation()!;
 
   return (
-    <a
+    <span
       onClick={(e) => linkHandler(e, href, traversePath)}
       {...props}
     >
       {props.children}
-    </a>
+    </span>
   )
 }
 

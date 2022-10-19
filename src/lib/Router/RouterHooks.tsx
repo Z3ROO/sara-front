@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { parsePath, RouterContext, splitedLocation } from "./Router";
+import { parsePath, RouterContext, splitedLocation } from ".";
 
 export function useLocation() {
   return useContext(RouterContext);

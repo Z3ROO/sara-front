@@ -1,5 +1,5 @@
-import { INotesTree, INotesTreeNode, ITree } from "../domains/notes/interfaces";
-import { ITreeListing } from "../domains/notes/NotesAPI";
+import { INotesTree, INotesTreeNode, ITree } from "./NotesTypes";
+import { ITreeListing } from "./NotesAPI";
 
 class TreeNode implements INotesTreeNode {
   name = '';
@@ -65,7 +65,7 @@ export default class Tree implements ITree{
   remove(nodePath: string[]) {
     const nodeToDelete = this.findNode(nodePath);
     const parentNode = nodeToDelete.parent;
-    delete parentNode.children[Object.keys(nodeToDelete)[0]];
+    delete parentNode.children[nodeToDelete.name];
   }
 
   findNode(nodePath: string[]) {

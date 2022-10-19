@@ -5,13 +5,13 @@ import { Notes } from '../domains/notes/Notes'
 import TestPage from '../TestPage'
 import { ContextMenu } from '../domains/_general/ContextMenu';
 import Stats from '../domains/stats/Stats';
-import { Router, Route } from '../lib/Router/Router';
+import { Router, Route } from '../lib/Router';
 
 export type IAppController = {
   modal: any;
   modalHandler(ModalContent?: any, controller?: any): void
   contextMenu: null|JSX.Element;
-  contextMenuHandler(event: React.MouseEvent<HTMLDivElement|HTMLLIElement, MouseEvent>, options: {
+  contextMenuHandler(event: React.MouseEvent<Element, MouseEvent>, options: {
     title: string;
     action(): void;
   }[]): void
@@ -19,11 +19,15 @@ export type IAppController = {
 
 export const AppControllerContext = createContext<IAppController|null>(null);
 
+export function useMainStateController() {
+  return useContext(AppControllerContext);
+}
+
 export function AppController(): IAppController {
   const [modal, setModal] = useState<any>(null);
   const [contextMenu, setContextMenu] = useState<null|JSX.Element>(null);
 
-  function contextMenuHandler(event: React.MouseEvent<HTMLDivElement|HTMLLIElement, MouseEvent>, options: {title: string, action(): void}[]) {
+  function contextMenuHandler(event: React.MouseEvent<Element, MouseEvent>, options: {title: string, action(): void}[]) {
     event.preventDefault();
     setContextMenu(<ContextMenu xPos={event.clientX} yPos={event.clientY} options={options}/>);
   }
@@ -44,7 +48,7 @@ export function AppController(): IAppController {
     if (contextMenu)
       window.addEventListener('click', handler)
       
-  }, [contextMenu])
+  }, [contextMenu]);
 
   return {
     modal,
@@ -57,18 +61,18 @@ export function AppController(): IAppController {
 function App() {
   const controller = AppController()
 
-  return  <div className="h-screen bg-gray-800">
-            <AppControllerContext.Provider value={controller}>
+  return  <AppControllerContext.Provider value={controller}>
+            <div className="h-screen bg-gray-800">
               <Router>                
                 <Stats path="/" />
                 <Route path="/teste" element={<TestPage />} />
-                <Notes path="/notes" AppController={controller} />
+                <Notes path="/notes" />
                 <Route path="/fc" element={<Flashcards AppController={controller} />} />
               </Router>
               {controller.contextMenu}
               {controller.modal && <Modal controller={controller} />}
-            </AppControllerContext.Provider>
-          </div>
+            </div>
+          </AppControllerContext.Provider>
 }
 
 export function Modal(props: any) {
