@@ -22,11 +22,6 @@ export interface INotesController {
   [key: string]: any
 }
 
-export interface DefaultProps {
-  controller: INotesController,
-  [key:string]:any
-}
-
 export type ITree = {
   updateTree: (tree:ITreeListing, currentPath?: string[]) => void
   remove: (nodePath: string[]) => void
