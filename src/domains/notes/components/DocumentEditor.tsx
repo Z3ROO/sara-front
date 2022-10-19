@@ -11,6 +11,7 @@ export function DocumentEditor() {
   const {path} = useLocation()!
   const [openedPage, setOpenedPage] = useState<any>({});
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
+  const [isDocumentSaved, setIsDocumentSaved] = useState<boolean>(true);
   const editorNodeRef = useRef<HTMLPreElement|null>(null);
   const viewerNodeRef = useRef<HTMLPreElement|null>(null);
 
@@ -31,6 +32,7 @@ export function DocumentEditor() {
         const target = e.target as Element;
         const rawMarkdown = mdParser.extractRawMarkdown(target.innerHTML);
         viewerNodeRef.current!.innerHTML = marked.parse(rawMarkdown);
+        setIsDocumentSaved(false)
       });
     }
   },[editorNodeRef.current, openedPage]);
@@ -46,7 +48,7 @@ export function DocumentEditor() {
   return (
     <div className="flex flex-col justify-start w-full h-full">
       <div className='bg-gray-500 text-slate-300 shrink-0 flex flex-col'>
-        <ToolBar {...{ setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef }}/>
+        <ToolBar {...{ setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef, isDocumentSaved, setIsDocumentSaved }}/>
         <div className='text-lg font-bold p-1'>
           <span className="text-xs">{`${openedPage.path.join('/')}`}</span>
         </div>
@@ -60,13 +62,18 @@ export function DocumentEditor() {
 }
 
 function ToolBar(props: DefaultProps) {
-  const { setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef } = props;
+  const { setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef, isDocumentSaved, setIsDocumentSaved } = props;
   const { saveNote } = useNotesController()!;
 
   return (
     <div className='p-2'>
       <button className='p-1' onClick={() => setIsEditorOpen((prev: string) => !prev)}>{isEditorOpen ? 'close' : 'open'}</button>
-      <button className='p-1' onClick={() => saveNote(openedPage.path, mdParser.extractRawMarkdown(editorNodeRef.current!.innerHTML)) }>save</button>
+      <button className='p-1' onClick={() => {
+        saveNote(openedPage.path, mdParser.extractRawMarkdown(editorNodeRef.current!.innerHTML));
+        setIsDocumentSaved(true);
+        }}>
+        save{isDocumentSaved ? '' : <strong>*</strong>}
+      </button>
     </div>
   )
 }
