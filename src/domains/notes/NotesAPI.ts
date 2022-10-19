@@ -1,11 +1,15 @@
 import Requester from "../../lib/Requester";
 
 export type ITreeListing = {name:string, type:string, content?:ITreeListing}[];
+export interface APIResponse<Body> {
+  status: string
+  err: string
+  body: Body
+}
 
-export async function getNotesTreeListing(category?: string):Promise<ITreeListing> {
-  
+export async function getNotesTreeListing(category?: string): Promise<APIResponse<ITreeListing>> {
   const response = await Requester.get(`/notes/tree-listing/${category}`);
-  return response.body;
+  return response;
 }
 
 export async function getPageContent(path: string[]){
@@ -13,34 +17,35 @@ export async function getPageContent(path: string[]){
     `/notes/note/${path.join('/')}`
   );
   
-  return response.body;
+  return response;
 }
 
-export async function createFolder(directory: string[], name: string){
+export async function createFolder(directory: string[], name: string) {
   const response = await Requester.post('/notes/folder',JSON.stringify({directory, name}));
-  return response.body;
+  return response;
 }
 
-export async function createNote(directory: string[], name: string){
+export async function createNote(directory: string[], name: string) {
   const response = await Requester.post('/notes/note',JSON.stringify({directory, name}));
-  return response.body;
+  return response;
 }
 
 export async function deleteNote(directory: string[]) {
   const response = await Requester.delete('/notes/note', JSON.stringify({directory}))
-  return response.body;
+  return response;
 }
 
 export async function deleteFolder(directory: string[]) {
   const response = await Requester.delete('/notes/folder', JSON.stringify({directory}))
-  return response.body;
+  return response;
 }
 
 export async function saveNote(path: string[], content: string) {
   const response = await Requester.put('/notes/save-note', JSON.stringify({directory: path, content}))
+  return response;
 }
 
-export class ErrorTest{
+export class ErrorTest {
   setErrorState: React.Dispatch<any>;
   constructor(setErrorState: React.Dispatch<any>) {
     this.setErrorState = setErrorState

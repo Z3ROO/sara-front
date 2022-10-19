@@ -37,14 +37,16 @@ function FileExplorerOptions() {
 
 function FilesListingContainer() {
   const category = useParams('/notes/:category/**')![1];
-  const [focusedItem, setFocusedItem] = useState<string>('');
-
-  useEffect(() => {
-    setFocusedItem(category);
-  },[]);
+  const [focusedItem, setFocusedItem] = useState<string>(category);
 
   return (
-    <div className="bg-gray-700 text-slate-300 h-full p-2 w-72 overflow-auto">
+    <div 
+    id="files-listing-container"
+    onClick={(e) => {
+      if ((e.target as Element).id === 'files-listing-container')
+        setFocusedItem(category)
+    }}
+    className="bg-gray-700 text-slate-300 h-full p-2 w-72 overflow-auto">
       <FilesListing {...{focusedItem, setFocusedItem}} />
     </div>
   )

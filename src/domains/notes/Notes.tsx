@@ -1,15 +1,13 @@
-import {useState, useRef, useEffect, Children} from 'react';
-import { useMainStateController } from '../../core/App';
+import {useEffect} from 'react';
 import { NotesController, NotesControllerContext, useNotesController } from './NotesStateController';
-import { Link, Route, Routes } from '../../lib/Router';
-import { useLocation, useParams } from '../../lib/Router/RouterHooks';
+import { Link, Routes } from '../../lib/Router';
+import { useParams } from '../../lib/Router/RouterHooks';
 import { DefaultProps } from '../_general/types';
 import { FileExplorer } from './components/FileExplorer';
 import { DocumentEditor } from './components/DocumentEditor';
 
 export function Notes(props: DefaultProps) {
-  const mainStateController = useMainStateController()!;
-  const controller = NotesController({AppController: mainStateController});
+  const controller = NotesController();
 
   return  <NotesControllerContext.Provider value={controller}>
             <Routes>
