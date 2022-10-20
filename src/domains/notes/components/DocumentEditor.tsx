@@ -40,7 +40,7 @@ export function DocumentEditor() {
   useEffect(() => {
     if (viewerNodeRef.current)
       viewerNodeRef.current.innerHTML = marked.parse(openedPage.content);
-  },[viewerNodeRef.current, openedPage])
+  },[viewerNodeRef.current, openedPage]);
   
   if (!openedPage.title)
     return null;

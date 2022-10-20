@@ -6,31 +6,53 @@ import { useNotesController } from "../NotesStateController";
 import { INotesTree } from "../NotesTypes";
 
 export function FileExplorer() {
+  const [hideFileExplorer, setHideFileExplorer] = useState<boolean>(false);
+  const { traversePath } = useLocation()!;
+
   return (
     <div className='flex flex-col'>
-      <FileExplorerOptions />
-      <FilesListingContainer />
+      {
+        hideFileExplorer ?
+        <div className="w-12 flex flex-col">
+          <button 
+          className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
+          onClick={() => setHideFileExplorer(false)}>{'>>'}</button>
+          <button 
+          className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
+          onClick={() => {traversePath('/notes')}}>back</button>
+        </div> :
+        <>
+          <FileExplorerOptions {...{ hideFileExplorer, setHideFileExplorer }}/>
+          <FilesListingContainer />
+        </>
+      }
     </div>
   )
 }
 
-function FileExplorerOptions() {
+function FileExplorerOptions(props: DefaultProps) {
   const { traversePath } = useLocation()!;
   const { setNewItemField } = useNotesController()!;
+  const { hideFileExplorer, setHideFileExplorer } = props;
 
   return (
-    <div>
-      <button 
-        onClick={() => {traversePath('/notes')}}
+    <div className="flex">
+      <div className="flex-grow">
+        <button 
+          onClick={() => {traversePath('/notes')}}
+          className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
+        >back</button>
+        <span className='text-white'> | </span>
+        <button onClick={() => setNewItemField('folder')}
+          className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
+        >+ Pasta</button>
+        <button onClick={() => setNewItemField('file')}
+          className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
+        >+ Arquivo</button>
+      </div>
+      <button onClick={() => setHideFileExplorer(true)}
         className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
-      >back</button>
-      <span className='text-white'> | </span>
-      <button onClick={() => setNewItemField('folder')}
-        className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
-      >+ Pasta</button>
-      <button onClick={() => setNewItemField('file')}
-        className='text-white text-xs rounded-md px-1.5 py-0.5 m-1 border border-gray-500 hover:bg-gray-600'
-      >+ Arquivo</button>
+      >{'<<'}</button>
     </div>
   )
 }
