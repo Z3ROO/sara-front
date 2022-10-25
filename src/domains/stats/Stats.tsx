@@ -503,7 +503,7 @@ function Feats(props: {controller: IStatsController}) {
                 controller.feats.map(feat => {
                   return  <div className="button-sm">
                             <span>{feat.title} {feat.completed && 'complete'}</span>
-                            {!feat.completed && <button className="button-sm" onClick={() => controller.completeFeat(feat.id)}>finish</button>}
+                            {!feat.completed && <button className="button-sm" onClick={() => controller.completeFeat(feat._id!)}>finish</button>}
                           </div>
                 })
               }
@@ -573,7 +573,7 @@ function Records(props: {controller: IStatsController}) {
                 controller.records.map(record => {
                   return  <div className="button-sm">
                             <span>{record.title} - {record.level}</span>
-                            <button className="button-sm" onClick={() => controller.updateRecordLevel(record.id)}>Uppar</button>
+                            <button className="button-sm" onClick={() => controller.updateRecordLevel(record._id!)}>Uppar</button>
                           </div>
                 })
               }

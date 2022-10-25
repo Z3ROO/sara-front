@@ -61,7 +61,7 @@ export default class Requester {
     return Requester.responseWrapper(response);
   }
 
-  static responseWrapper(reponse: any) {
+  static responseWrapper(reponse: any): {status: string, err:  string|null, body: any} {
     const { status, err, body } = reponse;
     if (typeof status !== 'string' ||
         typeof err !== 'string' || 

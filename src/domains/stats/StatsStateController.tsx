@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import * as LevelingAPI from "./LevelingAPI";
+import * as QuestsAPI from './QuestsAPI';
+import * as FeatsAPI from './FeatsAPI';
+import * as RecordsAPI from './RecordsAPI';
 
 export interface IStatsController {
   player: IPlayer
@@ -55,7 +59,7 @@ export interface IPerseverenceHashira extends IHashira {
 }
 
 interface IQuest {
-  id: string
+  _id: string
   questline_id: string
   title: string
   description: string
@@ -91,6 +95,7 @@ export interface IQuestLine {
 }
 
 interface IFeats {
+  _id?:string
   id: string
   questline_id: string
   title: string
@@ -104,15 +109,26 @@ interface IFeats {
   finished_at?: string
 }
 
+type levelHistory = {direction:-1|0|1, date: Date}[]
+
 export interface IRecords {
-  id: string
-  questline_id: string
+  questline_id: string|null
   title: string
   description: string
-  qtd: number
-  categories: string
-  tier: number
+  acceptance: {
+    stage: 'created'|'reviewed'|'ready',
+    date: Date[]
+  }
+  metric: 'unit'|'time'|'distance'
+  status: {
+    waitTime: number
+    stageAmount: number
+    stage?: number|null
+    last_commitment?: Date|null
+  }
+  categories: string[]
   level: number
+  history: levelHistory
   xp: number
 }
 
@@ -132,8 +148,7 @@ function StatsController(props: any): IStatsController {
   const [modal, setModal] = useState<any>(null);
 
   async function fetchStats() {
-    const get = await fetch('/leveling/stats');
-    const data = await get.json();
+    const data = await LevelingAPI.fetchLevelingStats();
 
     setPlayer({
       name: data.player,
@@ -155,10 +170,9 @@ function StatsController(props: any): IStatsController {
   }
 
   async function fetchActiveQuest() {
-    const get = await fetch('/leveling/active-quest');
-    const data = await get.json();
+    const data = await QuestsAPI.getActiveQuest();
 
-    if (data === 'no_quest_activated'){
+    if (data != null){
       fetchListOfQuestLines();
       if (activeQuest) 
         setActiveQuest(null);
@@ -172,16 +186,16 @@ function StatsController(props: any): IStatsController {
   async function fetchQuestLineInfo(questline_id?: string) {
     if (!questline_id && activeQuest)
       questline_id = activeQuest.questline_id;
+    else
+      return
 
-    const get = await fetch(`/leveling/questline/info/${questline_id}`);
-    const data = await get.json();
+    const data = await QuestsAPI.getQuestlineInfo(questline_id);
 
     setQuestLine(data);
   }
 
   async function fetchListOfQuestLines() {
-    const get = await fetch(`/leveling/questline/list`);
-    const data = await get.json();
+    const data = await QuestsAPI.getQuestlines();
 
     setListOfQuestLines(data);
     fetchFeats();
@@ -203,178 +217,122 @@ function StatsController(props: any): IStatsController {
       xp,
       type
     }
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify(newQuest),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
 
-    const post = await fetch('/leveling/quest/new', requestBody);
-    const data = await post.json();
+    const data = await QuestsAPI.createQuest(newQuest);
 
     fetchActiveQuest();
   }
 
-  async function handleQuestTodo(todoId: string, action: 'finish'|'invalidate') {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({todoId, action}),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
+  async function handleQuestTodo(description: string, action: 'finish'|'invalidate') {
+    if (!activeQuest)
+      throw  new Error('Must have an activeQuest');
+    
+    const quest_id = activeQuest._id;
 
-    const post = await fetch(`/leveling/quest/todo`, requestBody);
-    const response = await post.json();
+    const response = await QuestsAPI.handleQuestTodo({
+      quest_id,
+      description,
+      action
+    });
 
     fetchActiveQuest();
   }
 
-  async function finishQuest(focusScore: number, questId?: string) {
-    if (!questId && activeQuest)
-      questId = activeQuest.id;
+  async function finishQuest(focusScore: number, quest_id: string) {
 
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({questId, focusScore}),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
-
-    const post = await fetch(`/leveling/quest/finish`, requestBody);
-    const response = await post.json();
+    const response = await QuestsAPI.finishQuest({quest_id, focusScore});
 
     fetchActiveQuest();
   }
 
   async function sendDistractionPoint() {
-    const post = await fetch(`/leveling/quest/distraction`, { method: 'post'});
-    const response = post.json();
+    await QuestsAPI.insertDistractionPoint();
   }
 
   async function finishQuestLine() {
-    const post = await fetch('/leveling/questline/finish', { method: 'post'});
-    const response = post.json();
+    await QuestsAPI.finishMainQuestline();
 
     fetchStats();
     setModal(null);
   }
 
   async function fetchFinishedQuestLines(): Promise<IQuestLine[]> {
-    const get = await fetch('/leveling/questline/all-finished');
-    const response = get.json();
-
+    const response = await QuestsAPI.allFinishedQuestlines();
     return response;
   }
 
   async function createNewQuestLine(title: string, descrition: string, duration: number, type: string): Promise<void> {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({
-        title,
-        descrition,
-        duration, 
-        type
-      }),
-      headers: {
-        'Content-Type':'application/json'
-      }
-    };
+    const response = await QuestsAPI.newQuestline({
+      title,
+      descrition,
+      duration, 
+      type
+    });
 
-    const post = await fetch('/leveling/questline/new', requestBody);
-    const response = await post.json();
     setQuestLine(response);
     fetchListOfQuestLines();
   }
 
   async function createNewFeat(title: string, description: string, category: string, tier: number, questLine: string) {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({
-        title,
-        description,
-        category,
-        tier,
-        questLine
-      }),
-      headers: {
-        'Content-Type':'application/json'
-      }
-    }
-    const post = await fetch('/leveling/feats/new', requestBody);
-    const response = await post.json();
+
+    const response = await FeatsAPI.newFeat({
+      title,
+      description,
+      category,
+      tier,
+      questline_id: questLine
+    });
     
     setModal(null);
     fetchFeats();
   }
 
   async function fetchFeats() {
-    const get = await fetch('/leveling/feats');
-    const response = await get.json();
+    const response = await FeatsAPI.getFeats();
 
     setFeats(response);
   }
 
   async function completeFeat(featId: string) {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({
-        featId
-      }),
-      headers: {
-        'Content-Type':'application/json'
-      }
-    };
-
-    const post = await fetch('/leveling/feats/complete', requestBody);
-    const response = await post.json();
+    await FeatsAPI.completeFeat(featId);
 
     fetchFeats();
   }
 
   async function fetchRecords() {
-    const get = await fetch('/leveling/records');
-    const response = await get.json();
-
+    const response = await RecordsAPI.getRecords();
     setRecords(response);
   }
 
-  async function createNewRecord(title: string, description: string, qtd: number, categories: string, tier: number, questLine: string) {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({
-        title, 
-        description, 
-        qtd, 
-        categories, 
-        tier, 
-        questLine 
-      }),
-      headers: {
-        'Content-Type': 'application/json'
+
+
+  async function createNewRecord({
+    questline_id,
+    title,
+    description,
+    categories,
+    metric,
+    waitTime,
+    stageAmount
+  }:any) {
+    await RecordsAPI.newRecord({
+      questline_id,
+      title, 
+      description,
+      categories,
+      metric,
+      status: {
+        waitTime,
+        stageAmount,
       }
-    }
-    const post = await fetch('/leveling/records/new', requestBody);
-    const response = await post.json();
+    });
 
     fetchRecords();
   }
 
-  async function updateRecordLevel(recordId: string) {
-    const requestBody = {
-      method: 'post',
-      body: JSON.stringify({
-        recordId
-      }),
-      headers: {
-        'Content-Type':'application/json'
-      }
-    }
-    const post = await fetch('/leveling/records/up', requestBody);
-    const response = await post.json();
+  async function updateRecordLevel(record_id: string) {
+
+    const response = await RecordsAPI.levelUpRecord(record_id);
 
     fetchRecords();
   }
