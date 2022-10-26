@@ -171,7 +171,7 @@ function QuestLineList(props:{controller: IStatsController}) {
             <div className="flex">
               <div 
                 className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-                onClick={() => controller.modalHandler(QuestLine, {questLineId: mainQuestLine?.id || 'new_main_questline'})}
+                onClick={() => controller.modalHandler(QuestLine, {questLineId: mainQuestLine?._id || 'new_main_questline'})}
                 >
                 <img className="w-8 opacity-50 hover:opacity-100" src="/icons/icon1.png" alt="questlines warnings"/>
                 <span className="absolute bottom-1 right-1 text-[7px]">M</span>
@@ -181,7 +181,7 @@ function QuestLineList(props:{controller: IStatsController}) {
                 .map(questLine => {
                   return  <div 
                             className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-                            onClick={() => controller.modalHandler(QuestLine, {questLineId: questLine.id})}
+                            onClick={() => controller.modalHandler(QuestLine, {questLineId: questLine._id})}
                             >
                             <img className="w-8 opacity-50 hover:opacity-100" src="/icons/icon1.png" alt="questlines warnings"/>
                             <div className="absolute rounded-full w-5 h-5 bg-red-300 font-bold text-xs text-center leading-5 -top-2 -right-2">
@@ -543,8 +543,8 @@ function CreateNewFeat(props: {controller: IStatsController}) {
                 {
                   controller.listOfQuestLines.map(questLine => {
                     if (questLine.type === 'main' && featQuestLine === '')
-                      setFeatQuestLine(questLine.id);
-                    return <option value={questLine.id}>{questLine.title}</option>
+                      setFeatQuestLine(questLine._id);
+                    return <option value={questLine._id}>{questLine.title}</option>
                   })
                 }
               </select>
@@ -617,8 +617,8 @@ function CreateNewRecord(props: {controller: IStatsController}) {
                 {
                   controller.listOfQuestLines.map(questLine => {
                     if (questLine.type === 'main' && recordQuestLine === '')
-                      setRecordQuestLine(questLine.id);
-                    return <option value={questLine.id}>{questLine.title}</option>
+                      setRecordQuestLine(questLine._id);
+                    return <option value={questLine._id}>{questLine.title}</option>
                   })
                 }
               </select>

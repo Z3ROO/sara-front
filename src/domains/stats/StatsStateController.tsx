@@ -61,37 +61,37 @@ export interface IPerseverenceHashira extends IHashira {
 interface IQuest {
   _id: string
   questline_id: string
+  mission_id: string|null
   title: string
   description: string
-  type: 'main'|'side'|'practice'
+  type: 'main'|'side'|'mission'
   state: 'active'|'deferred'|'finished'|'invalidated'
+  todos: {
+    description: string
+    state: 'invalidated'|'finished'|'active'
+    finished_at: Date|null
+  }[]
   timecap: number|string
-  focus_score?: number
-  distraction_score?: number
-  created_at: string
-  finished_at?: string
+  focus_score: number|null
+  distraction_score: number|null
+  created_at: Date
+  finished_at: Date|null
   xp: number
-  todos: IQuestTodo[]
 }
 
-interface IQuestTodo {
-  id: number
-  quest_id: number
-  description: string
-  state: 'invalidated'|'finished'|'active'
-  finished_at?: string
-}
 
 export interface IQuestLine {
-  id: string
+  _id: string
   title: string
   description: string
   type: 'main'|'practice'
   state: 'active'|'finished'|'invalidated'
   timecap: number|string
-  created_at: string
-  finished_at?: string
-  xp: number
+  created_at: Date
+  finished_at: Date|null
+  level: number|null
+  history: levelHistory|null
+  xp: number|null
 }
 
 interface IFeats {
@@ -112,6 +112,7 @@ interface IFeats {
 type levelHistory = {direction:-1|0|1, date: Date}[]
 
 export interface IRecords {
+  _id: string
   questline_id: string|null
   title: string
   description: string
@@ -209,7 +210,7 @@ function StatsController(props: any): IStatsController {
     const type = questLine.type === 'main' ? 'main' : 'practice';
 
     const newQuest = {
-      questLine: questLine.id,
+      questLine: questLine._id,
       title,
       description,
       timecap: (minutes + (horas*60))*60000,
