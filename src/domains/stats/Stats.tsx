@@ -4,7 +4,7 @@ import Quest from "./components/Quest";
 import QuestLineList from "./components/Questline";
 import Hashiras from "./components/HashiraBadges";
 import PlayerInfo from "./components/PlayerInfoHeader";
-import StatsController, { IDayProgress, IQuestLine, IStatsController } from "./StatsStateController";
+import StatsController, { IDayProgress, IQuestline, IStatsController } from "./StatsStateController";
 import History from './components/EarningsHistory'
 import Feats from "./components/Feats";
 import Records from "./components/Records";
@@ -49,8 +49,6 @@ export default function StatsPage(props:IStatsProps) {
               
             </div>
         </div>
-        
-        {controller.modal && <Modal />}
       </div>
     </StatsControllerContext.Provider>
   )

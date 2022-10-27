@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useStatsController } from "../Stats";
-import { IQuestLine, IStatsController } from "../StatsStateController";
+import { IQuestline, IStatsController } from "../StatsStateController";
 import { Loading } from "../../_general/Loading";
 import { DefaultProps } from "../../_general/types";
 import Quest from "./Quest";
+import { useMainStateController } from "../../../core/App";
 
-export default function QuestLineList() {
+export default function QuestlineList() {
   const controller = useStatsController()!;
   
 
@@ -19,13 +20,14 @@ export default function QuestLineList() {
 }
 
 function MainQuestline() {
-  const { modalHandler, listOfQuestLines } = useStatsController()!;
-  const mainQuestLine = listOfQuestLines.find(questLine => questLine.type === 'main');
+  const { modalHandler } = useMainStateController()!;
+  const { listOfQuestlines } = useStatsController()!;
+  const mainQuestline = listOfQuestlines.find(questline => questline.type === 'main');
 
   return (
     <div 
       className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-      onClick={() => modalHandler(QuestLine, {questLineId: mainQuestLine?._id || 'new_main_questline'})}
+      onClick={() => modalHandler(Questline, {questlineId: mainQuestline?._id || 'new_main_questline'})}
       >
       <img className="w-8 opacity-50 hover:opacity-100" src="/icons/icon1.png" alt="questlines warnings"/>
       <span className="absolute bottom-1 right-1 text-[7px]">M</span>
@@ -34,16 +36,17 @@ function MainQuestline() {
 }
 
 function SkillQuestlines() {
-  const { modalHandler, listOfQuestLines } = useStatsController()!;
+  const { modalHandler } = useMainStateController()!;
+  const { listOfQuestlines } = useStatsController()!;
 
   return (
     <>
       {
-        listOfQuestLines.filter(ql => ql.type !== 'main')
-        .map(questLine => {
+        listOfQuestlines.filter(ql => ql.type !== 'main')
+        .map(questline => {
           return  <div 
                     className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-                    onClick={() => modalHandler(QuestLine, {questLineId: questLine._id})}
+                    onClick={() => modalHandler(Questline, {questlineId: questline._id})}
                     >
                     <img className="w-8 opacity-50 hover:opacity-100" src="/icons/icon1.png" alt="questlines warnings"/>
                     <div className="absolute rounded-full w-5 h-5 bg-red-300 font-bold text-xs text-center leading-5 -top-2 -right-2">
@@ -58,43 +61,46 @@ function SkillQuestlines() {
 }
 
 function NewSkillQuestline() {
-  const { modalHandler } = useStatsController()!;
+  const { modalHandler } = useMainStateController()!;
 
   return (
     <div 
       className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-      onClick={() => modalHandler(QuestLine, {questLineId: 'new_practice_questline'})}
+      onClick={() => modalHandler(Questline, {questlineId: 'new_practice_questline'})}
       >
       <img className="w-6 opacity-50 hover:opacity-100" src="/icons/ui/plus-sign.svg" alt="questlines warnings"/>
     </div>
   )
 }
 
-function QuestLine(props: DefaultProps) {
+export function Questline(props: DefaultProps) {
   const controller = useStatsController()!;
-  const { questLineId } = props;
+  const { questlineId } = props;
 
-  const { questLine, finishQuestLine } = controller;
-
+  
   useEffect(() => {
-    if (questLineId !== 'new_main_questline' && questLineId !== 'new_practice_questline')
-      controller.fetchQuestLineInfo(questLineId)
+    if (questlineId !== 'new_main_questline' && questlineId !== 'new_practice_questline')
+    controller.fetchQuestlineInfo(questlineId)
   }, []);
   
+  if (!controller.questline)
+    return <Loading />  
+
+  const { questline, finishQuestline } = controller;
   
-  if (questLineId === 'new_main_questline' || questLineId === 'new_practice_questline')
-    return  <CreateNewQuestLine controller={controller} type={questLineId}/>
-  else if (questLine)
+  if (questlineId === 'new_main_questline' || questlineId === 'new_practice_questline')
+    return  <CreateNewQuestline controller={controller} type={questlineId}/>
+  else if (questline)
     return  <div className="rounded p-2 relative">
-              <h2 className="font-bold text-sm">{questLine.title}</h2>
-              <span>{questLine.description}</span>
+              <h2 className="font-bold text-sm">{questline.title}</h2>
+              <span>{questline.description}</span>
               {
                 controller.activeQuest ?
                 <Quest verbose={false} controller={controller}/> :
                 <div>
                   <CreateNewQuest controller={controller} />
                   <div>
-                    <button className="button-md" onClick={finishQuestLine}>Finalizar quest line</button>
+                    <button className="button-md" onClick={finishQuestline}>Finalizar quest line</button>
                   </div>
                 </div>
               }
@@ -103,18 +109,18 @@ function QuestLine(props: DefaultProps) {
     return <Loading />
 }
 
-function CreateNewQuestLine(props: {controller:IStatsController, type: string}) {
+function CreateNewQuestline(props: {controller:IStatsController, type: string}) {
   const controller = useStatsController()!;
   const { type } = props;
-  const questLineType = type === 'new_main_questLine' ? 'main' : 'practice';
-  const [questLineHistory, setQuestLineHistory] = useState<IQuestLine[]>([]);
-  const [questLineTitle, setQuestLineTitle] = useState<string>('');
-  const [questLineDescription, setQuestLineDescription] = useState<string>('');
-  const [questLineDuration, setQuestLineDuration] = useState<number>(0);
+  const questlineType = type === 'new_main_questline' ? 'main' : 'practice';
+  const [questlineHistory, setQuestlineHistory] = useState<IQuestline[]>([]);
+  const [questlineTitle, setQuestlineTitle] = useState<string>('');
+  const [questlineDescription, setQuestlineDescription] = useState<string>('');
+  const [questlineDuration, setQuestlineDuration] = useState<number>(0);
 
   useEffect(() => {
     (async function() { 
-      setQuestLineHistory(await controller.fetchFinishedQuestLines())
+      setQuestlineHistory(await controller.fetchFinishedQuestlines())
     })();
   },[])
 
@@ -124,27 +130,27 @@ function CreateNewQuestLine(props: {controller:IStatsController, type: string}) 
               <div className="flex flex-col p-1 px-2 w-64">
                 <label htmlFor="questline-title" className="flex flex-col">
                 Titulo:</label>
-                <input type="text" id="questline-title" value={questLineTitle} onChange={(e) => setQuestLineTitle(e.target.value)}/>
+                <input type="text" id="questline-title" value={questlineTitle} onChange={(e) => setQuestlineTitle(e.target.value)}/>
                 
                 <label htmlFor="questline-description" className="flex flex-col">
                 Descrição:</label>
-                <textarea id="questline-description" className="resize-none h-20" value={questLineDescription} onChange={(e) => setQuestLineDescription(e.target.value)}/>
+                <textarea id="questline-description" className="resize-none h-20" value={questlineDescription} onChange={(e) => setQuestlineDescription(e.target.value)}/>
 
                 <label htmlFor="questline-duration" className="flex flex-col">
                 Duração:</label>
-                <input type="number" id="questline-duration" placeholder="Quantos dias?" value={questLineDuration} onChange={(e) => setQuestLineDuration(Number(e.target.value))}/>
+                <input type="number" id="questline-duration" placeholder="Quantos dias?" value={questlineDuration} onChange={(e) => setQuestlineDuration(Number(e.target.value))}/>
                 
                 <button 
                   className="p-1 m-4 border rounded bg-slate-500 hover:cursor-pointer hover:bg-slate-400" 
-                  onClick={()=> controller.createNewQuestLine(questLineTitle, questLineDescription, questLineDuration, questLineType)}>Criar</button>
+                  onClick={()=> controller.createNewQuestline(questlineTitle, questlineDescription, questlineDuration, questlineType)}>Criar</button>
               </div>
               <div className="p-1 px-2 ml-6 border-l">
                 <h2>Historico de questlines:</h2>
                 <div className="flex flex-col overflow-auto">
                   {
-                    questLineHistory.map( questLine => {
+                    questlineHistory.map( questline => {
                       return  <div className="p-2 rounded bg-slate-500 m-2">
-                                {questLine.title}
+                                {questline.title}
                               </div>
                     })
                   }
@@ -156,7 +162,7 @@ function CreateNewQuestLine(props: {controller:IStatsController, type: string}) 
 
 function CreateNewQuest(props: any) {
   const controller = useStatsController()!;
-  const { createNewQuest, modalHandler } = controller;
+  const { createNewQuest } = controller;
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
   const [questHoras, setQuestHoras] = useState<number>(0);

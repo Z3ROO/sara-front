@@ -12,24 +12,24 @@ export interface IStatsController {
   planningHashira: IHashira
   focusHashira: IHashira
   perseverenceHashira: IPerseverenceHashira
-  listOfQuestLines: IQuestLine[]
+  listOfQuestlines: IQuestline[]
   activeQuest: IQuest|null
-  questLine: IQuestLine|null
-  fetchQuestLineInfo(questline_id?: string): void
+  questline: IQuestline|null
+  fetchQuestlineInfo(questline_id?: string): void
   modal: any
   modalHandler(component?: any, props?: any): void
   createNewQuest(title: string, description: string, horas: number, minutes: number, todos: string[], xp: number): Promise<void>
   handleQuestTodo(todoId: string, action: 'finish' | 'invalidate'): Promise<void>
   finishQuest(focusScore: number, questId?: string): Promise<void>
   sendDistractionPoint(): Promise<void>
-  finishQuestLine(): Promise<void>
-  fetchFinishedQuestLines(): Promise<IQuestLine[]>
-  createNewQuestLine(title: string, descrition: string, duration: number, type: string): Promise<void>
-  createNewFeat(title: string, description: string, category: string, tier: number, questLine: string): Promise<void>
+  finishQuestline(): Promise<void>
+  fetchFinishedQuestlines(): Promise<IQuestline[]>
+  createNewQuestline(title: string, descrition: string, duration: number, type: string): Promise<void>
+  createNewFeat(title: string, description: string, category: string, tier: number, questline: string): Promise<void>
   feats: IFeats[]
   completeFeat(featId: string): Promise<void>
   records: IRecords[]
-  createNewRecord(title: string, description: string, qtd: number, categories: string, tier: number, questLine: string): void
+  createNewRecord(title: string, description: string, qtd: number, categories: string, tier: number, questline: string): void
   updateRecordLevel(recordId: string): void
 }
 
@@ -80,7 +80,7 @@ interface IQuest {
 }
 
 
-export interface IQuestLine {
+export interface IQuestline {
   _id: string
   title: string
   description: string
@@ -141,9 +141,9 @@ function StatsController(props: any): IStatsController {
   const [planningHashira, setPlanningHashira] = useState<IHashira>({title: '', level: 0, score: 0});
   const [focusHashira, setFocusHashira] = useState<IHashira>({title: '', level: 0, score: 0});
   const [perseverenceHashira, setPerseverenceHashira] = useState<IPerseverenceHashira>({title: '', level: 0, score: 0, goal: 0});
-  const [listOfQuestLines, setListOfQuestLines] = useState<IQuestLine[]>([]);
+  const [listOfQuestlines, setListOfQuestlines] = useState<IQuestline[]>([]);
   const [activeQuest, setActiveQuest] = useState<IQuest|null>(null);
-  const [questLine, setQuestLine] = useState<IQuestLine|null>(null);
+  const [questline, setQuestline] = useState<IQuestline|null>(null);
   const [feats, setFeats] = useState<IFeats[]>([]);
   const [records, setRecords] = useState<IRecords[]>([]);
   const [modal, setModal] = useState<any>(null);
@@ -174,17 +174,17 @@ function StatsController(props: any): IStatsController {
     const data = await QuestsAPI.getActiveQuest();
 
     if (data != null){
-      fetchListOfQuestLines();
+      fetchListOfQuestlines();
       if (activeQuest) 
         setActiveQuest(null);
     }
     else{
       setActiveQuest(data);
-      fetchQuestLineInfo(data.questline_id);
+      fetchQuestlineInfo(data.questline_id);
     } 
   }
 
-  async function fetchQuestLineInfo(questline_id?: string) {
+  async function fetchQuestlineInfo(questline_id?: string) {
     if (!questline_id && activeQuest)
       questline_id = activeQuest.questline_id;
     else
@@ -192,25 +192,25 @@ function StatsController(props: any): IStatsController {
 
     const data = await QuestsAPI.getQuestlineInfo(questline_id);
 
-    setQuestLine(data);
+    setQuestline(data);
   }
 
-  async function fetchListOfQuestLines() {
+  async function fetchListOfQuestlines() {
     const data = await QuestsAPI.getQuestlines();
 
-    setListOfQuestLines(data);
+    setListOfQuestlines(data);
     fetchFeats();
     fetchRecords();
   }
 
   async function createNewQuest(title: string, description: string, horas: number, minutes: number, todos: string[], xp: number) {
-    if (!questLine)
+    if (!questline)
       throw new Error('No questline found.')
 
-    const type = questLine.type === 'main' ? 'main' : 'practice';
+    const type = questline.type === 'main' ? 'main' : 'practice';
 
     const newQuest = {
-      questLine: questLine._id,
+      questline: questline._id,
       title,
       description,
       timecap: (minutes + (horas*60))*60000,
@@ -250,19 +250,19 @@ function StatsController(props: any): IStatsController {
     await QuestsAPI.insertDistractionPoint();
   }
 
-  async function finishQuestLine() {
+  async function finishQuestline() {
     await QuestsAPI.finishMainQuestline();
 
     fetchStats();
     setModal(null);
   }
 
-  async function fetchFinishedQuestLines(): Promise<IQuestLine[]> {
+  async function fetchFinishedQuestlines(): Promise<IQuestline[]> {
     const response = await QuestsAPI.allFinishedQuestlines();
     return response;
   }
 
-  async function createNewQuestLine(title: string, descrition: string, duration: number, type: string): Promise<void> {
+  async function createNewQuestline(title: string, descrition: string, duration: number, type: string): Promise<void> {
     const response = await QuestsAPI.newQuestline({
       title,
       descrition,
@@ -270,18 +270,18 @@ function StatsController(props: any): IStatsController {
       type
     });
 
-    setQuestLine(response);
-    fetchListOfQuestLines();
+    setQuestline(response);
+    fetchListOfQuestlines();
   }
 
-  async function createNewFeat(title: string, description: string, category: string, tier: number, questLine: string) {
+  async function createNewFeat(title: string, description: string, category: string, tier: number, questline: string) {
 
     const response = await FeatsAPI.newFeat({
       title,
       description,
       category,
       tier,
-      questline_id: questLine
+      questline_id: questline
     });
     
     setModal(null);
@@ -357,19 +357,19 @@ function StatsController(props: any): IStatsController {
     planningHashira,
     focusHashira,
     perseverenceHashira,
-    listOfQuestLines,
+    listOfQuestlines,
     activeQuest,
-    questLine,
-    fetchQuestLineInfo,
+    questline,
+    fetchQuestlineInfo,
     modal,
     modalHandler,
     createNewQuest,
     handleQuestTodo,
     finishQuest,
     sendDistractionPoint,
-    finishQuestLine,
-    fetchFinishedQuestLines,
-    createNewQuestLine,
+    finishQuestline,
+    fetchFinishedQuestlines,
+    createNewQuestline,
     createNewFeat,
     feats,
     completeFeat,

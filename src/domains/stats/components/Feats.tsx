@@ -58,7 +58,7 @@ function CreateNewFeat() {
               <label>Quest Line: </label>
               <select onChange={e => setFeatQuestLine(e.target.value)}>
                 {
-                  controller.listOfQuestLines.map(questLine => {
+                  controller.listOfQuestlines.map(questLine => {
                     if (questLine.type === 'main' && featQuestLine === '')
                       setFeatQuestLine(questLine._id);
                     return <option value={questLine._id}>{questLine.title}</option>

@@ -32,11 +32,11 @@ export function AppController(): IAppController {
     setContextMenu(<ContextMenu xPos={event.clientX} yPos={event.clientY} options={options}/>);
   }
 
-  function modalHandler(Component?:any) {
-    if(Component === undefined)
+  function modalHandler(component?: any, props?: any) {
+    if (!component)
       return setModal(null)
-
-    setModal(Component)
+    
+    setModal({component, props});
   }
   
   useEffect(()=> {
@@ -70,23 +70,32 @@ function App() {
                 <Route path="/fc" element={<Flashcards AppController={controller} />} />
               </Router>
               {controller.contextMenu}
-              {controller.modal && <Modal controller={controller} />}
+              
+              {controller.modal && <Modal />}
             </div>
           </AppControllerContext.Provider>
 }
 
-export function Modal(props: any) {
-  const controller = props.controller;
+export function Modal() {
+  const { modal, modalHandler } = useMainStateController()!;
+  const { controller } = modal.props;
 
-  return  <div className="absolute w-full h-full bg-slate-300 bg-opacity-30 top-0 left-0 flex justify-center items-center">
-            <div className="bg-slate-600 rounded p-4 relative">
-              <div>
-                {/* {AppController?.modal} */}
-                {controller.modal({controller: controller})}
-              </div>              
-              <button className="absolute bg-slate-200 p-1 hover:cursor-pointer hover:bg-slate-700 top-1 right-1" onClick={() => controller.modalHandler()}>x</button>
-            </div>
-          </div>
+
+  return  (
+    <div className="absolute w-full h-full bg-slate-300 bg-opacity-30 top-0 left-0 flex justify-center items-center">
+      <div className="bg-slate-600 rounded p-4 relative shadow-lg">
+        <div>
+          {modal.component({controller, ...modal.props})}
+        </div>
+          <img 
+            className="absolute p-1 hover:cursor-pointer hover:bg-slate-700 top-1 right-1 rounded w-6" 
+            src="/icons/ui/close-x.svg" 
+            onClick={() => modalHandler()} 
+            alt={'close-x'}
+          />
+      </div>
+    </div>
+  )
 }
 
 export default App;

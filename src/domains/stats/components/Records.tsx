@@ -62,7 +62,7 @@ function CreateNewRecord() {
               <label>Quest Line: </label>
               <select onChange={e => setRecordQuestLine(e.target.value)}>
                 {
-                  controller.listOfQuestLines.map(questLine => {
+                  controller.listOfQuestlines.map(questLine => {
                     if (questLine.type === 'main' && recordQuestLine === '')
                       setRecordQuestLine(questLine._id);
                     return <option value={questLine._id}>{questLine.title}</option>

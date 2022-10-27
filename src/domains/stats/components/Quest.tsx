@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useStatsController, mlToHours } from "../Stats";
 import { Loading } from "../../_general/Loading";
+import { Questline } from './Questline';
 
 function todoStyleClasses(todoState: string) {
   if (todoState === 'active')
@@ -15,14 +16,14 @@ function todoStyleClasses(todoState: string) {
 export default function Quest(props:any) {
   let controller = useStatsController()!;  
   const verbose: boolean = props.verbose === undefined ? true : props.verbose;
-  const {activeQuest, questLine} = controller;
+  const {activeQuest, questline} = controller;
 
-  if (!activeQuest || !questLine)
+  if (!activeQuest || !questline)
     return <Loading />
 
   return  <div className="relative w-96">
             <div className="bg-cyan-700 rounded p-2">
-              {verbose === true && <h2 className="font-bold text-sm cursor-pointer" onClick={() => controller.modalHandler(QuestLine)}>{questLine.title}</h2>}
+              {verbose === true && <h2 className="font-bold text-sm cursor-pointer" onClick={() => controller.modalHandler(Questline)}>{questline.title}</h2>}
               <h3 className="text-lg">{activeQuest.title}</h3>
               <QuestTodosSection />
               <QuestFinishSection />
@@ -32,12 +33,12 @@ export default function Quest(props:any) {
           </div>
 }
 
-function QuestTodosSection(props: any) {
+function QuestTodosSection() {
   const { activeQuest, handleQuestTodo } = useStatsController()!;
 
   return  <div>
             {
-              activeQuest.todos.map(
+              activeQuest && activeQuest.todos.map(
                 (todo:any) => <div>
                                 <span className={`${todoStyleClasses(todo.state)}`}>{todo.description}</span>
                                 <button className="button-sm" onClick={() => handleQuestTodo(todo.id, 'finish')}>C</button>
@@ -52,7 +53,7 @@ function QuestFinishSection() {
   const { activeQuest, finishQuest } = useStatsController()!;
   const [focusScore, setFocusScore] = useState<number>(0);
 
-  if (!activeQuest.todos.every((todo:any) => todo.state !== 'active'))
+  if (!activeQuest?.todos.every((todo:any) => todo.state !== 'active'))
     return <></>
 
   return  <div className="flex flex-col items-center">
