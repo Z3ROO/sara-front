@@ -27,7 +27,7 @@ function MainQuestline() {
   return (
     <div 
       className="relative bg-slate-600 rounded p-1 m-2 w-12 h-12 flex justify-center items-center hover:cursor-pointer" 
-      onClick={() => modalHandler(Questline, {questlineId: mainQuestline?._id || 'new_main_questline'})}
+      onClick={() => modalHandler(Questline, {questline_id: mainQuestline?._id || 'new_main_questline'})}
       >
       <img className="w-8 opacity-50 hover:opacity-100" src="/icons/icon1.png" alt="questlines warnings"/>
       <span className="absolute bottom-1 right-1 text-[7px]">M</span>

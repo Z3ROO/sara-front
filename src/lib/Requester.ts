@@ -12,12 +12,16 @@ export default class Requester {
   static async get(URL: string, headers?: HeadersInit) {
     const request = await fetch(URL, {
       method:'get',
-      headers
+      headers: {
+        'Content-type': 'application/json',
+        ...headers
+      }
     });
-
+    
+    console.log('asdasdas')
     const response = await request.json();
 
-    return Requester.responseWrapper(response);
+    return Requester.responseWrapper({URL, method: 'get'}, response);
   }
 
   static async post(URL: string, headers?: IJSONValidObject | string, body?: IRequestBody) {
@@ -58,19 +62,21 @@ export default class Requester {
 
     const response = await request.json();
 
-    return Requester.responseWrapper(response);
+    return Requester.responseWrapper({URL, method}, response);
   }
 
-  static responseWrapper(reponse: any): {status: string, err:  string|null, body: any} {
-    const { status, err, body } = reponse;
-    if (typeof status !== 'string' ||
-        typeof err !== 'string' || 
-        body == null) 
-      throw new Error('Server response does not meet standards!')
+  static responseWrapper(request: {URL:string, method: string}, response: any): {status: number, message:  string|null, body: any} {
+    const { URL, method } = request;
+    const { status, message, body } = response;
+    
+    if (typeof status !== 'number' ||
+        typeof message !== 'string'||
+        body === undefined) 
+      throw new Error(`${method}: ${URL}; Server response does not meet standards!`)
 
     return {
       status,
-      err,
+      message,
       body
     }
   }

@@ -150,7 +150,8 @@ function StatsController(props: any): IStatsController {
 
   async function fetchStats() {
     const data = await LevelingAPI.fetchLevelingStats();
-
+    
+    console.log('asdasdasd')
     setPlayer({
       name: data.player,
       level: data.level,
@@ -166,13 +167,12 @@ function StatsController(props: any): IStatsController {
     setPlanningHashira(data.hashiras.planning);
     setFocusHashira(data.hashiras.focus);
     setPerseverenceHashira(data.hashiras.perseverence);
-
     fetchActiveQuest();
   }
 
   async function fetchActiveQuest() {
     const data = await QuestsAPI.getActiveQuest();
-
+    
     if (data != null){
       fetchListOfQuestlines();
       if (activeQuest) 
@@ -189,7 +189,7 @@ function StatsController(props: any): IStatsController {
       questline_id = activeQuest.questline_id;
     else
       return
-
+    
     const data = await QuestsAPI.getQuestlineInfo(questline_id);
 
     setQuestline(data);
@@ -197,7 +197,7 @@ function StatsController(props: any): IStatsController {
 
   async function fetchListOfQuestlines() {
     const data = await QuestsAPI.getQuestlines();
-
+    console.log(data)
     setListOfQuestlines(data);
     fetchFeats();
     fetchRecords();
