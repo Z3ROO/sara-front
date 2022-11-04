@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Loading } from "../../_general/Loading";
 import { useStatsController } from "../Stats";
+import { QuestlineStateController } from "./Questline";
 
 export default function Records() {
   const controller = useStatsController()!;
@@ -30,6 +31,7 @@ export default function Records() {
 
 function CreateNewRecord() {
   const controller = useStatsController()!;
+  const questlineController = QuestlineStateController();
 
   const [recordTitle, setRecordTitle] = useState<string>('');
   const [recordDescription, setRecordDescription] = useState<string>('');
@@ -62,11 +64,11 @@ function CreateNewRecord() {
               <label>Quest Line: </label>
               <select onChange={e => setRecordQuestLine(e.target.value)}>
                 {
-                  controller.listOfQuestlines.map(questLine => {
-                    if (questLine.type === 'main' && recordQuestLine === '')
-                      setRecordQuestLine(questLine._id);
-                    return <option value={questLine._id}>{questLine.title}</option>
-                  })
+                  // questlineController.allQuestlines?.skill.map(questLine => {
+                  //   if (questLine.type === 'main' && recordQuestLine === '')
+                  //     setRecordQuestLine(questLine._id);
+                  //   return <option value={questLine._id}>{questLine.title}</option>
+                  // })
                 }
               </select>
               <button className="button-md"

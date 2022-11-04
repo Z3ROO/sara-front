@@ -6,6 +6,7 @@ import TestPage from '../TestPage'
 import { ContextMenu } from '../domains/_general/ContextMenu';
 import Stats from '../domains/stats/Stats';
 import { Router, Route } from '../lib/Router';
+import { PillsWidget } from '../domains/stats/Pills';
 
 export type IAppController = {
   modal: any;
@@ -72,6 +73,7 @@ function App() {
               {controller.contextMenu}
               
               {controller.modal && <Modal />}
+              <PillsWidget />
             </div>
           </AppControllerContext.Provider>
 }
@@ -80,19 +82,26 @@ export function Modal() {
   const { modal, modalHandler } = useMainStateController()!;
   const { controller } = modal.props;
 
+  return  (
+    <ModalTemplate>
+      <>
+        {modal.component({controller, ...modal.props})}
+        <img 
+          className="absolute p-1 hover:cursor-pointer hover:bg-slate-700 top-1 right-1 rounded w-6" 
+          src="/icons/ui/close-x.svg" 
+          onClick={() => modalHandler()} 
+          alt={'close-x'}
+        />
+      </>
+    </ModalTemplate>
+  )
+}
 
+export function ModalTemplate({children}:{children:JSX.Element}) {
   return  (
     <div className="absolute w-full h-full bg-slate-300 bg-opacity-30 top-0 left-0 flex justify-center items-center">
       <div className="bg-slate-600 rounded p-4 relative shadow-lg">
-        <div>
-          {modal.component({controller, ...modal.props})}
-        </div>
-          <img 
-            className="absolute p-1 hover:cursor-pointer hover:bg-slate-700 top-1 right-1 rounded w-6" 
-            src="/icons/ui/close-x.svg" 
-            onClick={() => modalHandler()} 
-            alt={'close-x'}
-          />
+        {children}
       </div>
     </div>
   )

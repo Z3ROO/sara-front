@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Loading } from "../../_general/Loading";
 import { useStatsController } from "../Stats";
+import { QuestlineStateController } from "./Questline";
 
 export default function Feats() {
   const controller = useStatsController()!;
@@ -30,6 +31,7 @@ export default function Feats() {
 
 function CreateNewFeat() {
   const controller = useStatsController()!;
+  const questlineController = QuestlineStateController();
 
   const [featTitle, setFeatTitle] = useState<string>('');
   const [featDescription, setFeatDescription] = useState<string>('');
@@ -58,11 +60,11 @@ function CreateNewFeat() {
               <label>Quest Line: </label>
               <select onChange={e => setFeatQuestLine(e.target.value)}>
                 {
-                  controller.listOfQuestlines.map(questLine => {
-                    if (questLine.type === 'main' && featQuestLine === '')
-                      setFeatQuestLine(questLine._id);
-                    return <option value={questLine._id}>{questLine.title}</option>
-                  })
+                  // questlineController.allQuestlines?.skill.map(questLine => {
+                  //   if (questLine.type === 'main' && featQuestLine === '')
+                  //     setFeatQuestLine(questLine._id);
+                  //   return <option value={questLine._id}>{questLine.title}</option>
+                  // })
                 }
               </select>
               <button className="button-md"

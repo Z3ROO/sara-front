@@ -1,13 +1,13 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { AppControllerContext, IAppController, useMainStateController } from "../../core/App"
-import Quest from "./components/Quest";
-import QuestLineList from "./components/Questline";
+import { createContext, useContext } from "react";
+import { IAppController, useMainStateController } from "../../core/App"
 import Hashiras from "./components/HashiraBadges";
 import PlayerInfo from "./components/PlayerInfoHeader";
-import StatsController, { IDayProgress, IQuestline, IStatsController } from "./StatsStateController";
+import StatsController, { IStatsController } from "./StatsStateController";
 import History from './components/EarningsHistory'
 import Feats from "./components/Feats";
 import Records from "./components/Records";
+import {QuestlineWidget} from "./components/Questline";
+import { AddNewPills } from "./Pills";
 
 interface IStatsProps {
   AppController?: IAppController;
@@ -19,7 +19,7 @@ export function mlToHours(milliseconds:number): {hours:number, minutes:number} {
   const oneMinute = 60000;
   const hours = Math.floor(milliseconds/oneHour);
   const minutes = Math.floor(milliseconds%oneHour / oneMinute);
-  return {hours, minutes}
+  return {hours, minutes};
 }
 
 const StatsControllerContext = createContext<null|IStatsController>(null);
@@ -33,14 +33,13 @@ export default function StatsPage(props:IStatsProps) {
     <StatsControllerContext.Provider value={controller}>
       <div className="h-full w-full flex">
         <div className="flex flex-col p-3 text-white bg-slate-800">
-            <PlayerInfo />
+          <PlayerInfo />
+          <div className="flex flex-col overflow-auto scrollbar-hide">
             <Hashiras />
-            {
-              controller.activeQuest ? 
-              <Quest /> : 
-              <QuestLineList />
-            }
+            <QuestlineWidget />
             <History />
+            <AddNewPills />
+          </div>
         </div>
         <div className="bg-slate-500 w-full">                  
             <Feats />

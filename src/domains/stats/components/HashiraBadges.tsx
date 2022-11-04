@@ -6,7 +6,7 @@ export default function Hashiras(props: any) {
   const {planningHashira, focusHashira, perseverenceHashira, weekProgress, day} = controller;
 
   const weekDay = day.getDay();
-  const perseverenceProgress = Math.floor(weekProgress[weekDay]?.hours/perseverenceHashira.goal * 100) || 0;
+  const perseverenceProgress = /*Math.floor(weekProgress[weekDay]?.hours/perseverenceHashira.goal * 100) ||*/ 0;
 
   return  <div className="flex h-32">
             <Hashira hashira={planningHashira}/>

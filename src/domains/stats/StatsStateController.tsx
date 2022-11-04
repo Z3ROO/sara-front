@@ -12,19 +12,8 @@ export interface IStatsController {
   planningHashira: IHashira
   focusHashira: IHashira
   perseverenceHashira: IPerseverenceHashira
-  listOfQuestlines: IQuestline[]
-  activeQuest: IQuest|null
-  questline: IQuestline|null
-  fetchQuestlineInfo(questline_id?: string): void
   modal: any
   modalHandler(component?: any, props?: any): void
-  createNewQuest(title: string, description: string, horas: number, minutes: number, todos: string[], xp: number): Promise<void>
-  handleQuestTodo(todoId: string, action: 'finish' | 'invalidate'): Promise<void>
-  finishQuest(focusScore: number, questId?: string): Promise<void>
-  sendDistractionPoint(): Promise<void>
-  finishQuestline(): Promise<void>
-  fetchFinishedQuestlines(): Promise<IQuestline[]>
-  createNewQuestline(title: string, descrition: string, duration: number, type: string): Promise<void>
   createNewFeat(title: string, description: string, category: string, tier: number, questline: string): Promise<void>
   feats: IFeats[]
   completeFeat(featId: string): Promise<void>
@@ -58,41 +47,6 @@ export interface IPerseverenceHashira extends IHashira {
   goal: number
 }
 
-interface IQuest {
-  _id: string
-  questline_id: string
-  mission_id: string|null
-  title: string
-  description: string
-  type: 'main'|'side'|'mission'
-  state: 'active'|'deferred'|'finished'|'invalidated'
-  todos: {
-    description: string
-    state: 'invalidated'|'finished'|'active'
-    finished_at: Date|null
-  }[]
-  timecap: number|string
-  focus_score: number|null
-  distraction_score: number|null
-  created_at: Date
-  finished_at: Date|null
-  xp: number
-}
-
-
-export interface IQuestline {
-  _id: string
-  title: string
-  description: string
-  type: 'main'|'practice'
-  state: 'active'|'finished'|'invalidated'
-  timecap: number|string
-  created_at: Date
-  finished_at: Date|null
-  level: number|null
-  history: levelHistory|null
-  xp: number|null
-}
 
 interface IFeats {
   _id?:string
@@ -141,9 +95,8 @@ function StatsController(props: any): IStatsController {
   const [planningHashira, setPlanningHashira] = useState<IHashira>({title: '', level: 0, score: 0});
   const [focusHashira, setFocusHashira] = useState<IHashira>({title: '', level: 0, score: 0});
   const [perseverenceHashira, setPerseverenceHashira] = useState<IPerseverenceHashira>({title: '', level: 0, score: 0, goal: 0});
-  const [listOfQuestlines, setListOfQuestlines] = useState<IQuestline[]>([]);
-  const [activeQuest, setActiveQuest] = useState<IQuest|null>(null);
-  const [questline, setQuestline] = useState<IQuestline|null>(null);
+  
+  
   const [feats, setFeats] = useState<IFeats[]>([]);
   const [records, setRecords] = useState<IRecords[]>([]);
   const [modal, setModal] = useState<any>(null);
@@ -167,111 +120,6 @@ function StatsController(props: any): IStatsController {
     setPlanningHashira(data.hashiras.planning);
     setFocusHashira(data.hashiras.focus);
     setPerseverenceHashira(data.hashiras.perseverence);
-    fetchActiveQuest();
-  }
-
-  async function fetchActiveQuest() {
-    const data = await QuestsAPI.getActiveQuest();
-    
-    if (data != null){
-      fetchListOfQuestlines();
-      if (activeQuest) 
-        setActiveQuest(null);
-    }
-    else{
-      setActiveQuest(data);
-      fetchQuestlineInfo(data.questline_id);
-    } 
-  }
-
-  async function fetchQuestlineInfo(questline_id?: string) {
-    if (!questline_id && activeQuest)
-      questline_id = activeQuest.questline_id;
-    else
-      return
-    
-    const data = await QuestsAPI.getQuestlineInfo(questline_id);
-
-    setQuestline(data);
-  }
-
-  async function fetchListOfQuestlines() {
-    const data = await QuestsAPI.getQuestlines();
-    console.log(data)
-    setListOfQuestlines(data);
-    fetchFeats();
-    fetchRecords();
-  }
-
-  async function createNewQuest(title: string, description: string, horas: number, minutes: number, todos: string[], xp: number) {
-    if (!questline)
-      throw new Error('No questline found.')
-
-    const type = questline.type === 'main' ? 'main' : 'practice';
-
-    const newQuest = {
-      questline: questline._id,
-      title,
-      description,
-      timecap: (minutes + (horas*60))*60000,
-      todos,
-      xp,
-      type
-    }
-
-    const data = await QuestsAPI.createQuest(newQuest);
-
-    fetchActiveQuest();
-  }
-
-  async function handleQuestTodo(description: string, action: 'finish'|'invalidate') {
-    if (!activeQuest)
-      throw  new Error('Must have an activeQuest');
-    
-    const quest_id = activeQuest._id;
-
-    const response = await QuestsAPI.handleQuestTodo({
-      quest_id,
-      description,
-      action
-    });
-
-    fetchActiveQuest();
-  }
-
-  async function finishQuest(focusScore: number, quest_id: string) {
-
-    const response = await QuestsAPI.finishQuest({quest_id, focusScore});
-
-    fetchActiveQuest();
-  }
-
-  async function sendDistractionPoint() {
-    await QuestsAPI.insertDistractionPoint();
-  }
-
-  async function finishQuestline() {
-    await QuestsAPI.finishMainQuestline();
-
-    fetchStats();
-    setModal(null);
-  }
-
-  async function fetchFinishedQuestlines(): Promise<IQuestline[]> {
-    const response = await QuestsAPI.allFinishedQuestlines();
-    return response;
-  }
-
-  async function createNewQuestline(title: string, descrition: string, duration: number, type: string): Promise<void> {
-    const response = await QuestsAPI.newQuestline({
-      title,
-      descrition,
-      duration, 
-      type
-    });
-
-    setQuestline(response);
-    fetchListOfQuestlines();
   }
 
   async function createNewFeat(title: string, description: string, category: string, tier: number, questline: string) {
@@ -357,19 +205,8 @@ function StatsController(props: any): IStatsController {
     planningHashira,
     focusHashira,
     perseverenceHashira,
-    listOfQuestlines,
-    activeQuest,
-    questline,
-    fetchQuestlineInfo,
     modal,
     modalHandler,
-    createNewQuest,
-    handleQuestTodo,
-    finishQuest,
-    sendDistractionPoint,
-    finishQuestline,
-    fetchFinishedQuestlines,
-    createNewQuestline,
     createNewFeat,
     feats,
     completeFeat,

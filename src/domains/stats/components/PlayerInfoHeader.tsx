@@ -46,7 +46,7 @@ function NextLevelProgressBar(props: any) {
 
 
 function WeekProgress(props: {weekProgress: IDayProgress[]}) {
-  const weekProgress = props.weekProgress;
+  const weekProgress = props.weekProgress||[];
   const weekDay = new Date().getDay();
 
   return  <div className="flex mt-3 ml-1">

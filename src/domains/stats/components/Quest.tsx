@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useStatsController, mlToHours } from "../Stats";
+import { mlToHours } from "../Stats";
 import { Loading } from "../../_general/Loading";
-import { Questline } from './Questline';
+import { Questline, useQuestlineStateController } from './Questline';
 
 function todoStyleClasses(todoState: string) {
   if (todoState === 'active')
@@ -14,16 +14,17 @@ function todoStyleClasses(todoState: string) {
 
 
 export default function Quest(props:any) {
-  let controller = useStatsController()!;  
+  let { activeQuest, questlines } = useQuestlineStateController()!;
   const verbose: boolean = props.verbose === undefined ? true : props.verbose;
-  const {activeQuest, questline} = controller;
 
-  if (!activeQuest || !questline)
+  if (!activeQuest || !questlines.active)
     return <Loading />
+
+  const questline = questlines.active
 
   return  <div className="relative w-96">
             <div className="bg-cyan-700 rounded p-2">
-              {verbose === true && <h2 className="font-bold text-sm cursor-pointer" onClick={() => controller.modalHandler(Questline)}>{questline.title}</h2>}
+              {verbose === true && <h2 className="font-bold text-sm cursor-pointer" onClick={() => {}}>{questline.title}</h2>}
               <h3 className="text-lg">{activeQuest.title}</h3>
               <QuestTodosSection />
               <QuestFinishSection />
@@ -34,23 +35,23 @@ export default function Quest(props:any) {
 }
 
 function QuestTodosSection() {
-  const { activeQuest, handleQuestTodo } = useStatsController()!;
+  const { activeQuest, handleQuestTodo } = useQuestlineStateController()!;
 
   return  <div>
             {
               activeQuest && activeQuest.todos.map(
-                (todo:any) => <div>
-                                <span className={`${todoStyleClasses(todo.state)}`}>{todo.description}</span>
-                                <button className="button-sm" onClick={() => handleQuestTodo(todo.id, 'finish')}>C</button>
-                                <button className="button-icon" onClick={() => handleQuestTodo(todo.id, 'invalidate')}><img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" /></button>
-                              </div>
-                        )
+                (todo) => <div>
+                            <input type="checkbox" checked={todo.state==='finished'} onClick={() => handleQuestTodo(todo.description, 'finish')}/>
+                            <span className={`${todoStyleClasses(todo.state)} mx-3 text-lg`}>{todo.description}</span>
+                            <button className="opacity-10 hover:opacity-100" onClick={() => handleQuestTodo(todo.description, 'invalidate')}><img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" /></button>
+                          </div>
+              )
             }
           </div>
 }
 
 function QuestFinishSection() {
-  const { activeQuest, finishQuest } = useStatsController()!;
+  const { activeQuest, finishQuest } = useQuestlineStateController()!;
   const [focusScore, setFocusScore] = useState<number>(0);
 
   if (!activeQuest?.todos.every((todo:any) => todo.state !== 'active'))
@@ -102,7 +103,7 @@ function QuestFooter(props: any) {
 }
 
 function QuestDistractionWidget() {
-  const { sendDistractionPoint } = useStatsController()!;
+  const { sendDistractionPoint } = useQuestlineStateController()!;
   const [distractionWidget, setDistractionWidget] = useState<boolean>(false);
 
   return  <div className={`absolute border rounded bg-slate-400 p-1 px-3 right-1 top-1 ${!distractionWidget && 'hover:bg-slate-800 hover:cursor-pointer text-xs'}`} 
