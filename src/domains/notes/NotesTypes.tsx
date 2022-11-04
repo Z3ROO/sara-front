@@ -41,4 +41,5 @@ export interface INotesTreeNode {
   state?: string
   parent: INotesTreeNode|null
   children: INotesTree|null
+  content?:string
 }

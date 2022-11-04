@@ -7,7 +7,7 @@ export interface APIResponse<Body> {
   body: Body
 }
 
-export async function getNotesTreeListing(category?: string): Promise<APIResponse<ITreeListing>> {
+export async function getNotesTreeListing(category?: string): Promise<ITreeListing> {
   const { body } = await Requester.get(`/notes/tree-listing/${category}`);
   return body;
 }
@@ -16,7 +16,7 @@ export async function getPageContent(path: string[]){
   const { body } = await Requester.get(
     `/notes/note/${path.join('/')}`
   );
-  
+  console.log(body)
   return body;
 }
 

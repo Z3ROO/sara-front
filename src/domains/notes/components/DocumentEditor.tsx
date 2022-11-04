@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, useParams } from "../../../lib/Router/RouterHooks";
 import { DefaultProps } from "../../_general/types";
 import { useNotesController } from "../NotesStateController";
+import { INotesTreeNode } from "../NotesTypes";
 
 export function DocumentEditor() {
   const controller = useNotesController()!;
   const { getMarkdownFileContent } = controller;
   const {path} = useLocation()!
-  const [openedPage, setOpenedPage] = useState<any>({});
+  const [mdDocument, setMdDocument] = useState<INotesTreeNode|null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [isDocumentSaved, setIsDocumentSaved] = useState<boolean>(true);
   const editorNodeRef = useRef<HTMLPreElement|null>(null);
@@ -17,40 +18,40 @@ export function DocumentEditor() {
 
   useEffect(()=> {
     (async function() {
-      const content = await getMarkdownFileContent(path);
-      setOpenedPage(content);
+      const nodeWithContent = await getMarkdownFileContent(path);
+      setMdDocument(nodeWithContent);
     })().catch(err => {
       throw err;
     });
   },[path]);
   
   useEffect(()=>{
-    if (editorNodeRef.current) {
-      editorNodeRef.current.innerHTML = mdParser.parse(openedPage.content);
+    if (editorNodeRef.current && mdDocument?.content != null) {
+      editorNodeRef.current.innerHTML = mdParser.parse(mdDocument.content);
       
       return Editor(editorNodeRef.current as Element, (e: Event) => {
         const target = e.target as Element;
         const rawMarkdown = mdParser.extractRawMarkdown(target.innerHTML);
         viewerNodeRef.current!.innerHTML = marked.parse(rawMarkdown);
-        setIsDocumentSaved(false)
+        setIsDocumentSaved(false);
       });
     }
-  },[editorNodeRef.current, openedPage]);
+  },[editorNodeRef.current, mdDocument]);
 
   useEffect(() => {
-    if (viewerNodeRef.current)
-      viewerNodeRef.current.innerHTML = marked.parse(openedPage.content);
-  },[viewerNodeRef.current, openedPage]);
+    if (viewerNodeRef.current && mdDocument?.content != null)
+      viewerNodeRef.current.innerHTML = marked.parse(mdDocument.content);
+  },[viewerNodeRef.current, mdDocument]);
   
-  if (!openedPage.title)
+  if (mdDocument?.content == null)
     return null;
 
   return (
     <div className="flex flex-col justify-start w-full h-full">
       <div className='bg-gray-500 text-slate-300 shrink-0 flex flex-col'>
-        <ToolBar {...{ setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef, isDocumentSaved, setIsDocumentSaved }}/>
+        <ToolBar {...{ setIsEditorOpen, isEditorOpen, mdDocument, editorNodeRef, isDocumentSaved, setIsDocumentSaved }}/>
         <div className='text-lg font-bold p-1'>
-          <span className="text-xs">{`${openedPage.path.join('/')}`}</span>
+          <span className="text-xs">{`${mdDocument.path.join('/')}`}</span>
         </div>
       </div>
       <div className="h-full w-full flex min-h-0">
@@ -62,14 +63,14 @@ export function DocumentEditor() {
 }
 
 function ToolBar(props: DefaultProps) {
-  const { setIsEditorOpen, isEditorOpen, openedPage, editorNodeRef, isDocumentSaved, setIsDocumentSaved } = props;
+  const { setIsEditorOpen, isEditorOpen, mdDocument, editorNodeRef, isDocumentSaved, setIsDocumentSaved } = props;
   const { saveNote } = useNotesController()!;
 
   return (
     <div className='p-2'>
       <button className='p-1' onClick={() => setIsEditorOpen((prev: string) => !prev)}>{isEditorOpen ? 'close' : 'open'}</button>
       <button className='p-1' onClick={() => {
-        saveNote(openedPage.path, mdParser.extractRawMarkdown(editorNodeRef.current!.innerHTML));
+        saveNote(mdDocument.path, mdParser.extractRawMarkdown(editorNodeRef.current!.innerHTML));
         setIsDocumentSaved(true);
         }}>
         save{isDocumentSaved ? '' : <strong>*</strong>}

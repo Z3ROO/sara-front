@@ -9,6 +9,7 @@ class TreeNode implements INotesTreeNode {
   state = 'closed';
   children = null;
   parent = null;
+  content?:string;
 
   [key: string]: any;
 

@@ -78,7 +78,7 @@ export function PillsWidget() {
 
   return (
     <PillsStateControllerContext.Provider value={pillsStateController}>
-      <div className="fixed bottom-4 right-4 rounded bg-gray-300 p-2.5 hover:scale-110 transition-all">
+      <div className="fixed bottom-4 right-4 rounded bg-gray-300 p-2.5 opacity-50 hover:opacity-100 hover:scale-110 transition-all">
         {
           toggle ?
           <PillToTake {...{takePill, cancelPillTaking}} /> :

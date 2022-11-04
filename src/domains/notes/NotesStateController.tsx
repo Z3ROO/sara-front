@@ -24,17 +24,17 @@ export function NotesController(): INotesController {
       return setNotesTree({...notesTreeRef.current});
 
     const response = await NotesAPI.getNotesTreeListing(category);
-    if (response.status === 'ok') {
-      notesTreeRef.current.updateTree(response.body);
-      setNotesTree({...notesTreeRef.current});
-    }
+
+    notesTreeRef.current.updateTree(response);
+    setNotesTree({...notesTreeRef.current});
+    
   }
 
   async function getMarkdownFileContent(path: string[]) {
     await updateNotesTree(path[1]);
     let node = notesTreeRef.current.findNode(path.slice(1));
     const response = await NotesAPI.getPageContent(node.path);
-    return {...node, content:response.body};
+    return {...node, content: response};
   }
 
   async function createNewItem(directory: string[], name: string) {
@@ -52,19 +52,18 @@ export function NotesController(): INotesController {
   }
 
   async function deleteNote(directory: string[]) {
-    const {status} = await NotesAPI.deleteNote(directory);
-    if (status === 'ok') {
+    await NotesAPI.deleteNote(directory);
+    
       notesTreeRef.current.remove(directory);
       await updateNotesTree();
-    }
+    
   }
 
   async function deleteFolder(directory: string[]) {
-    const {status} = await NotesAPI.deleteFolder(directory);
-    if (status === 'ok') {
-      notesTreeRef.current.remove(directory);
-      await updateNotesTree();
-    }
+    await NotesAPI.deleteFolder(directory);
+    
+    notesTreeRef.current.remove(directory);
+    await updateNotesTree();    
   }
 
   async function saveNote(path: string[], content: string) {
