@@ -24,6 +24,9 @@ export function Router(props:any) {
             }
           })
         }
+        {
+          props.children.filter((child:any) => child.props.path === undefined)
+        }
       </RouterContext.Provider>
     )
 
@@ -46,6 +49,9 @@ export function Routes(props: any) {
           return !!fullPath.match(pattern);
 
         }) || <div className="flex justify-center items-center w-full h-full"><span className="text-7xl text-red-500">404</span></div>
+      }
+      {
+        props.children.filter((child:any) => child.props.path === undefined)
       }
     </>
   )
