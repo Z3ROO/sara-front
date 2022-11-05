@@ -8,8 +8,11 @@ export interface IreponseWrapper {
 
 export type IRequestBody = string|IJSONValidObject|(IRequestBody)[]
 
+const API_DOMAIN = 'http://localhost:3001';
+
 export default class Requester {
   static async get(URL: string, headers?: HeadersInit) {
+    URL = API_DOMAIN + URL;
     const request = await fetch(URL, {
       method:'get',
       headers: {
@@ -18,7 +21,6 @@ export default class Requester {
       }
     });
     
-    console.log('asdasdas')
     const response = await request.json();
 
     return Requester.responseWrapper({URL, method: 'get'}, response);
@@ -37,6 +39,9 @@ export default class Requester {
   }
 
   static async baseRequest(method: string, URL: string, headers?: IJSONValidObject | string, body?: IRequestBody) {
+    
+    URL = API_DOMAIN + URL;
+    
     if (typeof headers === 'string'){
       if(!body) {
         body = headers;
