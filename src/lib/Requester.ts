@@ -1,3 +1,5 @@
+const prod_env = process.env.NODE_ENV === 'production';
+
 export interface IJSONValidObject {
   [key: string]: string|IJSONValidObject|(string|IJSONValidObject)[]
 }
@@ -8,7 +10,7 @@ export interface IreponseWrapper {
 
 export type IRequestBody = string|IJSONValidObject|(IRequestBody)[]
 
-const API_DOMAIN = 'http://localhost:3001';
+const API_DOMAIN = `http://localhost:${prod_env ? '1337' : '3001'}`;
 
 export default class Requester {
   static async get(URL: string, headers?: HeadersInit) {
