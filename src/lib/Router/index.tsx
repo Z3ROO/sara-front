@@ -36,8 +36,10 @@ function filterRouteOptions(nodes: JSX.Element[], path: string[], prefix?:string
     let splitedChildPath = splitedLocation(childPath);
 
     if (splitedChildPath.length === 0) { // CHECKING IF IS ROOT DIRECTORY
-      if (path.length === 0)
+      if (path.length === 0) {
+        allRelevantPaths.push('/');
         return true
+      }
       return false
     }
 
