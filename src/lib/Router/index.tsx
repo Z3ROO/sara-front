@@ -109,9 +109,11 @@ export function Routes(props: {children: JSX.Element[]|JSX.Element, prefix?:stri
   )
 }
 
-export function Route(props: any) {
+export function Route(props: {children?:JSX.Element|JSX.Element[], element?: JSX.Element, path?: string}) {
+  const { element, children } = props;
+  const content = children ? children : element;
   return (
-    <>{props.element}</>
+    <>{content}</>
   )
 }
 
