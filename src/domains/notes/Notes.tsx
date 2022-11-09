@@ -12,7 +12,7 @@ export function Notes(props: DefaultProps) {
   return  <NotesControllerContext.Provider value={controller}>
             <Routes prefix='/notes'>
               <HomeScreen path="./" controller={controller} />
-              <NotesManager path="./:category/**" controller={controller} />
+              <NotesManager path="./:category" controller={controller} />
             </Routes>
           </NotesControllerContext.Provider>
 }

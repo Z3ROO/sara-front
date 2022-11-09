@@ -23,10 +23,13 @@ export function Router(props:{children: JSX.Element[]|JSX.Element}) {
 
 function filterRouteOptions(nodes: JSX.Element[], path: string[], prefix?:string) {
   let mostEspecificRoute = '/';
+  const allRelevantPaths:string[] = [];
 
   const filteringPossibleOptions = nodes.filter((child) => {
-    if (child.props.path === undefined) //NODES WITHOUD PATH PROPS ARE INCLUDED
+    if (child.props.path === undefined) { //NODES WITHOUD PATH PROPS ARE INCLUDED
+      allRelevantPaths.push(''); // ONLY TO MATCH FILTERED ARRAY QTD
       return true;
+    }
     
     let childPath = attachRoutePrefix(child.props.path, prefix); //attaching route prefix if has one
 
@@ -45,12 +48,13 @@ function filterRouteOptions(nodes: JSX.Element[], path: string[], prefix?:string
       relevantPath = '/'+path.join('/');
     else
       relevantPath = '/'+path.slice(0, splitedChildPath.length).join('/');
-
+    
     const pattern = parsePath(splitedChildPath);
     if (!!relevantPath.match(pattern)) {
-      if (isRecursiveDirectory)
-        mostEspecificRoute = childPath;
-      else if (relevantPath.length > mostEspecificRoute.length && mostEspecificRoute[mostEspecificRoute.length-1] !== '*')
+      
+      allRelevantPaths.push(relevantPath);
+      
+      if (relevantPath.length > mostEspecificRoute.length)
         mostEspecificRoute = relevantPath;
 
       return true;
@@ -59,13 +63,15 @@ function filterRouteOptions(nodes: JSX.Element[], path: string[], prefix?:string
     return false;
   });
 
-  const filteringExactOptions = filteringPossibleOptions.filter((child) => {
+  const filteringExactOptions = filteringPossibleOptions.filter((child, index) => {
     
     if(child.props.path) {
-      let childPath = attachRoutePrefix(child.props.path, prefix); //attaching route prefix if has one
+      let childPath = allRelevantPaths[index]; //attachRoutePrefix(child.props.path, prefix); //attaching route prefix if has one
 
-      if (childPath === mostEspecificRoute)
+      if (childPath === mostEspecificRoute) {
+        mostEspecificRoute = '';
         return true;
+      }
       
       return false;
     }
@@ -137,9 +143,9 @@ export const splitedLocation = (path?:string) => (path ? path : window.location.
 export function parsePath(splitedPathPattern: string[], contains?:boolean) {
   splitedPathPattern = splitedPathPattern.map((pathChunk, index) => {
     if (pathChunk === '*') 
-      return '([^/]+)(?:/([^/]+))*';
+      return '([^/]+)(?:/([^/]+))*'; // MUST HAVE ONE DIRECTORY TO REPRESENT '*'
     if (pathChunk === '**')
-      return '?(?:([^/]+)(?:/([^/]+))*)?';
+      return '?(?:([^/]+)(?:/([^/]+))*)?'; // DIRECTORY OPTIONAL
 
     if (pathChunk.length > 1){
       if (pathChunk.charAt(0) === ':')
