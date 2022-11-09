@@ -6,73 +6,99 @@ import { IRouterStateController } from "./RouterTypes";
 export const RouterContext = createContext<IRouterStateController|null>(null);
 
 
-export function Router(props:any) {
+export function Router(props:{children: JSX.Element[]|JSX.Element}) {
   const routerStateController = RouterStateController();
   const {path} = routerStateController;
+  let { children } = props;
+
+  if (!Array.isArray(children))
+    children = [children];
+
+  return  (
+    <RouterContext.Provider value={routerStateController}>
+      { filterRouteOptions(children, path) }
+    </RouterContext.Provider>
+  )
+}
+
+function filterRouteOptions(nodes: JSX.Element[], path: string[], prefix?:string) {
+  let mostEspecificRoute = '/';
+
+  const filteringPossibleOptions = nodes.filter((child) => {
+    if (child.props.path === undefined) //NODES WITHOUD PATH PROPS ARE INCLUDED
+      return true;
+    
+    let childPath = attachRoutePrefix(child.props.path, prefix); //attaching route prefix if has one
+
+    let splitedChildPath = splitedLocation(childPath);
+
+    if (splitedChildPath.length === 0) { // CHECKING IF IS ROOT DIRECTORY
+      if (path.length === 0)
+        return true
+      return false
+    }
+
+    const isRecursiveDirectory = ['**', '*'].includes(splitedChildPath[splitedChildPath.length-1]);
+
+    let relevantPath:string;
+    if (isRecursiveDirectory)
+      relevantPath = '/'+path.join('/');
+    else
+      relevantPath = '/'+path.slice(0, splitedChildPath.length).join('/');
+
+    const pattern = parsePath(splitedChildPath);
+    if (!!relevantPath.match(pattern)) {
+      if (isRecursiveDirectory)
+        mostEspecificRoute = childPath;
+      else if (relevantPath.length > mostEspecificRoute.length && mostEspecificRoute[mostEspecificRoute.length-1] !== '*')
+        mostEspecificRoute = relevantPath;
+
+      return true;
+    }
+
+    return false;
+  });
+
+  const filteringExactOptions = filteringPossibleOptions.filter((child) => {
+    
+    if(child.props.path) {
+      let childPath = attachRoutePrefix(child.props.path, prefix); //attaching route prefix if has one
+
+      if (childPath === mostEspecificRoute)
+        return true;
+      
+      return false;
+    }
+
+    return true
+  })
+
+  return filteringExactOptions;
+}
+
+function attachRoutePrefix(childPath: string, prefix?: string) {
+  if (childPath.match(/^\.\/.*/)) {
+    if (!prefix)
+      throw new Error('Route prefix must be set for local directories');
+
+    childPath = prefix + childPath.substring(1);
+  }
   
-  if (Array.isArray(props.children))
-    return  (
-      <RouterContext.Provider value={routerStateController}>
-        {
-          props.children.find((child:any) => {
-            const parsedChildPath = splitedLocation(child.props.path);
+  childPath = childPath.replace(/(?<=.+)\/$/g,''); // REMOVE '/' OF THE END IF HAS ONE
 
-            if (path.length === 0 && parsedChildPath.length === 0) 
-              return true;
-            if (parsedChildPath[0] === path[0]) {
-              return true;
-            }
-          })
-        }
-        {
-          props.children.filter((child:any) => child.props.path === undefined)
-        }
-      </RouterContext.Provider>
-    )
-
-  return (
-    <></>
-  )
+  return childPath;
 }
 
-export function Routes(props: any) {
+export function Routes(props: {children: JSX.Element[]|JSX.Element, prefix?:string}) {
   const {path, fullPath} = useLocation()!;
+  let { children, prefix } = props;
+
+  if (!Array.isArray(children))
+    children = [children];
 
   return (
     <>
-      {
-        props.children.find((child: any) => {
-          let parsedChildPath = splitedLocation(child.props.path);
-
-          const pattern = parsePath(parsedChildPath);
-          
-          return !!fullPath.match(pattern);
-
-        }) || <div className="flex justify-center items-center w-full h-full"><span className="text-7xl text-red-500">404</span></div>
-      }
-      {
-        props.children.filter((child:any) => child.props.path === undefined)
-      }
-    </>
-  )
-}
-
-function Routess(props: any) {
-  const {path} = useLocation()!;
-  return (
-    <>
-      {
-        props.children.find((child: any) => {
-          const parsedChildPath = splitedLocation(child.props.path);
-          
-          for (let i = 0; i < path.length; i++) {
-            if (parsedChildPath[i] !== path[i])
-              return false;
-          }
-
-          return true;
-        })
-      }
+      { filterRouteOptions(children, path, prefix) }
     </>
   )
 }
@@ -84,12 +110,12 @@ export function Route(props: any) {
 }
 
 export function Link(props: any) {
-  const href = props.href;
+  let href:string = props.href;
   const {path, traversePath} = useLocation()!;
 
   return (
     <span
-      onClick={(e) => linkHandler(e, href, traversePath)}
+      onClick={(e) => linkHandler(e, href, traversePath) }
       {...props}
     >
       {props.children}
@@ -108,7 +134,7 @@ function linkHandler(event: React.MouseEvent<HTMLSpanElement, MouseEvent>, href:
 export const splitedLocation = (path?:string) => (path ? path : window.location.pathname).split('/').filter(dir => dir.trim() !== '');
 
 
-export function parsePath(splitedPathPattern: string[]) {
+export function parsePath(splitedPathPattern: string[], contains?:boolean) {
   splitedPathPattern = splitedPathPattern.map((pathChunk, index) => {
     if (pathChunk === '*') 
       return '([^/]+)(?:/([^/]+))*';
@@ -127,6 +153,9 @@ export function parsePath(splitedPathPattern: string[]) {
     
     return '('+pathChunk.replace(/(\.|\+)/g,'\\$1')+')';
   });
+
+  if (contains)
+    return new RegExp('^/'+splitedPathPattern.join('/'));
 
   const regExpPattern = new RegExp('^/'+splitedPathPattern.join('/')+'$');
 

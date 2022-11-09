@@ -69,7 +69,7 @@ function App() {
                 <Stats path="/" />
                 <Route path="/teste" element={<TestPage />} />
                 <Notes path="/notes" />
-                <Route path="/fc" element={<Flashcards AppController={controller} />} />
+                <Route path="/teste/fc" element={<Flashcards AppController={controller} />} />
                 <MainMenu />
               </Router>
               {controller.contextMenu}

@@ -10,9 +10,9 @@ export function Notes(props: DefaultProps) {
   const controller = NotesController();
 
   return  <NotesControllerContext.Provider value={controller}>
-            <Routes>
-              <HomeScreen path="/notes" controller={controller} />
-              <NotesManager path="/notes/:category/**" controller={controller} />
+            <Routes prefix='/notes'>
+              <HomeScreen path="./" controller={controller} />
+              <NotesManager path="./:category/**" controller={controller} />
             </Routes>
           </NotesControllerContext.Provider>
 }

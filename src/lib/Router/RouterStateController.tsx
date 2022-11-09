@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { splitedLocation } from ".";
 import { IRouterStateController } from "./RouterTypes";
 
 export function RouterStateController(): IRouterStateController {
   const currentPath = splitedLocation();
   const [path, setPath] = useState(currentPath);
+  const cwd = useRef('/');
+  const setCwd = (value:string) => cwd.current = value
 
   function traversePath(newPath: string|string[]) {
     if (newPath === '__back') {
@@ -35,6 +37,8 @@ export function RouterStateController(): IRouterStateController {
   return {
     path,
     traversePath,
+    cwd, 
+    setCwd,
     fullPath: '/'+path.join('/')
   }
 }

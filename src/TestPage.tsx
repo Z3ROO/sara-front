@@ -31,6 +31,6 @@ export default function TestPage() {
   const controller = Controller();
 
   return  <div className="bg-white">
-            
+            <span className="text-white">teste</span>
           </div>
 }
