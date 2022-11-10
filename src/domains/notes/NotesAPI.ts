@@ -16,7 +16,6 @@ export async function getPageContent(path: string[]){
   const { body } = await Requester.get(
     `/notes/note/${path.join('/')}`
   );
-  console.log(body)
   return body;
 }
 
