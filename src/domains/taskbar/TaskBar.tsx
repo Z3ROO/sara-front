@@ -1,9 +1,10 @@
-import { HiInboxArrowDown } from 'react-icons/hi2';
+import { HiInboxArrowDown, HiInbox } from 'react-icons/hi2';
 import { GiHillConquest } from 'react-icons/gi';
 import { useEffect, useState } from "react";
 import useClock from "../../lib/hooks/useClock";
 import { Link } from "../../lib/Router/index";
 import { DefaultProps } from "../_general/types";
+import { InboxInputWidgetButton, InboxReviewAlertIcon } from '../inbox/Inbox';
 
 export default function TaskBar() {
   const {time, date} = useClock();
@@ -14,14 +15,19 @@ export default function TaskBar() {
           <MainMenu />
         </div>
         <div className='mr-2'>
-          <HiInboxArrowDown className='w-4' />
+          <InboxInputWidgetButton />
         </div>
       </div>
       <div className="min-w-fit shrink-0">
         <span className="text-sm font-bold">{`${date} - ${time}`}</span>
       </div>
       <div className="w-full flex justify-end px-2 items-center">
-        <GiHillConquest className="w-4 fill-green-600" />
+        <div className='mr-2'>
+          <InboxReviewAlertIcon />
+        </div>
+        <div className='mr-2'>
+          <GiHillConquest className="w-4 fill-green-600" />
+        </div>
       </div>
     </div>
   )
