@@ -98,9 +98,11 @@ function PillToTake(props: {takePill: (pill_id:string) => Promise<void>, cancelP
   const {pills} = usePillsStateController()!;
   const {_id, name, description} = pills![0];
   return (
-    <>
+    <div className="max-w-sm">
       <h5>{name}</h5>
-      <p>{description}</p>
+      <div className="max-h-32 overflow-auto">
+        <p>{description}</p>
+      </div>
       <div className="flex">
         <button 
           onClick={() => { props.takePill(_id) }}
@@ -111,7 +113,7 @@ function PillToTake(props: {takePill: (pill_id:string) => Promise<void>, cancelP
           className="m-1 p-1 border border-black cursor-pointer"
         >Cancelar</button>
       </div>
-    </>
+    </div>
   )
 }
 
