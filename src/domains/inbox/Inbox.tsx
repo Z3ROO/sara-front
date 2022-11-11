@@ -1,3 +1,4 @@
+import { BsListTask } from 'react-icons/bs';
 import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { HiInboxArrowDown, HiInbox } from "react-icons/hi2";
 import { Loading } from "../_general/Loading";
@@ -31,12 +32,18 @@ function InboxStateController() {
 
   async function getRawInbox() {
     const items = await InboxAPI.getRawInbox();
-    setRawInbox(items);
+    if (items.length === 0)
+      setRawInbox(null);
+    else
+      setRawInbox(items);
   }
 
   async function getReviewedInbox() {
     const items = await InboxAPI.getReviewedInbox();
-    setReviewedInbox(items);
+    if (items.length === 0)
+      setReviewedInbox(null);
+    else
+      setReviewedInbox(items);
   }
 
   function reviewInboxItem(index:number, content: string) {
@@ -50,7 +57,7 @@ function InboxStateController() {
   }
   function defferInboxItem(index:number, content: string) {
     const {_id} = rawInbox!![index];
-    InboxAPI.defferInboxItem(_id, content);
+    InboxAPI.deferInboxItem(_id, content);
 
     if (rawInbox!.length === 1)
       setRawInbox(null);
@@ -95,7 +102,7 @@ function InboxInputWidget() {
   )
 }
 
-export function InboxReviewAlertIcon() {
+export function InboxReviewButton() {
   const inboxStateController = InboxStateController();
   const {toggle, setToggle} = inboxStateController;
 
@@ -123,16 +130,16 @@ function InboxReviewModal() {
 
   if (rawInbox === undefined)
     return (
-    <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="rounded p-2 bg-gray-300 relative flex flex-col">
-        <button 
-          onClick={setToggle}
-          className="absolute top-2 right-2 opacity-50 hover:opacity-100"
-          >x</button>
-        <Loading />
+      <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="rounded p-2 bg-gray-300 relative flex flex-col">
+          <button 
+            onClick={setToggle}
+            className="absolute top-2 right-2 opacity-50 hover:opacity-100"
+            >x</button>
+          <Loading />
+        </div>
       </div>
-    </div>
-          )
+    )
 
   if (rawInbox === null)
     return  <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-50 z-50 flex justify-center items-center">
@@ -169,6 +176,74 @@ function InboxReviewModal() {
           >Review</button>
         </div>
       </div>
+    </div>
+  )
+}
+
+export function ReviewedInboxButton() {
+  const inboxStateController = InboxStateController();
+  const { toggle, setToggle, getReviewedInbox, reviewedInbox } = inboxStateController;
+  
+  useEffect(() => {
+    getReviewedInbox();
+  },[]);
+
+  if (reviewedInbox == null)
+    return <></>
+
+  return (
+    <InboxStateControllerContext.Provider value={inboxStateController}>
+      <BsListTask className="w-4 cursor-pointer" onClick={setToggle}/>
+      {
+        toggle && <ReviewedInboxWidget />
+      }
+    </InboxStateControllerContext.Provider>
+  )
+}
+
+export function ReviewedInboxWidget() {
+  const { setToggle, reviewedInbox, getReviewedInbox } = useInboxSC()!;
+  
+  useEffect(() => {
+    getReviewedInbox();
+  },[]);
+
+  if (reviewedInbox === undefined)
+    return (
+      <div className="taskbar-menu-growing absolute top-8 right-4 p-4 z-30 rounded-md bg-gray-300 flex flex-col">
+        <Loading />
+      </div>
+    )
+
+  if (reviewedInbox === null)
+    return (
+      <div className="taskbar-menu-growing absolute top-8 right-4 p-4 z-30 rounded-md bg-gray-300 flex flex-col">
+        <div className='mx-2 my-4'>Lista vazia.</div>
+      </div>
+    )
+
+  return (
+    <div className="taskbar-menu-growing absolute top-8 right-4 p-4 z-30 rounded-md bg-gray-300 flex flex-col">
+      <h5>Reviewed Inbox items</h5>
+      <div className='max-h-96 overflow-y-auto overflow-x-hidden'>
+        {
+          reviewedInbox.map(item => (
+            <div className='flex m-2 w-64 border border-gray-550 rounded hover:bg-gray-400'>
+              <div className='p-1 w-full'>{item.content}</div>
+              <button
+                className='p-3 shrink-0'
+                onClick={() => {
+                  InboxAPI.deleteInboxItem(item._id)
+                }}
+              >x</button>
+            </div>
+          ))
+        }
+      </div>
+      <button 
+        onClick={setToggle}
+        className="mt-4 p-1 border border-black rounded cursor-pointer"
+      >fechar</button>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import useClock from "../../lib/hooks/useClock";
 import { Link } from "../../lib/Router/index";
 import { DefaultProps } from "../_general/types";
-import { InboxInputWidgetButton, InboxReviewAlertIcon } from '../inbox/Inbox';
+import { InboxInputWidgetButton, InboxReviewButton, ReviewedInboxButton } from '../inbox/Inbox';
 
 export default function TaskBar() {
   const {time, date} = useClock();
@@ -23,8 +23,14 @@ export default function TaskBar() {
       </div>
       <div className="w-full flex justify-end px-2 items-center">
         <div className='mr-2'>
-          <InboxReviewAlertIcon />
+          <ReviewedInboxButton />
         </div>
+        {
+          !(new Date().getHours() > 2 && new Date().getHours() < 20) &&
+          <div className='mr-2'>
+            <InboxReviewButton />
+          </div>
+        }
         <div className='mr-2'>
           <GiHillConquest className="w-4 fill-green-600" />
         </div>
