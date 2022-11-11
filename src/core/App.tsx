@@ -1,14 +1,13 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
-import { BrowserRouter, Routes } from 'react-router-dom';
-import { Flashcards } from '../domains/flashcards/Flashcards';
-import { Notes } from '../domains/notes/Notes'
+import { Flashcards } from '../features/flashcards/Flashcards';
+import { Notes } from '../features/notes/Notes'
 import TestPage from '../TestPage'
-import { ContextMenu } from '../domains/_general/ContextMenu';
-import Stats from '../domains/stats/Stats';
+import { ContextMenu } from '../ui/ContextMenu';
+import Stats from '../features/stats/Stats';
 import { Router, Route, Link } from '../lib/Router';
-import { PillsWidget } from '../domains/stats/Pills';
-import { DefaultProps } from '../domains/_general/types';
-import TaskBar from '../domains/taskbar/TaskBar';
+import { PillsWidget } from '../features/pills/components/Pills';
+import TaskBar from '../features/taskbar/TaskBar';
+import DesignSystems from '../features/DesignSystems/DesignSystems';
 
 export type IAppController = {
   modal: any;
@@ -69,9 +68,10 @@ function App() {
               <Router>                
                 <TaskBar />
                 <Stats path="/" />
-                <Route path="/teste" element={<TestPage />} />
                 <Notes path="/notes" />
-                <Route path="/teste/fc" element={<Flashcards AppController={controller} />} />
+                <Route path="/flashcards" element={<Flashcards AppController={controller} />} />
+                <Route path="/design-systems"><DesignSystems /></Route>
+                <Route path="/teste" element={<TestPage />} />
               </Router>
               {controller.contextMenu}
               
