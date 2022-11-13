@@ -61,7 +61,7 @@ span.marker {
   box-sizing: border-box;
 }
 
-@keyframes taskbar-menu-animation {
+@keyframes growing-animation {
   from {
     transform: scale(0) translateY(-6rem);
   }
@@ -83,9 +83,14 @@ span.marker {
   animation: slidein-ltr 200ms;
 }
 
-.taskbar-menu-growing {
+.growing-to-left-ani {
   transform-origin: 0 0;
-  animation: taskbar-menu-animation 200ms;
+  animation: growing-animation 200ms;
+}
+
+.growing-to-right-ani {
+  transform-origin: right 0;
+  animation: growing-animation 200ms;
 }
 
 body {

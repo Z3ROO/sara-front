@@ -13,9 +13,8 @@ export default function TaskBar() {
   return (
     <div className="h-6 w-full bg-gray-300 flex relative justify-between">
       <div className="w-full flex px-2 items-center">
-        <div className="mr-2 pr-2 grow-0 border-r border-black">
-          <MainMenu />
-        </div>
+        <ButtonForTaskBar Icon={MenuIcon} children={MainMenu} />
+        <div className='pr-1 mr-1 border-r border-black h-4/6' />
         <ButtonForTaskBar Icon={HiInboxArrowDown}>
           <InboxInputWidget />
         </ButtonForTaskBar>
@@ -52,7 +51,7 @@ function UsernameAndLevel(props: any) {
   )
 }
 
-function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: JSX.Element, fullScreen?: boolean, maintainOpen?: boolean, modal?: boolean }) {
+function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: JSX.Element|((props:any) => JSX.Element), fullScreen?: boolean, maintainOpen?: boolean, modal?: boolean }) {
   let { Icon, children, maintainOpen, fullScreen, modal } = props;
   const [toggle, setToggle] = useState(false);
   let content:JSX.Element|null = null;
@@ -69,7 +68,10 @@ function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: J
 
   }, [toggle]);
   
-  
+  if (typeof children === 'function') {
+    const Children = children;
+    children = <Children close={() => setToggle(false)} />
+  }
   
   if (children && buttonRef.current) {
 
@@ -89,7 +91,7 @@ function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: J
     else {
       const side = buttonRef.current.getBoundingClientRect().right > (window.innerWidth / 2) ? 'right' : 'left'
       children = (
-        <div className={`absolute top-8 -${side}-2`}>
+        <div className={`absolute top-8 -${side}-2 z-50 rounded bg-gray-300 growing-to-${side}-ani`}>
           { children }
         </div>
       )
@@ -117,7 +119,7 @@ function Modal(props: {children:JSX.Element, close: () => void}) {
   const { children, close } = props;
 
   return (
-    <div className='fixed z-50 top-0 left-0 w-full h-screen flex justify-center items-center'>
+    <div className='fixed z-50 top-0 left-0 w-full h-screen flex justify-center items-center bg-gray-800 bg-opacity-60'>
       <div className='rounded p-2 relative bg-gray-300'>
       <button 
         onClick={close}
@@ -172,18 +174,7 @@ function StatusIconForTaskbar(props: { Icon: ((props:any)=>JSX.Element), statusC
   )
 }
 
-function MainMenu() {
-  const [toggle, setToggle] = useState(false);
-
-  return (
-    <>
-      { toggle && <MenuIconsList {...{toggle, setToggle}} /> }
-      <MenuIcon className="w-3.5 cursor-pointer" onClick={() => { setToggle(prev => !prev) }} />
-    </>
-  )
-}
-
-function MenuIconsList(props: {toggle: boolean, setToggle: React.Dispatch<React.SetStateAction<boolean>>}) {
+function MainMenu(props: {close: () => void}) {
   const iconList = [
     { title: 'Home', link: '/', Icon: MenuIcon },
     { title: 'Notes', link: '/notes', Icon: MenuIcon },
@@ -195,10 +186,10 @@ function MenuIconsList(props: {toggle: boolean, setToggle: React.Dispatch<React.
   ];
 
   return (
-    <div className="flex flex-wrap max-w-[288px] absolute top-8 bg-gray-300 rounded-md shadow-md z-30 taskbar-menu-growing ">
+    <div className="flex flex-wrap w-72 shadow-md">
       {
         iconList.map(icon => (
-            <SectionIcon {...icon} onClick={() =>props.setToggle(false)} />
+            <SectionIcon {...icon} onClick={props.close} />
           )
         )
       }
