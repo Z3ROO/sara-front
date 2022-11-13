@@ -79,6 +79,7 @@ export function InboxInputWidget() {
       <button 
         onClick={() => {
           InboxAPI.insertInboxItem(textareaInput);
+          setTextareaInput('');
         }}
         className="mt-4 p-1 border border-black rounded cursor-pointer"
       >Inserir</button>
