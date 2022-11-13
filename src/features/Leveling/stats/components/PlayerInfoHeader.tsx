@@ -8,7 +8,10 @@ export default function PlayerInfo() {
       name: 'zero',
       freeTime: (12*60*60*1000),
       level: 49,
-      maestria: 'Mestre'
+      maestria: 'Mestre',
+      lastLevelXp: 1000,
+      xp: 1650,
+      nextLevelXp: 2000,
     },
     weekFeedback: [
       {
