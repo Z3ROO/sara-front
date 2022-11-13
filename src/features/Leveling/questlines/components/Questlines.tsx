@@ -5,6 +5,7 @@ import Quests, { INewQuest, IQuest } from "../../quests/components/Quests";
 import * as QuestsAPI from '../../quests/QuestsAPI';
 import * as QuestlinesAPI from '../QuestlinesAPI';
 import { Label } from "../../../../ui/forms";
+import { QuestStatusCaller4Taskbar } from "../../../taskbar/TaskBar";
 
 export interface IQuestline {
   _id: string
@@ -78,9 +79,17 @@ export function QuestlineStateController():IQuestlineStateController {
   async function getActiveQuest() {
     const data = await QuestsAPI.getActiveQuest();
     setActiveQuest(data);
-
-    if (data != null)
+    
+    if (data != null) {
+      QuestStatusCaller4Taskbar.setStatus({
+        color: 'yellow',
+        name: 'active'
+      });
       getAllQuestlines();
+    }
+    else {
+      QuestStatusCaller4Taskbar.setStatus({});
+    }
   }
 
   async function createNewQuest(title: string, description: string, 
@@ -95,7 +104,7 @@ export function QuestlineStateController():IQuestlineStateController {
       description,
       timecap: (minutes + (horas*60))*60000,
       todos,
-      type,
+      type
     }
 
     const data = await QuestsAPI.createQuest(newQuest);
@@ -214,7 +223,6 @@ function QuestlineList() {
   if (!questlines.previous)
     return <Loading />
 
-  console.log(questlines.active)
   return (
     <div className="flex">
       {
@@ -415,3 +423,5 @@ function CreateNewQuestTodosSection(props: any) {
               }><img className="w-3" src="/icons/ui/plus-sign.svg" alt="close-x" /></button>
             </div>
 }
+
+

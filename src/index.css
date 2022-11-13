@@ -70,6 +70,19 @@ span.marker {
   }
 }
 
+@keyframes slidein-ltr {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slidein-ltr-animation {
+  animation: slidein-ltr 200ms;
+}
+
 .taskbar-menu-growing {
   transform-origin: 0 0;
   animation: taskbar-menu-animation 200ms;

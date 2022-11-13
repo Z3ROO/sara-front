@@ -3,11 +3,11 @@ import { Flashcards } from '../features/flashcards/Flashcards';
 import { Notes } from '../features/notes/Notes'
 import TestPage from '../TestPage'
 import { ContextMenu } from '../ui/ContextMenu';
-import Stats from '../features/stats/Stats';
 import { Router, Route, Link } from '../lib/Router';
 import { PillsWidget } from '../features/pills/components/Pills';
 import TaskBar from '../features/taskbar/TaskBar';
 import DesignSystems from '../features/DesignSystems/DesignSystems';
+import Home from '../features/home/Home';
 
 export type IAppController = {
   modal: any;
@@ -67,7 +67,7 @@ function App() {
             <div className="h-screen bg-gray-800 flex flex-col">
               <Router>                
                 <TaskBar />
-                <Stats path="/" />
+                <Home path="/" />
                 <Notes path="/notes" />
                 <Route path="/flashcards" element={<Flashcards AppController={controller} />} />
                 <Route path="/design-systems"><DesignSystems /></Route>

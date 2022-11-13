@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
 import { Loading } from "../../../../ui/Loading";
 import { Questline, useQuestlineStateController } from '../../questlines/components/Questlines';
+import { QuestStatusCaller4Taskbar } from "../../../taskbar/TaskBar";
 
 export interface INewQuest {
   questline_id?: string
@@ -114,6 +115,10 @@ function QuestFooter(props: any) {
       if (timePassed < 0){
         timePassed = Math.abs(timePassed);
         setOvertime(true);
+        QuestStatusCaller4Taskbar.setStatus({
+          color: 'red',
+          name: 'Overtime'
+        })
       }
       setQuestTimer(mlToHours(timePassed));
     }

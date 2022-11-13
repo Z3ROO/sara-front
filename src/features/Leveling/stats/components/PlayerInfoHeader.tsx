@@ -1,9 +1,46 @@
 import { useStatsController } from "../Stats";
-import { mlToHours } from "../../../util/mlToHours";
-import { IDayProgress } from "../StatsStateController";
+import { mlToHours } from "../../../../util/mlToHours";
+import { IDayFeedback } from "../StatsStateController";
 
-export default function PlayerInfo(props: any) {
-  const controller = useStatsController()!;
+export default function PlayerInfo() {
+  const controller = {
+    player: {
+      name: 'zero',
+      freeTime: (12*60*60*1000),
+      level: 49,
+      maestria: 'Mestre'
+    },
+    weekFeedback: [
+      {
+        hours: (60*60*1000),
+        status: 3
+      },
+      {
+        hours: (2*60*60*1000),
+        status: 1
+      },
+      {
+        hours: (6*60*60*1000),
+        status: 2
+      },
+      {
+        hours: (3*60*60*1000),
+        status: 1
+      },
+      {
+        hours: (8*60*60*1000),
+        status: 2
+      },
+      {
+        hours: (60*60*1000),
+        status: 3
+      },
+      {
+        hours: 0,
+        status: 0
+      }
+    ]
+  };
 
   const { player } = controller;
   const freeTime = mlToHours(player.freeTime);
@@ -16,7 +53,7 @@ export default function PlayerInfo(props: any) {
               <div className="flex flex-col w-full text-right">
                 <div className="flex justify-between">
                   <div className="flex flex-col justify-between">
-                    <WeekProgress weekProgress={controller.weekProgress}/>
+                    <WeekFeedbackMicroWidget weekFeedback={controller.weekFeedback as IDayFeedback[]}/>
                     <span className="text-sm ml-1">Free time: {freeTime.hours}h {freeTime.minutes}m</span>
                   </div>
                   <div className="flex flex-col">
@@ -46,26 +83,26 @@ function NextLevelProgressBar(props: any) {
 }
 
 
-function WeekProgress(props: {weekProgress: IDayProgress[]}) {
-  const weekProgress = props.weekProgress||[];
+function WeekFeedbackMicroWidget(props: {weekFeedback: IDayFeedback[]}) {
+  const weekFeedback = props.weekFeedback||[];
   const weekDay = new Date().getDay();
 
   return  <div className="flex mt-3 ml-1">
             {
-              weekProgress.map((dayProgress, index) => <DayOfWeekProgress dayProgress={dayProgress} today={weekDay === index}/>)
+              weekFeedback.map((dayFeedback, index) => <DayOfWeekFeedback dayFeedback={dayFeedback} today={weekDay === index}/>)
             }
           </div>
 }
 
 
-function DayOfWeekProgress(props: {dayProgress: IDayProgress, today: boolean}) {
-  const { dayProgress, today } = props;
+function DayOfWeekFeedback(props: {dayFeedback: IDayFeedback, today: boolean}) {
+  const { dayFeedback, today } = props;
   const dayStatusColor = ['border', 'bg-gray-500', 'bg-green-500', 'bg-red-500'];
 
-  return <div className={`rounded-full w-2 h-2 m-0.5 relative group ${dayStatusColor[dayProgress.status]} ${today && 'border-green-600'}`}>
+  return <div className={`rounded-full w-2 h-2 m-0.5 relative group ${dayStatusColor[dayFeedback.status]} ${today && 'border-green-600'}`}>
           <div className="absolute bottom-4 -left-2.5 bg-gray-200 w-7 h-5 rounded-sm text-center leading-4 hidden group-hover:block">
             <div className="absolute w-0 h-0 border-0 border-x-4 border-t-4 border-x-transparent -bottom-1 left-2.5"></div>
-            <span className="text-xs text-black">{mlToHours(dayProgress.hours).hours}</span>
+            <span className="text-xs text-black">{mlToHours(dayFeedback.hours).hours}</span>
           </div>
         </div>
 }

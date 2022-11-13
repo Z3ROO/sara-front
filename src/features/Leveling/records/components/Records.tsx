@@ -1,36 +1,120 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Loading } from "../../../../ui/Loading";
-import { useStatsController } from "../../../stats/Stats";
 import { QuestlineStateController } from "../../../Leveling/questlines/components/Questlines";
+import * as RecordsAPI from '../RecordsAPI';
+
+type levelHistory = {direction:-1|0|1, date: Date}[]
+
+export interface IRecords {
+  _id: string
+  questline_id: string|null
+  title: string
+  description: string
+  acceptance: {
+    stage: 'created'|'reviewed'|'ready',
+    date: Date[]
+  }
+  metric: 'unit'|'time'|'distance'
+  status: {
+    waitTime: number
+    stageAmount: number
+    stage?: number|null
+    last_commitment?: Date|null
+  }
+  categories: string[]
+  level: number
+  history: levelHistory
+  xp: number
+}
+
+export interface IRecordsStateController {
+  records: IRecords[]
+  createNewRecord(title: string, description: string, qtd: number, categories: string, tier: number, questline: string): void
+  updateRecordLevel(recordId: string): void
+}
+
+const RecordsStateControllerContext = createContext<IRecordsStateController|null>(null);
+const useRecordsSC = () => useContext(RecordsStateControllerContext);
+
+function RecordsStateController(): IRecordsStateController {
+
+  const [records, setRecords] = useState<IRecords[]>([]);
+  async function fetchRecords() {
+    const response = await RecordsAPI.getRecords();
+    setRecords(response);
+  }
+
+  async function createNewRecord({
+    questline_id,
+    title,
+    description,
+    categories,
+    metric,
+    waitTime,
+    stageAmount
+  }:any) {
+    await RecordsAPI.newRecord({
+      questline_id,
+      title, 
+      description,
+      categories,
+      metric,
+      status: {
+        waitTime,
+        stageAmount,
+      }
+    });
+
+    fetchRecords();
+  }
+
+  async function updateRecordLevel(record_id: string) {
+
+    const response = await RecordsAPI.levelUpRecord(record_id);
+
+    fetchRecords();
+  }
+
+  return {
+    records,
+    createNewRecord,
+    updateRecordLevel
+  }
+}
+
 
 export default function Records() {
-  const controller = useStatsController()!;
+  const controller = RecordsStateController();
 
   if (controller.records.length === 0)
     return  <Loading/>
 
-  return  <div>
-            <div>
-              <span>Records: </span>
-              <button className="button-icon" onClick={() => controller.modalHandler(CreateNewRecord)}>
-                <img className="w-4" src="/icons/ui/plus-sign.svg" alt="add-record" />
-              </button>
-            </div>
-            <div>
-              {
-                controller.records.map(record => {
-                  return  <div className="button-sm">
-                            <span>{record.title} - {record.level}</span>
-                            <button className="button-sm" onClick={() => controller.updateRecordLevel(record._id!)}>Uppar</button>
-                          </div>
-                })
-              }
-            </div>
-          </div>
+  return (
+    <RecordsStateControllerContext.Provider value={controller}>
+      <div>
+        <div>
+          <span>Records: </span>
+          <button className="button-icon" onClick={() => {}}>
+            <img className="w-4" src="/icons/ui/plus-sign.svg" alt="add-record" />
+          </button>
+        </div>
+        <div>
+          {
+            controller.records.map(record => {
+              return  <div className="button-sm">
+                        <span>{record.title} - {record.level}</span>
+                        <button className="button-sm" onClick={() => controller.updateRecordLevel(record._id!)}>Uppar</button>
+                      </div>
+            })
+          }
+        </div>
+      </div>
+    </RecordsStateControllerContext.Provider>
+  )
 }
 
 function CreateNewRecord() {
-  const controller = useStatsController()!;
+  const controller = useRecordsSC()!;
   const questlineController = QuestlineStateController();
 
   const [recordTitle, setRecordTitle] = useState<string>('');
