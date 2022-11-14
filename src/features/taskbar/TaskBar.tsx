@@ -5,17 +5,16 @@ import useClock from "../../lib/hooks/useClock";
 import { Link } from "../../lib/Router/index";
 import { DefaultProps } from "../../ui/types";
 import { InboxInputWidget, InboxReviewModal, ReviewedInboxWidget } from '../inbox/components/Inbox';
-import { HiInbox, HiInboxArrowDown } from 'react-icons/hi2';
-import { BsListTask } from 'react-icons/bs';
+import * as Icons from '../../lib/icons/UI';
 
 export default function TaskBar() {
   const {time, date} = useClock();
   return (
     <div className="h-6 w-full bg-gray-300 flex relative justify-between">
       <div className="w-full flex px-2 items-center">
-        <ButtonForTaskBar Icon={MenuIcon} children={MainMenu} />
+        <ButtonForTaskBar Icon={Icons.Menu9Square} children={MainMenu} />
         <div className='pr-1 mr-1 border-r border-black h-4/6' />
-        <ButtonForTaskBar Icon={HiInboxArrowDown}>
+        <ButtonForTaskBar Icon={Icons.InboxArrowIn}>
           <InboxInputWidget />
         </ButtonForTaskBar>
       </div>
@@ -26,12 +25,12 @@ export default function TaskBar() {
         <ButtonForTaskBar Icon={UsernameAndLevel} fullScreen maintainOpen>
           <StatsPanelAndDashboard />
         </ButtonForTaskBar>
-        <ButtonForTaskBar Icon={BsListTask}>
+        <ButtonForTaskBar Icon={Icons.CheckList}>
           <ReviewedInboxWidget />
         </ButtonForTaskBar>
         {
-          (new Date().getHours() > 2 && new Date().getHours() < 20) &&
-          <ButtonForTaskBar Icon={HiInbox} modal>
+          !(new Date().getHours() > 2 && new Date().getHours() < 20) &&
+          <ButtonForTaskBar Icon={Icons.InboxArrowOut} modal>
             <InboxReviewModal />
           </ButtonForTaskBar>
         }
@@ -109,7 +108,7 @@ function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: J
 
   return (
     <div ref={buttonRef} className='mx-1 relative' onClick={e => e.stopPropagation() }>
-      <Icon className="h-4 cursor-pointer" onClick={()=> setToggle(prev => !prev)} />
+      <Icon className="h-3.5 hover:scale-110 transition-all cursor-pointer" onClick={()=> setToggle(prev => !prev)} />
       { content }
     </div>
   )
@@ -176,13 +175,13 @@ function StatusIconForTaskbar(props: { Icon: ((props:any)=>JSX.Element), statusC
 
 function MainMenu(props: {close: () => void}) {
   const iconList = [
-    { title: 'Home', link: '/', Icon: MenuIcon },
-    { title: 'Notes', link: '/notes', Icon: MenuIcon },
-    { title: 'Flashcard', link: '/flashcards', Icon: MenuIcon },
-    { title: 'Design Systems', link: '/design-systems', Icon: MenuIcon },
-    { title: 'Teste', link: '/teste', Icon: MenuIcon },
-    { title: 'Home', link: '/', Icon: MenuIcon },
-    { title: 'Home', link: '/', Icon: MenuIcon }
+    { title: 'Home', link: '/', Icon: Icons.Menu9Square },
+    { title: 'Notes', link: '/notes', Icon: Icons.NoteApp },
+    { title: 'Flashcard', link: '/flashcards', Icon: Icons.InfoCards},
+    { title: 'Design Systems', link: '/design-systems', Icon: Icons.DesignSystems },
+    { title: 'Config', link: '/', Icon: Icons.TripleGear },
+    { title: 'Teste', link: '/teste', Icon: Icons.Menu9Square },
+    { title: 'Home', link: '/', Icon: Icons.Menu9Square }
   ];
 
   return (
@@ -201,41 +200,13 @@ function SectionIcon(props: {Icon:(props:DefaultProps) => JSX.Element, title:str
   const {Icon, title, link} = props;
 
   return (
-    <div className="flex flex-col w-24 h-24 justify-center items-center">
+    <div className="flex flex-col w-24 h-24 justify-center items-center text-center">
       <Link href={link}>
         <div className="rounded p-2 shadow-md cursor-pointer" onClick={props.onClick}>
           <Icon className="w-6" />
         </div>
       </Link>
-      <span>{title}</span>
+      <span className='text-sm'>{title}</span>
     </div>
   )
 }
-
-export function MenuIcon(props: DefaultProps) {
-  return (
-    <svg x="0px" y="0px" viewBox="0 0 210 210" {...props}>
-      <g id="XMLID_16_">
-        <path id="XMLID_17_" d="M195,0h-20c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V15
-          C210,6.716,203.284,0,195,0z"/>
-        <path id="XMLID_18_" d="M115,0H95c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V15
-          C130,6.716,123.284,0,115,0z"/>
-        <path id="XMLID_19_" d="M35,0H15C6.716,0,0,6.716,0,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V15
-          C50,6.716,43.284,0,35,0z"/>
-        <path id="XMLID_20_" d="M195,160h-20c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15v-20
-          C210,166.716,203.284,160,195,160z"/>
-        <path id="XMLID_21_" d="M115,160H95c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15v-20
-          C130,166.716,123.284,160,115,160z"/>
-        <path id="XMLID_22_" d="M35,160H15c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15v-20
-          C50,166.716,43.284,160,35,160z"/>
-        <path id="XMLID_23_" d="M195,80h-20c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V95
-          C210,86.716,203.284,80,195,80z"/>
-        <path id="XMLID_24_" d="M115,80H95c-8.284,0-15,6.716-15,15v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V95
-          C130,86.716,123.284,80,115,80z"/>
-        <path id="XMLID_25_" d="M35,80H15C6.716,80,0,86.716,0,95v20c0,8.284,6.716,15,15,15h20c8.284,0,15-6.716,15-15V95
-          C50,86.716,43.284,80,35,80z"/>
-      </g>
-    </svg>
-  )
-}
-
