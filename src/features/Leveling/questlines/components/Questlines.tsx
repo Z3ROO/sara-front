@@ -5,7 +5,7 @@ import Quests, { INewQuest, IQuest } from "../../quests/components/Quests";
 import * as QuestsAPI from '../../quests/QuestsAPI';
 import * as QuestlinesAPI from '../QuestlinesAPI';
 import { Label } from "../../../../ui/forms";
-import { QuestStatusCaller4Taskbar } from "../../../taskbar/TaskBar";
+import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 
 export interface IQuestline {
   _id: string

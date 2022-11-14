@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
 import { Loading } from "../../../../ui/Loading";
 import { Questline, useQuestlineStateController } from '../../questlines/components/Questlines';
-import { QuestStatusCaller4Taskbar } from "../../../taskbar/TaskBar";
+import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 
 export interface INewQuest {
   questline_id?: string
