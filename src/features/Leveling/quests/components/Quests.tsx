@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
 import { Loading } from "../../../../ui/Loading";
-import { Questline, useQuestlineStateController } from '../../questlines/components/Questlines';
+import { useQuestlineStateController } from '../../questlines/components/Questlines';
 import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
+import * as QuestsAPI from '../QuestsAPI'
+import { Label } from "../../../../ui/forms";
 
 export interface INewQuest {
   questline_id?: string
@@ -48,9 +50,100 @@ function todoStyleClasses(todoState: string) {
     return 'line-through text-gray-600 text-opacity-60'
 }
 
+export interface IQuestsStateController {
+  activeQuest: IQuest|null|undefined
+  createNewQuest(questline_id: string, title: string, description: string, horas: number, minutes: number, type: "main" | "side" | "mission", todos: string[]): Promise<void>
+  handleQuestTodo(description: string, action: 'finish' | 'invalidate'): Promise<void>
+  finishQuest(focusScore: number): Promise<void>
+  sendDistractionPoint(): Promise<void>
+}
+
+const QuestsStateControllerContext = createContext<IQuestsStateController|null>(null);
+const useQuestsSC = () => useContext(QuestsStateControllerContext);
+
+export function QuestStateController(): IQuestsStateController {
+  const [activeQuest, setActiveQuest] = useState<IQuest|null>();
+
+  async function getActiveQuest() {
+    const data = await QuestsAPI.getActiveQuest();
+    setActiveQuest(data);
+    
+    if (data != null) {
+      QuestStatusCaller4Taskbar.setStatus({
+        color: 'yellow',
+        name: 'active'
+      });
+      //getAllQuestlines();
+    }
+    else {
+      QuestStatusCaller4Taskbar.setStatus({});
+    }
+  }
+
+  async function createNewQuest(questline_id: string, title: string, description: string, 
+    horas: number, minutes: number, type: "main" | "side" | "mission", 
+    todos: string[]) {
+
+    const newQuest:INewQuest = {
+      questline_id,
+      title,
+      description,
+      timecap: (minutes + (horas*60))*60000,
+      todos,
+      type
+    }
+
+    const data = await QuestsAPI.createQuest(newQuest);
+
+    await getActiveQuest();
+  }
+
+  async function handleQuestTodo(description: string, action: 'finish'|'invalidate') {
+    if (!activeQuest)
+      throw  new Error('Must have an activeQuest');
+    
+    const quest_id = activeQuest._id;
+
+    const response = await QuestsAPI.handleQuestTodo({
+      quest_id,
+      todoDescription: description,
+      action
+    });
+
+    getActiveQuest();
+  }
+
+  async function finishQuest(focusScore: number) {
+    if (!activeQuest)
+      return
+
+    const quest_id = activeQuest._id;
+    const response = await QuestsAPI.finishQuest({quest_id, focusScore});
+
+    getActiveQuest();
+  }
+
+  async function sendDistractionPoint() {
+    await QuestsAPI.insertDistractionPoint();
+  }
+  
+  useEffect(() => {
+    getActiveQuest();
+  }, [])
+
+  return {
+    activeQuest,
+    createNewQuest,
+    handleQuestTodo,
+    finishQuest,
+    sendDistractionPoint
+  }
+}
+
 
 export default function Quest(props:any) {
-  let { activeQuest, questlines } = useQuestlineStateController()!;
+  let { activeQuest } = QuestStateController();
+  let { questlines } = useQuestlineStateController()!;
   const verbose: boolean = props.verbose === undefined ? true : props.verbose;
 
   if (!activeQuest || !questlines.active)
@@ -71,23 +164,25 @@ export default function Quest(props:any) {
 }
 
 function QuestTodosSection() {
-  const { activeQuest, handleQuestTodo } = useQuestlineStateController()!;
+  const { activeQuest, handleQuestTodo } = useQuestsSC()!;
 
   return  <div>
             {
               activeQuest && activeQuest.todos.map(
-                (todo) => <div>
-                            <input type="checkbox" checked={todo.state==='finished'} onClick={() => handleQuestTodo(todo.description, 'finish')}/>
-                            <span className={`${todoStyleClasses(todo.state)} mx-3 text-lg`}>{todo.description}</span>
-                            <button className="opacity-10 hover:opacity-100" onClick={() => handleQuestTodo(todo.description, 'invalidate')}><img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" /></button>
-                          </div>
+                (todo) => (
+                  <div>
+                    <input type="checkbox" checked={todo.state==='finished'} onClick={() => handleQuestTodo(todo.description, 'finish')}/>
+                    <span className={`${todoStyleClasses(todo.state)} mx-3 text-lg`}>{todo.description}</span>
+                    <button className="opacity-10 hover:opacity-100" onClick={() => handleQuestTodo(todo.description, 'invalidate')}><img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" /></button>
+                  </div>
+                )
               )
             }
           </div>
 }
 
 function QuestFinishSection() {
-  const { activeQuest, finishQuest } = useQuestlineStateController()!;
+  const { activeQuest, finishQuest } = useQuestsSC()!;
   const [focusScore, setFocusScore] = useState<number>(0);
 
   if (!activeQuest?.todos.every((todo:any) => todo.state !== 'active'))
@@ -143,7 +238,7 @@ function QuestFooter(props: any) {
 }
 
 function QuestDistractionWidget() {
-  const { sendDistractionPoint } = useQuestlineStateController()!;
+  const { sendDistractionPoint } = useQuestsSC()!;
   const [distractionWidget, setDistractionWidget] = useState<boolean>(false);
 
   return  <div className={`absolute border rounded bg-slate-400 p-1 px-3 right-1 top-1 ${!distractionWidget && 'hover:bg-slate-800 hover:cursor-pointer text-xs'}`} 
@@ -161,4 +256,71 @@ function QuestDistractionWidget() {
               : 'Distração'
             }
           </div>
+}
+
+
+function CreateNewQuest(props: any) {
+  const [questTitle, setQuestTitle] = useState<string>('');
+  const [questDescription, setQuestDescription] = useState<string>('');
+  const [questHoras, setQuestHoras] = useState<number>(0);
+  const [questMinutes, setQuestMinutes] = useState<number>(0);
+  const [todos, setTodos] = useState<string[]>(['']);
+  
+  return  <>
+            <h4>Criar Quest:</h4>
+            <div className="flex flex-col">
+              <Label title="Titulo: ">
+                <input className="w-full text-black" type="text" value={questTitle} onChange={e => setQuestTitle(e.target.value)}/>
+              </Label>
+              <Label title="Descrição: ">
+                <textarea className="w-full text-black resize-none" value={questDescription} onChange={e => setQuestDescription(e.target.value)}/>
+              </Label>
+              <div className="flex justify-between">
+                <Label title="Horas: ">
+                  <input className="w-full text-black" type="number" id="quest-timecap-h" value={questHoras} onChange={e => setQuestHoras(Number(e.target.value))}/>
+                </Label>
+                <Label title="Minutos: ">
+                  <input className="w-full text-black" type="number" value={questMinutes} onChange={e => setQuestMinutes(Number(e.target.value))}/>
+                </Label>
+              </div>
+              <CreateNewQuestTodosSection todos={todos} setTodos={setTodos} />
+              <div className="flex justify-end my-4">
+                <button className="m-2 py-1 px-2 border rounded cursor-pointer" >Cancelar</button>
+                <button className="m-2 py-1 px-4 border rounded cursor-pointer" >Criar</button>
+              </div>
+            </div>
+          </>
+}
+
+function CreateNewQuestTodosSection(props: any) {
+  const { todos, setTodos } = props;
+
+  return  <div className="relative">
+            <h5>To-do list: </h5>
+            {
+              todos.map((todo: string, ind:number) => {
+                return  (
+                  <div className="flex p-2 pt-1 pr-1">
+                    <input className="w-full text-black" type="text" value={todo} placeholder={`To-do #${ind}`}
+                      onChange={({target}) => setTodos((current:string[]) => {current[ind] = target.value; return [...current]})}/>
+                    <button className="button-icon bg-red-600" onClick={() => {
+                        if (todos.length === 1) return
+                        const newTodos = [...todos];
+                        newTodos.splice(ind, 1);
+                        setTodos(newTodos);
+                      }
+                    }>
+                      <img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" />
+                    </button>
+                  </div>
+                  )
+                })
+              }
+              <button className="button-icon absolute top-1 right-1" onClick={() => {
+                  const newTodos = [...todos];
+                  newTodos[newTodos.length] = ''
+                  setTodos(newTodos);
+                }
+              }><img className="w-3" src="/icons/ui/plus-sign.svg" alt="close-x" /></button>
+            </div>
 }
