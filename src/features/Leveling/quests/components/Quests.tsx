@@ -259,7 +259,38 @@ function QuestDistractionWidget() {
 }
 
 
-function CreateNewQuest(props: any) {
+
+export function CreateNewQuest(props: any) {
+  const [type, setType] = useState<'main'|'practice'>()
+
+  if (type)
+    return (
+      <NewQuestForms type={type} setType={() => setType(undefined)} />
+    )
+
+  return (
+    <div className="p-3 m-1 border rounded">
+      <h5>Create new Questline</h5>
+      <div className="py-4 flex justify-center items-center">
+        <button 
+          onClick={()=> setType('main')}
+          className='px-3 py-1 mx-8 border rounded'>
+          Main
+        </button>
+        <button 
+          onClick={()=> setType('practice')}
+          className='px-3 py-1 mx-8 border rounded'>
+          Practice
+        </button>
+      </div>
+    </div>
+  )
+}
+
+
+function NewQuestForms(props: { type: 'main'|'practice', setType:() => void}) {
+  const {type, setType} = props;
+
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
   const [questHoras, setQuestHoras] = useState<number>(0);
@@ -285,7 +316,7 @@ function CreateNewQuest(props: any) {
               </div>
               <CreateNewQuestTodosSection todos={todos} setTodos={setTodos} />
               <div className="flex justify-end my-4">
-                <button className="m-2 py-1 px-2 border rounded cursor-pointer" >Cancelar</button>
+                <button className="m-2 py-1 px-2 border rounded cursor-pointer" onClick={setType} >Cancelar</button>
                 <button className="m-2 py-1 px-4 border rounded cursor-pointer" >Criar</button>
               </div>
             </div>

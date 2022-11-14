@@ -1,11 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { Loading } from "../../../../ui/Loading";
-import { DefaultProps } from "../../../../ui/types";
-import Quests, { INewQuest, IQuest } from "../../quests/components/Quests";
-import * as QuestsAPI from '../../quests/QuestsAPI';
 import * as QuestlinesAPI from '../QuestlinesAPI';
-import { Label } from "../../../../ui/forms";
-import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 
 export interface IQuestline {
   _id: string
@@ -19,7 +14,6 @@ export interface IQuestline {
 }
 
 interface IQuestlineStateController {
-
   questline: IQuestline|null|undefined
   setQuestline: React.Dispatch<string|null|undefined>
   questlines: {
@@ -29,7 +23,6 @@ interface IQuestlineStateController {
   finishQuestline(): Promise<void>
   getFinishedQuestlines(): Promise<IQuestline[]>
   createNewQuestline(title: string, descrition: string, duration: number, type: string): Promise<void>
-
 }
 
 export function QuestlineStateController():IQuestlineStateController {

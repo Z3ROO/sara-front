@@ -6,6 +6,7 @@ import StatsController, { IStatsController } from "./StatsStateController";
 import History from './components/EarningsHistory'
 import {QuestlineWidget} from "../questlines/components/Questlines";
 import { AddNewPills } from "../../pills/components/Pills";
+import { CreateNewQuest } from "../quests/components/Quests";
 
 interface IStatsProps {
   path?: string;
@@ -26,6 +27,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
           <div className="flex flex-col overflow-auto scrollbar-hide">
             <Hashiras />
             <QuestlineWidget />
+            <CreateNewQuest />
             <History />
             <AddNewPills />
           </div>
