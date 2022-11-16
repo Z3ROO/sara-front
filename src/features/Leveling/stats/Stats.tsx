@@ -4,7 +4,7 @@ import Hashiras from "./components/HashiraBadges";
 import PlayerInfo from "./components/PlayerInfoHeader";
 import StatsController, { IStatsController } from "./StatsStateController";
 import History from './components/EarningsHistory'
-import {QuestlineWidget} from "../questlines/components/Questlines";
+import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
 import { AddNewPills } from "../../pills/components/Pills";
 import { CreateNewQuest } from "../quests/components/Quests";
 
@@ -26,7 +26,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
           <PlayerInfo />
           <div className="flex flex-col overflow-auto scrollbar-hide">
             <Hashiras />
-            <QuestlineWidget />
+            <QuestlinesWidget />
             <CreateNewQuest />
             <History />
             <AddNewPills />
