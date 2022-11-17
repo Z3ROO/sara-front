@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useReducer, useState } from "react";
-import { Loading } from "../../../../ui/Loading";
 import * as QuestlinesAPI from '../QuestlinesAPI';
 
 export interface IQuestline {
@@ -7,7 +6,7 @@ export interface IQuestline {
   title: string
   description: string
   state: 'active'|'finished'|'invalidated'
-  timecap: number|string
+  timecap: number
   created_at: Date
   finished_at: Date|null
   xp: number|null

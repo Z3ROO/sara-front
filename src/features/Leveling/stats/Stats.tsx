@@ -22,7 +22,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
   return  (
     <StatsControllerContext.Provider value={controller}>
       <div className="h-full w-full flex bg-slate-500 bg-opacity-80">
-        <div className="flex flex-col p-3 text-white bg-slate-800 bg-opacity-80 slidein-ltr-animation">
+        <div className="flex flex-col p-3 text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
           <PlayerInfo />
           <div className="flex flex-col overflow-auto scrollbar-hide">
             <Hashiras />

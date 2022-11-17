@@ -48,7 +48,7 @@ export default function PlayerInfo() {
   const { player } = controller;
   const freeTime = mlToHours(player.freeTime);
 
-  return  <div className="flex flex-col bg-slate-700 rounded p-1">
+  return  <div className="flex flex-col bg-gradient-to-br from-gray-550 to-gray-600 rounded p-1">
             <div className="flex p-2">
               <div>
                 <img src='/icons/icon.png' alt='Maestria' width={'75px'}/>

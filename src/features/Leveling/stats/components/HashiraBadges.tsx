@@ -26,7 +26,7 @@ export default function Hashiras(props: any) {
 function Hashira(props:any) {
   const {hashira} = props;
 
-  return  <div className="flex flex-col items-center w-28 h-28 m-2 p-2 relative rounded cursor-pointer hover:z-10 hover:scale-125 hover:h-32 bg-slate-800 hover:border transition-transform group">
+  return  <div className="flex flex-col items-center w-28 h-28 m-2 p-2 relative rounded cursor-pointer hover:z-10 hover:scale-125 hover:h-32 bg-gray-650 hover:border transition-transform group">
             <span className="mb-2 font-bold text-sky-200">{hashira.title}</span>
             <div className="relative">
               <img className={`w-12 ${props.children && 'blur-sm'}`} src='/icons/icon1.png' alt={'Pilar de '+hashira.name}/>
