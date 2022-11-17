@@ -7,7 +7,7 @@ export async function getActiveQuest(): Promise<IQuest|null> {
 }
 
 export async function createQuest(quest:INewQuest) {
-  await Requester.post('/leveling/quest/new', JSON.stringify(quest));
+  await Requester.post('/leveling/quest/new?questline=true', JSON.stringify(quest));
 }
 
 export async function handleQuestTodo(todoInfo: {quest_id: string, todoDescription: string, action: 'invalidate'|'finish'}) {

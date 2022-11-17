@@ -12,7 +12,7 @@ export interface INewQuest {
   mission_id?: string
   title: string
   description: string
-  type: 'main'|'side'|'mission'|'practice'
+  type: 'main'|'mission'|'practice'
   todos: string[],
   timecap: number|string
 }
@@ -24,7 +24,7 @@ export interface IQuest {
   mission_id: string|null
   title: string
   description: string
-  type: 'main'|'side'|'mission'|'practice'
+  type: 'main'|'mission'|'practice'
   state: 'active'|'deferred'|'finished'|'invalidated'
   todos: ITodo[]
   timecap: number|string
@@ -52,7 +52,7 @@ function todoStyleClasses(todoState: string) {
 
 export interface IQuestsStateController {
   activeQuest: IQuest|null|undefined
-  createNewQuest(questline_id: string, title: string, description: string, horas: number, minutes: number, type: "main" | "side" | "mission", todos: string[]): Promise<void>
+  createNewQuest(title: string, description: string, horas: number, minutes: number, type: "main" | "practice" | "mission", todos: string[]): Promise<void>
   handleQuestTodo(description: string, action: 'finish' | 'invalidate'): Promise<void>
   finishQuest(focusScore: number): Promise<void>
   sendDistractionPoint(): Promise<void>
@@ -80,12 +80,11 @@ export function QuestStateController(): IQuestsStateController {
     }
   }
 
-  async function createNewQuest(questline_id: string, title: string, description: string, 
-    horas: number, minutes: number, type: "main" | "side" | "mission", 
+  async function createNewQuest(title: string, description: string, 
+    horas: number, minutes: number, type: "main" | "practice" | "mission", 
     todos: string[]) {
 
     const newQuest:INewQuest = {
-      questline_id,
       title,
       description,
       timecap: (minutes + (horas*60))*60000,
@@ -262,10 +261,12 @@ function QuestDistractionWidget() {
 
 export function CreateNewQuest(props: any) {
   const [type, setType] = useState<'main'|'practice'>()
-
+  const stateController = QuestStateController();
   if (type)
     return (
-      <NewQuestForms type={type} setType={() => setType(undefined)} />
+      <QuestsStateControllerContext.Provider value={stateController}>
+        <NewQuestForms type={type} setType={() => setType(undefined)} />
+      </QuestsStateControllerContext.Provider>
     )
 
   return (
@@ -288,8 +289,9 @@ export function CreateNewQuest(props: any) {
 }
 
 
-function NewQuestForms(props: { type: 'main'|'practice', setType:() => void}) {
+function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() => void}) {
   const {type, setType} = props;
+  const { createNewQuest } = useQuestsSC()!;
 
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
@@ -317,7 +319,10 @@ function NewQuestForms(props: { type: 'main'|'practice', setType:() => void}) {
               <CreateNewQuestTodosSection todos={todos} setTodos={setTodos} />
               <div className="flex justify-end my-4">
                 <button className="m-2 py-1 px-2 border rounded cursor-pointer" onClick={setType} >Cancelar</button>
-                <button className="m-2 py-1 px-4 border rounded cursor-pointer" >Criar</button>
+                <button className="m-2 py-1 px-4 border rounded cursor-pointer" onClick={() => {
+                  createNewQuest(questTitle, questDescription, questHoras, questMinutes, type, todos);
+                  setType();
+                }}>Criar</button>
               </div>
             </div>
           </>
