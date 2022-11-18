@@ -23,7 +23,7 @@ export default function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Eleme
     children = <Children close={() => setToggle(false)} />
   }
   
-  if (children && buttonRef.current) {
+  if (children) {
 
     if (fullScreen)
       children = (
@@ -39,7 +39,9 @@ export default function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Eleme
       );
     }
     else {
-      const side = buttonRef.current.getBoundingClientRect().right > (window.innerWidth / 2) ? 'right' : 'left'
+      let side = 'right';
+      if(buttonRef.current)
+        side = buttonRef.current!.getBoundingClientRect().right > (window.innerWidth / 2) ? 'right' : 'left'
       children = (
         <div className={`absolute top-8 -${side}-2 z-50 rounded bg-gray-300 growing-to-${side}-ani`}>
           { children }

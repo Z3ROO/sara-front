@@ -1,4 +1,3 @@
-import { useStatsController } from "../Stats";
 import { mlToHours } from "../../../../util/mlToHours";
 import { IDayFeedback } from "../StatsStateController";
 
@@ -79,10 +78,12 @@ function NextLevelProgressBar(props: any) {
   const { player } = props.controller;
   const nextLevelXpPercentage = Math.floor((player.xp - player.lastLevelXp) / (player.nextLevelXp - player.lastLevelXp) * 100);
 
-  return  <div className="flex">
-            <div className={`bg-green-800 h-0.5`} style={{width:nextLevelXpPercentage+'%'}}></div>
-            <div className={`bg-red-800 h-0.5`} style={{width:100-nextLevelXpPercentage+'%'}}></div>
-          </div>
+  return  (
+    <div className="flex">
+      <div className={`bg-green-800 h-0.5`} style={{width:nextLevelXpPercentage+'%'}}></div>
+      <div className={`bg-red-800 h-0.5`} style={{width:100-nextLevelXpPercentage+'%'}}></div>
+    </div>
+  )
 }
 
 

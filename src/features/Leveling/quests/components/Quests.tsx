@@ -1,7 +1,5 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
-import { Loading } from "../../../../ui/Loading";
-import { useQuestlineStateController } from '../../questlines/components/Questlines';
 import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 import * as QuestsAPI from '../QuestsAPI'
 import { Label } from "../../../../ui/forms";
@@ -139,27 +137,37 @@ export function QuestStateController(): IQuestsStateController {
   }
 }
 
+export function InQuestBlur(props: { children: JSX.Element|JSX.Element[]}) {
+  const { activeQuest } = useQuestsSC()!;
 
-export default function Quest(props:any) {
-  let { activeQuest } = QuestStateController();
-  let { questlines } = useQuestlineStateController()!;
+  return (
+    <div style={{ filter: activeQuest ? 'blur(.5rem)' : ''}}>
+      {props.children}
+    </div>
+  )
+}
+
+export default function QuestsWidget(props:any) {
+  let stateController = useQuestsSC()!;
+  let { activeQuest } = stateController;
   const verbose: boolean = props.verbose === undefined ? true : props.verbose;
 
-  if (!activeQuest || !questlines.active)
-    return <Loading />
+  if (!activeQuest)
+    return null
 
-  const questline = questlines.active
-
-  return  <div className="relative w-96">
-            <div className="bg-cyan-700 rounded p-2">
-              {verbose === true && <h2 className="font-bold text-sm cursor-pointer" onClick={() => {}}>{questline.title}</h2>}
-              <h3 className="text-lg">{activeQuest.title}</h3>
-              <QuestTodosSection />
-              <QuestFinishSection />
-              <QuestFooter activeQuest={activeQuest} />
-            </div>
-            <QuestDistractionWidget />
-          </div>
+  return  (
+    <div className="absolute top-0 left-0 w-full h-full bg-gray-700 bg-opacity-40 flex justify-center items-center">
+      <div className="relative w-96">
+        <div className="bg-cyan-700 rounded p-2">
+          <h3 className="text-lg">{activeQuest.title}</h3>
+          <QuestTodosSection />
+          <QuestFinishSection />
+          <QuestFooter activeQuest={activeQuest} />
+        </div>
+        <QuestDistractionWidget />
+      </div>
+    </div>
+  )
 }
 
 function QuestTodosSection() {
@@ -257,17 +265,21 @@ function QuestDistractionWidget() {
           </div>
 }
 
+export function QuestsContext(props: { children: JSX.Element|JSX.Element[] }) {
+  const stateController = QuestStateController();
+  return (
+    <QuestsStateControllerContext.Provider value={stateController}>
+      {props.children}
+    </QuestsStateControllerContext.Provider>
+  )
+}
+
 
 
 export function CreateNewQuest(props: any) {
   const [type, setType] = useState<'main'|'practice'>()
-  const stateController = QuestStateController();
   if (type)
-    return (
-      <QuestsStateControllerContext.Provider value={stateController}>
-        <NewQuestForms type={type} setType={() => setType(undefined)} />
-      </QuestsStateControllerContext.Provider>
-    )
+    return <NewQuestForms type={type} setType={() => setType(undefined)} />
 
   return (
     <div className="p-3 m-1 border rounded">
