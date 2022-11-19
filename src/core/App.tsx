@@ -8,6 +8,7 @@ import { PillsWidget } from '../features/pills/components/Pills';
 import TaskBar from '../features/taskbar/TaskBar';
 import DesignSystems from '../features/DesignSystems/DesignSystems';
 import Home from '../features/home/Home';
+import { ConfigPage } from '../features/config/Config';
 
 export type IAppController = {
   modal: any;
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/flashcards" element={<Flashcards AppController={controller} />} />
                 <Route path="/design-systems"><DesignSystems /></Route>
                 <Route path="/teste" element={<TestPage />} />
+                <Route path="/config" element={<ConfigPage />} />
               </Router>
               {controller.contextMenu}
               

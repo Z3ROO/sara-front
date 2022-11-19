@@ -20,17 +20,17 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
   const controller = StatsController({AppController});
 
   useEffect(() => {
-    console.log('effeeect')
-  },[])
+    console.log('effeeect');
+  },[]);
   
   return  (
     <StatsControllerContext.Provider value={controller}>
-      <div className="h-full w-full flex bg-slate-500 bg-opacity-80">
-        <div className="relative flex flex-col p-3 max-w-md text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
+      <div className="h-screen w-full flex bg-gray-400 bg-opacity-70">
+        <div className="h-screen relative flex flex-col p-3 max-w-md text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
           <QuestsContext>
-          <InQuestBlur>
+          <InQuestBlur className="flex flex-col h-full">
             <PlayerInfo />
-            <div className="flex flex-col overflow-auto scrollbar-hide">
+            <div className="overflow-auto scrollbar-hide h-full">
               <Hashiras />
               <QuestlinesWidget />
               <CreateNewQuest />

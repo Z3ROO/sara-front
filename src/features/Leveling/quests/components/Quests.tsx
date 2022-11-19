@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
 import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 import * as QuestsAPI from '../QuestsAPI'
+import * as Icons from '../../../../lib/icons/UI'
 import { Label } from "../../../../ui/forms";
 
 export interface INewQuest {
@@ -43,9 +44,9 @@ function todoStyleClasses(todoState: string) {
   if (todoState === 'active')
     return ''
   else if (todoState === 'invalidated')
-    return 'text-red-600 text-opacity-60'
+    return 'line-through text-red-500 text-opacity-70 font-bold'
   else if (todoState === 'finished')
-    return 'line-through text-gray-600 text-opacity-60'
+    return 'line-through text-gray-500 text-opacity-70 font-bold'
 }
 
 export interface IQuestsStateController {
@@ -137,11 +138,11 @@ export function QuestStateController(): IQuestsStateController {
   }
 }
 
-export function InQuestBlur(props: { children: JSX.Element|JSX.Element[]}) {
+export function InQuestBlur(props: { children: JSX.Element|JSX.Element[], className?: string}) {
   const { activeQuest } = useQuestsSC()!;
 
   return (
-    <div style={{ filter: activeQuest ? 'blur(.5rem)' : ''}}>
+    <div style={{ filter: activeQuest ? 'blur(.5rem)' : ''}} className={props.className||"w-full h-full"}>
       {props.children}
     </div>
   )
@@ -158,8 +159,8 @@ export default function QuestsWidget(props:any) {
   return  (
     <div className="absolute top-0 left-0 w-full h-full bg-gray-700 bg-opacity-40 flex justify-center items-center">
       <div className="relative w-96">
-        <div className="bg-cyan-700 rounded p-2">
-          <h3 className="text-lg">{activeQuest.title}</h3>
+        <div className="bg-gradient-to-br to-gray-800 from-gray-650 rounded p-2">
+          <h3 className="text-lg p-2">{activeQuest.title}</h3>
           <QuestTodosSection />
           <QuestFinishSection />
           <QuestFooter activeQuest={activeQuest} />
@@ -173,14 +174,16 @@ export default function QuestsWidget(props:any) {
 function QuestTodosSection() {
   const { activeQuest, handleQuestTodo } = useQuestsSC()!;
 
-  return  <div>
+  return  <div className="p-2">
             {
               activeQuest && activeQuest.todos.map(
                 (todo) => (
                   <div>
                     <input type="checkbox" checked={todo.state==='finished'} onClick={() => handleQuestTodo(todo.description, 'finish')}/>
                     <span className={`${todoStyleClasses(todo.state)} mx-3 text-lg`}>{todo.description}</span>
-                    <button className="opacity-10 hover:opacity-100" onClick={() => handleQuestTodo(todo.description, 'invalidate')}><img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" /></button>
+                    <button onClick={() => handleQuestTodo(todo.description, 'invalidate')}>
+                      <Icons.Xclose className="w-3 fill-red-400 opacity-20 hover:opacity-100" />
+                    </button>
                   </div>
                 )
               )
@@ -195,11 +198,11 @@ function QuestFinishSection() {
   if (!activeQuest?.todos.every((todo:any) => todo.state !== 'active'))
     return <></>
 
-  return  <div className="flex flex-col items-center">
+  return  <div className="flex flex-col items-center p-2">
             <div>
-              {Array(11).fill(true).map((x, ind) => <button className={`button-sm ${focusScore === ind && 'bg-slate-700'}`} onClick={() => setFocusScore(ind)}>{ind}</button>)}
+              {Array(11).fill(true).map((x, ind) => <button className={`button-sm ${focusScore === ind && 'bg-gray-500'} border-gray-550`} onClick={() => setFocusScore(ind)}>{ind}</button>)}
             </div>
-            <button className="button-md" onClick={() => finishQuest(focusScore)} disabled={focusScore === 0}>Finalizar quest.</button>
+            <button className="button-md border-gray-550" onClick={() => finishQuest(focusScore)} disabled={focusScore === 0}>Finalizar quest.</button>
           </div>
 }
 
@@ -231,7 +234,7 @@ function QuestFooter(props: any) {
     return () => clearInterval(interval)
   },[activeQuest])
 
-  return <div className="flex justify-between">
+  return <div className="p-2 flex justify-between">
             <span className="">
               {(questTimecap.hours+'h')}
               {(questTimecap.minutes+'m')}
@@ -248,7 +251,7 @@ function QuestDistractionWidget() {
   const { sendDistractionPoint } = useQuestsSC()!;
   const [distractionWidget, setDistractionWidget] = useState<boolean>(false);
 
-  return  <div className={`absolute border rounded bg-slate-400 p-1 px-3 right-1 top-1 ${!distractionWidget && 'hover:bg-slate-800 hover:cursor-pointer text-xs'}`} 
+  return  <div className={`absolute border border-gray-550 rounded bg-gray-600 p-1 px-3 right-1 top-1 ${!distractionWidget && 'hover:bg-slate-800 hover:cursor-pointer text-xs'}`} 
             onClick={() => !distractionWidget && setDistractionWidget(true)}
             >
             {
@@ -256,8 +259,8 @@ function QuestDistractionWidget() {
               <div className="flex flex-col text-center hover:cursor-default" id="distraction">
                 <span className="font-bold">Tem certeza?</span>
                 <div>
-                  <button className="button-md" onClick={() => {setDistractionWidget(false); sendDistractionPoint()}}>Sim</button>
-                  <button className="button-md" onClick={() => setDistractionWidget(false)}>Não</button>
+                  <button className="button-md px-4 text-sm border-gray-500" onClick={() => {setDistractionWidget(false); sendDistractionPoint()}}>Sim</button>
+                  <button className="button-md px-4 text-sm border-gray-500" onClick={() => setDistractionWidget(false)}>Não</button>
                 </div>
               </div>
               : 'Distração'
@@ -282,17 +285,17 @@ export function CreateNewQuest(props: any) {
     return <NewQuestForms type={type} setType={() => setType(undefined)} />
 
   return (
-    <div className="p-3 m-1 border rounded">
+    <div className="">
       <h5>Create new Questline</h5>
-      <div className="py-4 flex justify-center items-center">
+      <div className="py-4 flex items-center">
         <button 
           onClick={()=> setType('main')}
-          className='px-3 py-1 mx-8 border rounded'>
+          className='px-3 py-1 mx-3 pl-8 border-gray-800 hover:border-purple-800 hover:border-opacity-60 border rounded-sm'>
           Main
         </button>
         <button 
           onClick={()=> setType('practice')}
-          className='px-3 py-1 mx-8 border rounded'>
+          className='px-3 py-1 mx-3 pl-8 border-gray-800 hover:border-purple-800 hover:border-opacity-60 border rounded-sm'>
           Practice
         </button>
       </div>
@@ -311,7 +314,7 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
   const [questMinutes, setQuestMinutes] = useState<number>(0);
   const [todos, setTodos] = useState<string[]>(['']);
   
-  return  <>
+  return  <div>
             <h4>Criar Quest:</h4>
             <div className="flex flex-col">
               <Label title="Titulo: ">
@@ -337,7 +340,7 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
                 }}>Criar</button>
               </div>
             </div>
-          </>
+          </div>
 }
 
 function CreateNewQuestTodosSection(props: any) {

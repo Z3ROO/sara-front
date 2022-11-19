@@ -7,7 +7,7 @@ export default function MainMenu(props: {close: () => void}) {
     { title: 'Notes', link: '/notes', Icon: Icons.NoteApp },
     { title: 'Flashcard', link: '/flashcards', Icon: Icons.InfoCards},
     { title: 'Design Systems', link: '/design-systems', Icon: Icons.DesignSystems },
-    { title: 'Config', link: '/', Icon: Icons.TripleGear },
+    { title: 'Config', link: '/config', Icon: Icons.TripleGear },
     { title: 'Teste', link: '/teste', Icon: Icons.Menu9Square },
     { title: 'Home', link: '/', Icon: Icons.Menu9Square }
   ];
