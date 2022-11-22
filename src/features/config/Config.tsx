@@ -1,4 +1,5 @@
 import { Link, Route, Routes } from "../../lib/Router";
+import SkillsConfigPage from "../Leveling/skills/components/SkillsConfigPage";
 
 export interface IConfigRoute {
   route: string,
@@ -21,7 +22,11 @@ const routesTree: IConfigRoute[] = [{
   ]
 }]
 
-routesTree.push({route: 'skills', name: 'Skills', element:<div className="text-white"><h3>Skill page</h3></div>, children:[]})
+routesTree.push({
+  route: 'skills', 
+  name: 'Skills', 
+  element:<SkillsConfigPage/>, 
+  children:[]})
 
 export function ConfigPage(props: {options?:IConfigRoute[], prefix?:string}) {
   let { options, prefix } = props;

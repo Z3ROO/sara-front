@@ -7,6 +7,7 @@ import History from './components/EarningsHistory'
 import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
 import { AddNewPills } from "../../pills/components/Pills";
 import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext } from "../quests/components/Quests";
+import { SkillsWidget } from "../skills/components/SkillsWidget";
 
 interface IStatsProps {
   path?: string;
@@ -32,6 +33,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
             <PlayerInfo />
             <div className="overflow-auto scrollbar-hide h-full">
               <Hashiras />
+              <SkillsWidget />
               <QuestlinesWidget />
               <CreateNewQuest />
               <History />
