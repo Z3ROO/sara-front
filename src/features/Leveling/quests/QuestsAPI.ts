@@ -10,6 +10,11 @@ export async function createQuest(quest:INewQuest) {
   await Requester.post('/leveling/quest/new?questline=true', JSON.stringify(quest));
 }
 
+export async function createPracticeQuest(quest:INewQuest) {
+  return console.log('quest para skill: '+quest.skill_id)
+  await Requester.post('/leveling/quest/new?practice=true', JSON.stringify(quest));
+}
+
 export async function handleQuestTodo(todoInfo: {quest_id: string, todoDescription: string, action: 'invalidate'|'finish'}) {
   await Requester.post(`/leveling/quest/handle-todo`, JSON.stringify(todoInfo));
 }

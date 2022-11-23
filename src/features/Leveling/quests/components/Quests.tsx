@@ -4,6 +4,7 @@ import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIco
 import * as QuestsAPI from '../QuestsAPI'
 import * as Icons from '../../../../lib/icons/UI'
 import { Label } from "../../../../ui/forms";
+import * as SkillsAPI from "../../skills/SkillsAPI";
 
 export interface INewQuest {
   questline_id?: string
@@ -52,6 +53,7 @@ function todoStyleClasses(todoState: string) {
 export interface IQuestsStateController {
   activeQuest: IQuest|null|undefined
   createNewQuest(title: string, description: string, horas: number, minutes: number, type: "main" | "practice" | "mission", todos: string[]): Promise<void>
+  createNewPracticeQuest(title: string, description: string, horas: number, minutes: number, type: "main" | "practice" | "mission", todos: string[], skill_id: string): Promise<void>
   handleQuestTodo(description: string, action: 'finish' | 'invalidate'): Promise<void>
   finishQuest(focusScore: number): Promise<void>
   sendDistractionPoint(): Promise<void>
@@ -96,6 +98,27 @@ export function QuestStateController(): IQuestsStateController {
     await getActiveQuest();
   }
 
+  async function createNewPracticeQuest(title: string, description: string, 
+    horas: number, minutes: number, type: "main" | "practice" | "mission", 
+    todos: string[], skill_id: string) {
+    
+    if (skill_id === '')
+      throw new Error('skill_id empty');
+
+    const newQuest:INewQuest = {
+      skill_id,
+      title,
+      description,
+      timecap: (minutes + (horas*60))*60000,
+      todos,
+      type
+    }
+
+    const data = await QuestsAPI.createPracticeQuest(newQuest);
+
+    await getActiveQuest();
+  }
+
   async function handleQuestTodo(description: string, action: 'finish'|'invalidate') {
     if (!activeQuest)
       throw  new Error('Must have an activeQuest');
@@ -132,6 +155,7 @@ export function QuestStateController(): IQuestsStateController {
   return {
     activeQuest,
     createNewQuest,
+    createNewPracticeQuest,
     handleQuestTodo,
     finishQuest,
     sendDistractionPoint
@@ -306,17 +330,22 @@ export function CreateNewQuest(props: any) {
 
 function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() => void}) {
   const {type, setType} = props;
-  const { createNewQuest } = useQuestsSC()!;
+  const { createNewQuest, createNewPracticeQuest } = useQuestsSC()!;
 
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
   const [questHoras, setQuestHoras] = useState<number>(0);
   const [questMinutes, setQuestMinutes] = useState<number>(0);
   const [todos, setTodos] = useState<string[]>(['']);
+
+  const [skill_id, setSkill_id] = useState('');
   
   return  <div>
             <h4>Criar Quest:</h4>
             <div className="flex flex-col">
+              {
+                type === 'practice' && <SkillsListing className='m-2 w-3/6 self-end text-black' {...{skill_id, setSkill_id}}/>
+              }
               <Label title="Titulo: ">
                 <input className="w-full text-black" type="text" value={questTitle} onChange={e => setQuestTitle(e.target.value)}/>
               </Label>
@@ -335,12 +364,39 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
               <div className="flex justify-end my-4">
                 <button className="m-2 py-1 px-2 border rounded cursor-pointer" onClick={setType} >Cancelar</button>
                 <button className="m-2 py-1 px-4 border rounded cursor-pointer" onClick={() => {
-                  createNewQuest(questTitle, questDescription, questHoras, questMinutes, type, todos);
+                  if (type === 'main')
+                    createNewQuest(questTitle, questDescription, questHoras, questMinutes, type, todos);
+                  else if (type === 'practice')
+                    createNewPracticeQuest(questTitle, questDescription, questHoras, questMinutes, type, todos, skill_id);
                   setType();
                 }}>Criar</button>
               </div>
             </div>
           </div>
+}
+
+function SkillsListing(props: any) {
+  const { skill_id, setSkill_id } = props;
+  const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const data = await SkillsAPI.getAllSkills();
+      setSkills(data);
+    })();
+  },[])
+
+  return (
+    <div {...props}>
+      <select className="w-full" value={skill_id} onChange={e => setSkill_id(e.target.value)}>
+        {
+          skills.map((skill:any) => (
+            <option value={skill._id}>{skill.name}</option>
+          ))
+        }
+      </select>
+    </div>
+  )
 }
 
 function CreateNewQuestTodosSection(props: any) {

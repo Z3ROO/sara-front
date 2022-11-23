@@ -4,44 +4,38 @@ export interface ISkill {
   _id: string
   name: string
   description: string
-  group: string
   created_at: Date
 }
 
 export interface INewSkill {
   name: string
   description: string
-  group: string
 }
 
 export async function getAllSkills(): Promise<ISkill[]> {
   return [
       {
-      _id: 'aasdasdas',
+      _id: 'aaasdasdas',
       name: 'Ciencia',
       description: 'Matematicamente matte emate tica.',
-      group: 'science',
       created_at: new Date()
     },
     {
-      _id: 'aasdasdas',
+      _id: 'aasdasadaasdass',
       name: 'Matematica',
       description: 'Matmente matemaemmente matemaamente matematicamente matematica.',
-      group: 'social',
       created_at: new Date()
     },
     {
-      _id: 'aasdasdas',
+      _id: 'aasdaaasdassdas',
       name: 'Engenharia',
       description: 'Matemmente matemaatmente matemaicamente matematica.',
-      group: 'engineering',
       created_at: new Date()
     },
     {
-      _id: 'aasdasdas',
+      _id: 'aasdaasasdadas',
       name: 'Social',
       description: 'te matemte ente matete maMte mateatmente matemate te emamente matete matte icamente mate tematica.',
-      group: 'science',
       created_at: new Date()
     }
   ]

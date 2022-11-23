@@ -32,7 +32,7 @@ export default function SkillsConfigPage() {
           </Label>
           <button className="p-2 px-5 border rounded" onClick={
             () => {
-              SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput, group: groupInput});
+              SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput});
               setNameInput('');
               setDescriptionInput('');
             }
@@ -61,7 +61,7 @@ export default function SkillsConfigPage() {
           </li>
           {
             skills.map(skill => {
-              const { name, description, group } = skill;
+              const { name, description } = skill;
 
               return (
                 <li className="p-2 flex bg-gray-500 shadow-inner">
@@ -70,9 +70,6 @@ export default function SkillsConfigPage() {
                   </div>
                   <div className="w-full mr-8">
                     <span>{description}</span>
-                  </div>
-                  <div className="w-52">
-                    <span>{group}</span>
                   </div>
                   <div className="w-28">
                     <button
