@@ -14,7 +14,7 @@ export interface INewSkill {
 
 export async function getAllSkills(): Promise<ISkill[]> {
   return [
-      {
+    {
       _id: 'aaasdasdas',
       name: 'Ciencia',
       description: 'Matematicamente matte emate tica.',
