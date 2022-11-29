@@ -5,6 +5,7 @@ import * as QuestsAPI from '../QuestsAPI'
 import * as Icons from '../../../../lib/icons/UI'
 import { Label } from "../../../../ui/forms";
 import * as SkillsAPI from "../../skills/SkillsAPI";
+import * as QuestlineAPI from '../../questlines/QuestlinesAPI';
 
 export interface INewQuest {
   questline_id?: string
@@ -304,7 +305,17 @@ export function QuestsContext(props: { children: JSX.Element|JSX.Element[] }) {
 
 
 export function CreateNewQuest(props: any) {
-  const [type, setType] = useState<'main'|'practice'>()
+  const [type, setType] = useState<'main'|'practice'>();
+  const [activeQuestline, setActiveQuestline] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const questline = await QuestlineAPI.getActiveQuestline();
+      if (questline)
+        setActiveQuestline(true)
+    })();
+  },[]);
+
   if (type)
     return <NewQuestForms type={type} setType={() => setType(undefined)} />
 
@@ -313,6 +324,8 @@ export function CreateNewQuest(props: any) {
       <h5>Create new Questline</h5>
       <div className="py-4 flex items-center">
         <button 
+          disabled={!activeQuestline}
+          style={{opacity:!activeQuestline ? '.3' : '1'}}
           onClick={()=> setType('main')}
           className='px-3 py-1 mx-3 pl-8 border-gray-800 hover:border-purple-800 hover:border-opacity-60 border rounded-sm'>
           Main
