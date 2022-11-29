@@ -18,27 +18,29 @@ export default function SkillsConfigPage() {
     <div className="p-4 text-gray-100 w-full">
       <h2>Skills</h2>
       <div className="">
-        <h4>Add a new Skill: </h4>
-        <div className="flex">
+        <h4 className="p-2">Add a new Skill: </h4>
+        <div className="flex items-start">
           <Label title="Name: ">
-            <input className="text-black" value={nameInput} onChange={e => setNameInput(e.target.value)}/>
+            <input className="p-1 px-2 bg-gray-600 shadow-inner shadow-gray-700 outline-none rounded-sm border border-gray-550" value={nameInput} onChange={e => setNameInput(e.target.value)}/>
           </Label>
           <Label title="Description: ">
-            <input className="text-black" value={descriptionInput} onChange={e => setDescriptionInput(e.target.value)}/>
+            <input className="p-1 px-2 bg-gray-600 shadow-inner shadow-gray-700 outline-none rounded-sm border border-gray-550" value={descriptionInput} onChange={e => setDescriptionInput(e.target.value)}/>
           </Label>
-          <button className="p-2 px-5 border rounded" onClick={
-            () => {
-              SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput});
-              setNameInput('');
-              setDescriptionInput('');
-            }
-          }>Insert</button>
+          <div className="mt-auto">
+            <button className="mb-2 p-1 px-5 bg-gray-600 border border-gray-650 rounded=sm" onClick={
+              () => {
+                SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput});
+                setNameInput('');
+                setDescriptionInput('');
+              }
+            }>Insert</button>
+          </div>
         </div>
       </div>
       <div className="p-2">
         <h3>All skills:</h3>
-        <ul className="m-2 border border-gray-450">
-          <li className="p-2 flex bg-gray-500 shadow-inner font-bold">
+        <ul className="rounded-sm bg-gray-750">
+          <li className="p-4 flex shadow-inner font-bold">
             <div className="w-36 overflow-hidden mr-8">
               <span>Name</span>
             </div>
@@ -57,7 +59,7 @@ export default function SkillsConfigPage() {
               const { name, description } = skill;
 
               return (
-                <li className="p-2 flex bg-gray-500 shadow-inner">
+                <li className="p-4 flex shadow-inner">
                   <div className="w-36 overflow-hidden mr-8">
                     <span>{name}</span>
                   </div>
