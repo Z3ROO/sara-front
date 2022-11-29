@@ -19,7 +19,7 @@ export function Notes(props: DefaultProps) {
 
 function HomeScreen(props: DefaultProps) {
 
-  return  <div className="h-full w-full flex justify-center items-center ">
+  return  <div className="h-full w-full flex justify-center items-center bg-gray-800 bg-opacity-40" style={{backdropFilter:'blur(8px)'}}>
             <div className="h-[90vh] w-[90vh] grid grid-cols-2 grid-rows-2">
               <CategoryBoxButton href='/notes/general'>
                 General
@@ -60,7 +60,7 @@ function NotesManager(props: DefaultProps) {
       updateNotesTree(category);
   },[]);
 
-  return  <div className="h-full w-full flex">
+  return  <div className="h-full w-full flex bg-gray-800 bg-opacity-40" style={{backdropFilter:'blur(8px)'}}>
             <FileExplorer />
             {isDocument && <DocumentEditor />}
           </div>

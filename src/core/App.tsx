@@ -65,7 +65,8 @@ function App() {
   const controller = AppController()
 
   return  <AppControllerContext.Provider value={controller}>
-            <div className="h-screen bg-gray-800 flex flex-col">
+            <div className="relative h-screen flex flex-col">
+              <div className="top-0 left-0 absolute w-full h-full bg-cover bg-bottom -z-[1]" style={{backgroundImage: 'url("/petra.jpg")'}}></div>
               <Router>                
                 <TaskBar />
                 <Home path="/" />

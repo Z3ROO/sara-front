@@ -41,7 +41,7 @@ export function ConfigPage(props: {options?:IConfigRoute[], prefix?:string}) {
     prefix = '/config';
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full bg-gray-800 bg-opacity-40" style={{backdropFilter:'blur(8px)'}}>
       <div className="h-full min-w-fit bg-gray-600">
         <ul className="list-none text-gray-100 mt-4">
           {
