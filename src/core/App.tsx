@@ -1,14 +1,14 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
-import { BrowserRouter, Routes } from 'react-router-dom';
-import { Flashcards } from '../domains/flashcards/Flashcards';
-import { Notes } from '../domains/notes/Notes'
+import { Flashcards } from '../features/flashcards/Flashcards';
+import { Notes } from '../features/notes/Notes'
 import TestPage from '../TestPage'
-import { ContextMenu } from '../domains/_general/ContextMenu';
-import Stats from '../domains/stats/Stats';
+import { ContextMenu } from '../ui/ContextMenu';
 import { Router, Route, Link } from '../lib/Router';
-import { PillsWidget } from '../domains/stats/Pills';
-import { DefaultProps } from '../domains/_general/types';
-import TaskBar from '../domains/taskbar/TaskBar';
+import { PillsWidget } from '../features/pills/components/Pills';
+import TaskBar from '../features/taskbar/TaskBar';
+import DesignSystems from '../features/DesignSystems/DesignSystems';
+import Home from '../features/home/Home';
+import { ConfigPage } from '../features/config/Config';
 
 export type IAppController = {
   modal: any;
@@ -65,13 +65,16 @@ function App() {
   const controller = AppController()
 
   return  <AppControllerContext.Provider value={controller}>
-            <div className="h-screen bg-gray-800 flex flex-col">
+            <div className="relative h-screen flex flex-col">
+              <div className="top-0 left-0 absolute w-full h-full bg-cover bg-bottom -z-[1]" style={{backgroundImage: 'url("/petra.jpg")'}}></div>
               <Router>                
                 <TaskBar />
-                <Stats path="/" />
-                <Route path="/teste" element={<TestPage />} />
+                <Home path="/" />
                 <Notes path="/notes" />
-                <Route path="/teste/fc" element={<Flashcards AppController={controller} />} />
+                <Route path="/flashcards" element={<Flashcards AppController={controller} />} />
+                <Route path="/design-systems"><DesignSystems /></Route>
+                <Route path="/teste" element={<TestPage />} />
+                <Route path="/config" element={<ConfigPage />} />
               </Router>
               {controller.contextMenu}
               
