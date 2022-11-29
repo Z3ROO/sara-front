@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { Label } from "../../../ui/forms"
 import { OneDigitNotificationCounter } from "../../../ui/notifications";
-import { DefaultProps } from "../../../ui/types";
 import * as PillsAPI from '../PillsAPI';
 
 export interface IPills {
@@ -113,45 +111,6 @@ function PillToTake(props: {takePill: (pill_id:string) => Promise<void>, cancelP
           className="m-1 p-1 border border-black cursor-pointer"
         >Cancelar</button>
       </div>
-    </div>
-  )
-}
-
-export function AddNewPills() {
-  const { addNewPill } = PillsStateController();
-  const [toggle, setToggle] = useState(false);
-  const [pillNameInput, setPillNameInput] = useState('');
-  const [pillDescriptionInput, setPillDescriptionInput] = useState('');
-
-  return (
-    <div className="rounded bg-gray-300 text-black p-2 my-4">
-      <h5 onClick={()=> setToggle(prev => !prev)} className="cursor-pointer p-0 m-0">Add Pills</h5>
-      {
-        toggle && (
-          <>
-            <Label title="Titulo: ">
-              <input type="text" value={pillNameInput} onChange={(e) => setPillNameInput(e.target.value)} />
-            </Label>
-            <Label title="Descrição: ">
-              <textarea value={pillDescriptionInput} onChange={(e) => setPillDescriptionInput(e.target.value)} />
-            </Label>
-            <button
-              className="p-2 rounded border border-gray-700"
-              onClick={() => {
-                addNewPill({
-                  name: pillNameInput, 
-                  description: pillDescriptionInput
-                });
-                setToggle(false);
-                setPillNameInput('');
-                setPillDescriptionInput('');
-              }}
-            >
-              Adicionar
-            </button>
-          </>
-        )
-      }
     </div>
   )
 }

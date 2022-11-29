@@ -5,7 +5,6 @@ import PlayerInfo from "./components/PlayerInfoHeader";
 import StatsController, { IStatsController } from "./StatsStateController";
 import History from './components/EarningsHistory'
 import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
-import { AddNewPills } from "../../pills/components/Pills";
 import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext } from "../quests/components/Quests";
 import { SkillsWidget } from "../skills/components/SkillsWidget";
 
@@ -37,7 +36,6 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
               <QuestlinesWidget />
               <CreateNewQuest />
               <History />
-              <AddNewPills />
             </div>
           </InQuestBlur>
           <QuestsWidget />
