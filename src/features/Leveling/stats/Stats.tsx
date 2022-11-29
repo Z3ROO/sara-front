@@ -26,7 +26,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
   
   return  (
     <StatsControllerContext.Provider value={controller}>
-      <div className="h-screen w-full flex bg-gray-400 bg-opacity-70">
+      <div className="h-screen w-full flex bg-gray-700 bg-opacity-20" style={{backdropFilter:'blur(8px)'}}>
         <div className="h-screen relative flex flex-col p-3 max-w-md text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
           <QuestsContext>
           <InQuestBlur className="flex flex-col h-full">
