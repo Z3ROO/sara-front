@@ -383,6 +383,9 @@ function SkillsListing(props: any) {
     (async () => {
       const data = await SkillsAPI.getAllSkills();
       setSkills(data);
+      
+      if (data[0])
+        setSkill_id(data[0]._id)
     })();
   },[])
 

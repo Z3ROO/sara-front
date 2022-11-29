@@ -5,7 +5,6 @@ import * as SkillsAPI from '../SkillsAPI';
 export default function SkillsConfigPage() {
   const [nameInput, setNameInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
-  const [groupInput, setGroupInput] = useState('');
   const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);
 
   useEffect(() => {
@@ -27,9 +26,6 @@ export default function SkillsConfigPage() {
           <Label title="Description: ">
             <input className="text-black" value={descriptionInput} onChange={e => setDescriptionInput(e.target.value)}/>
           </Label>
-          <Label title="Group: ">
-            <input className="text-black" value={groupInput} onChange={e => setGroupInput(e.target.value)}/>
-          </Label>
           <button className="p-2 px-5 border rounded" onClick={
             () => {
               SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput});
@@ -48,9 +44,6 @@ export default function SkillsConfigPage() {
             </div>
             <div className="w-full mr-8">
               <span>Description</span>
-            </div>
-            <div className="w-52">
-              <span>group</span>
             </div>
             <div className="w-28">
               <span>edit</span>
@@ -74,7 +67,7 @@ export default function SkillsConfigPage() {
                   <div className="w-28">
                     <button
                       onClick={() => {
-                        SkillsAPI.editSkill(skill._id,{name: 'tal name'})
+                        //SkillsAPI.editSkill(skill._id,{name: 'tal name'})
                       }}
                     >edit</button>
                   </div>
