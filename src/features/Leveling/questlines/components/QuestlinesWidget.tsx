@@ -148,14 +148,14 @@ function CreateNewQuestline(props: { close: () => void}) {
       <div className="flex flex-col w-full">
         <div className="flex w-full">
           <Label title="Title: " className="p-2 w-full">
-            <input className="w-full" type="text" id="questline-title" value={questlineTitle} onChange={(e) => setQuestlineTitle(e.target.value)}/>
+            <input className="w-full text-black" type="text" id="questline-title" value={questlineTitle} onChange={(e) => setQuestlineTitle(e.target.value)}/>
           </Label>
           <Label title="Duration: " className="p-2 w-32">
-            <input className="w-full" type="number" id="questline-duration" placeholder="Days" value={questlineDuration} onChange={(e) => setQuestlineDuration(Number(e.target.value))}/>
+            <input className="w-full text-black" type="number" id="questline-duration" placeholder="Days" value={questlineDuration} onChange={(e) => setQuestlineDuration(Number(e.target.value))}/>
           </Label>
         </div>
         <Label title="Description: ">
-          <textarea id="questline-description" className="resize-none h-16 w-full" value={questlineDescription} onChange={(e) => setQuestlineDescription(e.target.value)}/>
+          <textarea id="questline-description" className="resize-none h-16 w-full text-black" value={questlineDescription} onChange={(e) => setQuestlineDescription(e.target.value)}/>
         </Label>
       </div>
       <div className="flex justify-end">
