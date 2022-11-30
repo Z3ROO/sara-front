@@ -68,3 +68,13 @@ export class ErrorTest {
     });
   }
 }
+
+export async function getHandyNote() {
+  const { body } = await Requester.get('/notes/handy');
+  return body;
+}
+
+export async function updateHandyNote(note: string) {
+  const { body } = await Requester.post('/notes/handy', JSON.stringify({note}));
+  return;
+}

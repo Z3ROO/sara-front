@@ -7,6 +7,7 @@ import MainMenu from './components/MainMenu';
 import ButtonForTaskBar from './components/ButtonForTaskBar';
 import StatusIconForTaskbar, { QuestStatusCaller4Taskbar } from './components/StatusIconForTaskBar';
 import UsernameAndLevel from './components/UsernameAndLevel';
+import { HandyNoteWidget } from '../notes/components/HandyNote';
 
 export default function TaskBar() {
   return (
@@ -25,6 +26,9 @@ function LeftMenu() {
       <div className='pr-1 mr-1 border-r border-black h-4/6' />
       <ButtonForTaskBar Icon={Icons.InboxArrowIn}>
         <InboxInputWidget />
+      </ButtonForTaskBar>
+      <ButtonForTaskBar Icon={Icons.InfoCards} freeWidget>
+        <HandyNoteWidget />
       </ButtonForTaskBar>
     </div>
   )

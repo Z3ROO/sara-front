@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import Modal, { FullScreenModal } from '../../../ui/Modal';
+import { FreeWidget } from '../../../ui/widgets';
 
-export default function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: JSX.Element|((props:any) => JSX.Element), fullScreen?: boolean, maintainOpen?: boolean, modal?: boolean }) {
-  let { Icon, children, maintainOpen, fullScreen, modal } = props;
+export default function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Element, children: JSX.Element|((props:any) => JSX.Element), fullScreen?: boolean, maintainOpen?: boolean, modal?: boolean, freeWidget?: boolean }) {
+  let { Icon, children, maintainOpen, fullScreen, modal, freeWidget } = props;
   const [toggle, setToggle] = useState(false);
   let content:JSX.Element|null = null;
   const buttonRef = useRef<null|HTMLDivElement>(null);
@@ -38,8 +39,18 @@ export default function ButtonForTaskBar(props: { Icon: (props:any) => JSX.Eleme
         </Modal>
       );
     }
+    else if (freeWidget) {
+      let side: 'left'|'right' = 'right';
+      if(buttonRef.current)
+        side = buttonRef.current!.getBoundingClientRect().right > (window.innerWidth / 2) ? 'right' : 'left'
+      children = (
+        <FreeWidget side={side}>
+          { children }
+        </FreeWidget>
+      )
+    }
     else {
-      let side = 'right';
+      let side: 'left'|'right' = 'right';
       if(buttonRef.current)
         side = buttonRef.current!.getBoundingClientRect().right > (window.innerWidth / 2) ? 'right' : 'left'
       children = (
