@@ -61,7 +61,7 @@ export interface IQuestsStateController {
 }
 
 const QuestsStateControllerContext = createContext<IQuestsStateController|null>(null);
-const useQuestsSC = () => useContext(QuestsStateControllerContext);
+export const useQuestsSC = () => useContext(QuestsStateControllerContext);
 
 export function QuestStateController(): IQuestsStateController {
   const [activeQuest, setActiveQuest] = useState<IQuest|null>();
