@@ -117,6 +117,14 @@ function TimeLine(props: {dayPercentage:number, dayOfTheWeek:number, today: numb
           )
         })
       }
+      <div className="absolute w-full h-1 rounded-sm top-1 left-0 flex justify-between">
+        {
+          Array(24).fill(false).map((v, hour) => (
+            <span className="w-[2ch] text-xs">{hour}</span>
+          ))
+        }
+        <span className="w-0 text-xs"></span>
+      </div>
     </div>
   )
 }
