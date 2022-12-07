@@ -159,8 +159,9 @@ export function ReviewedInboxWidget() {
               <div className='p-1 w-full'>{item.content}</div>
               <button
                 className='p-3 shrink-0'
-                onClick={() => {
-                  InboxAPI.deleteInboxItem(item._id)
+                onClick={async () => {
+                  await InboxAPI.deleteInboxItem(item._id);
+                  await getReviewedInbox();
                 }}
               >x</button>
             </div>
