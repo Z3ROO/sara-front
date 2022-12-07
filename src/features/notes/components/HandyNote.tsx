@@ -21,7 +21,7 @@ export function HandyNoteWidget() {
         ref={textareaRef} 
         value={noteContent} 
         onChange={e => setNoteContent(e.target.value)} 
-        className="resize min-h-[8.5rem] min-w-[14rem]"
+        className="resize w- min-h-[16rem] min-w-[14rem] p-1"
         onBlur={(e) => {NotesAPI.updateHandyNote(e.target.value)}}
       />
     </>

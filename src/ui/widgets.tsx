@@ -27,19 +27,18 @@ export function FreeWidget(props: IFreeWidgetProps) {
         div.onmousemove = (moveEvent) => {
           const {pageX, pageY} = moveEvent;
 
-          div.style.top = `${pageY-8}px`;
-          div.style.left = `${pageX-8}px`;
+          div.style.top = `${pageY-10}px`;
+          div.style.left = `${pageX-10}px`;
         }
+      }
 
-        div.onmouseup = (upEvent) => {
-          const {x, y} = div.getBoundingClientRect();
+      div.onmouseup = (upEvent) => {
+        const {x, y} = div.getBoundingClientRect();
 
-          localStorage.setItem('handyNoteX', `${x-8}`);
-          localStorage.setItem('handyNoteY', `${y-8}`);
+        localStorage.setItem('handyNoteX', `${x-10}`);
+        localStorage.setItem('handyNoteY', `${y-10}`);
 
-          div.onmousemove = null;
-          div.onmouseup = null;
-        }
+        div.onmousemove = null;
       }
     }
   },[ref.current]);
@@ -49,8 +48,12 @@ export function FreeWidget(props: IFreeWidgetProps) {
       className={`fixed top-8 left-10 p-4 z-50 rounded bg-gray-300 growing-to-left-ani`}>
       <button 
         id="free-widget-move-button"
-        className="absolute top-2 left-2 w-1 h-1 bg-gray-400 rounded-full cursor-pointer"
-      ></button>
+        className="absolute top-0 left-0 p-2 active:-top-56 active:-left-56 active:p-[14.5rem] cursor-pointer"
+      >
+        <div
+          className="w-1 h-1 bg-gray-400 rounded-full "
+        ></div>
+      </button>
       {children}
     </div>
   )
