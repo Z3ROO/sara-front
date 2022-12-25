@@ -7,28 +7,22 @@ import { Label } from "../../../../ui/forms";
 import * as SkillsAPI from "../../skills/SkillsAPI";
 import * as QuestlineAPI from '../../questlines/QuestlinesAPI';
 
-export interface INewQuest {
-  questline_id?: string
-  skill_id?: string
-  mission_id?: string
-  title: string
-  description: string
-  type: 'main'|'mission'|'practice'
-  todos: string[],
-  timecap: number|string
-}
-
+// Quests exist to record the details of the action, basicly what I did in this brief period of time.
 export interface IQuest {
   _id: string
   questline_id: string|null
-  skill_id: string|null
+  record_id: string|null
   mission_id: string|null
   title: string
-  description: string
-  type: 'main'|'mission'|'practice'
-  state: 'active'|'deferred'|'finished'|'invalidated'
+  description: string 
   todos: ITodo[]
+  progress: number
+  state: 'active'|'finished'|'invalidated'
   timecap: number|string
+  pause: {
+    start: Date
+    finish: Date
+  }[]
   focus_score: number|null
   distraction_score: Date[]
   created_at: Date
@@ -37,10 +31,26 @@ export interface IQuest {
 }
 
 export type ITodo = {
+  doable_id?: string|null
   description: string
-  state: 'invalidated'|'finished'|'active'
+  state: 'active'|'finished'|'invalidated'
   finished_at: Date|null
 };
+
+export type INewTodo = {
+  doable_id?: string|null
+  description: string
+}
+
+export interface INewQuest {
+  questline?: boolean
+  record_id?: string
+  mission_id?: string
+  title: string
+  description: string
+  todos: INewTodo[]
+  timecap: number|string
+}
 
 function todoStyleClasses(todoState: string) {
   if (todoState === 'active')
@@ -53,8 +63,7 @@ function todoStyleClasses(todoState: string) {
 
 export interface IQuestsStateController {
   activeQuest: IQuest|null|undefined
-  createNewQuest(title: string, description: string, horas: number, minutes: number, type: "main" | "practice" | "mission", todos: string[]): Promise<void>
-  createNewPracticeQuest(title: string, description: string, horas: number, minutes: number, type: "main" | "practice" | "mission", todos: string[], skill_id: string): Promise<void>
+  createNewQuest(props: INewQuest): Promise<void>
   handleQuestTodo(description: string, action: 'finish' | 'invalidate'): Promise<void>
   finishQuest(focusScore: number): Promise<void>
   sendDistractionPoint(): Promise<void>
@@ -82,40 +91,26 @@ export function QuestStateController(): IQuestsStateController {
     }
   }
 
-  async function createNewQuest(title: string, description: string, 
-    horas: number, minutes: number, type: "main" | "practice" | "mission", 
-    todos: string[]) {
-
-    const newQuest:INewQuest = {
+  async function createNewQuest(props: INewQuest) {
+    const {
+      questline,
+      record_id,
+      mission_id,
       title,
       description,
-      timecap: (minutes + (horas*60))*60000,
-      todos,
-      type
-    }
+      timecap,
+      todos
+    } = props;
 
-    const data = await QuestsAPI.createQuest(newQuest);
-
-    await getActiveQuest();
-  }
-
-  async function createNewPracticeQuest(title: string, description: string, 
-    horas: number, minutes: number, type: "main" | "practice" | "mission", 
-    todos: string[], skill_id: string) {
-    
-    if (skill_id === '')
-      throw new Error('skill_id empty');
-
-    const newQuest:INewQuest = {
-      skill_id,
+    const data = await QuestsAPI.createQuest({
+      questline,
+      record_id,
+      mission_id,
       title,
       description,
-      timecap: (minutes + (horas*60))*60000,
-      todos,
-      type
-    }
-
-    const data = await QuestsAPI.createPracticeQuest(newQuest);
+      timecap,
+      todos
+    });
 
     await getActiveQuest();
   }
@@ -156,7 +151,6 @@ export function QuestStateController(): IQuestsStateController {
   return {
     activeQuest,
     createNewQuest,
-    createNewPracticeQuest,
     handleQuestTodo,
     finishQuest,
     sendDistractionPoint
@@ -343,21 +337,21 @@ export function CreateNewQuest(props: any) {
 
 function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() => void}) {
   const {type, setType} = props;
-  const { createNewQuest, createNewPracticeQuest } = useQuestsSC()!;
+  const { createNewQuest } = useQuestsSC()!;
 
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
   const [questHoras, setQuestHoras] = useState<number>(0);
   const [questMinutes, setQuestMinutes] = useState<number>(0);
-  const [todos, setTodos] = useState<string[]>(['']);
+  const [todos, setTodos] = useState<INewTodo[]>([]);
 
-  const [skill_id, setSkill_id] = useState('');
+  const [record_id, setRecord_id] = useState('');
   
   return  <div>
             <h4>Criar Quest:</h4>
             <div className="flex flex-col">
               {
-                type === 'practice' && <SkillsListing className='m-2 w-3/6 self-end text-black' {...{skill_id, setSkill_id}}/>
+                type === 'practice' && <SkillsListing className='m-2 w-3/6 self-end text-black' {...{record_id, setRecord_id}}/>
               }
               <Label title="Titulo: ">
                 <input className="w-full text-black" type="text" value={questTitle} onChange={e => setQuestTitle(e.target.value)}/>
@@ -377,10 +371,13 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
               <div className="flex justify-end my-4">
                 <button className="m-2 py-1 px-2 border rounded cursor-pointer" onClick={setType} >Cancelar</button>
                 <button className="m-2 py-1 px-4 border rounded cursor-pointer" onClick={() => {
-                  if (type === 'main')
-                    createNewQuest(questTitle, questDescription, questHoras, questMinutes, type, todos);
-                  else if (type === 'practice')
-                    createNewPracticeQuest(questTitle, questDescription, questHoras, questMinutes, type, todos, skill_id);
+                    createNewQuest({
+                      questline: type === 'main',
+                      record_id, 
+                      title: questTitle, description: questDescription, 
+                      timecap: ((questHoras * 60) + questMinutes) * 60 * 1000, 
+                      todos
+                    });
                   setType();
                 }}>Criar</button>
               </div>
@@ -415,17 +412,21 @@ function SkillsListing(props: any) {
   )
 }
 
-function CreateNewQuestTodosSection(props: any) {
+function CreateNewQuestTodosSection(props: { todos: INewTodo[], setTodos: React.Dispatch<React.SetStateAction<INewTodo[]>> }) {
   const { todos, setTodos } = props;
+
+  useEffect(() => {
+    setTodos([{description: '', doable_id: null}]);
+  }, [])
 
   return  <div className="relative">
             <h5>To-do list: </h5>
             {
-              todos.map((todo: string, ind:number) => {
+              todos.map((todo, ind) => {
                 return  (
                   <div className="flex p-2 pt-1 pr-1">
-                    <input className="w-full text-black" type="text" value={todo} placeholder={`To-do #${ind}`}
-                      onChange={({target}) => setTodos((current:string[]) => {current[ind] = target.value; return [...current]})}/>
+                    <input className="w-full text-black" type="text" value={todo.description} placeholder={`To-do #${ind}`}
+                      onChange={({target}) => setTodos((current) => {current[ind].description = target.value; return [...current]})}/>
                     <button className="button-icon bg-red-600" onClick={() => {
                         if (todos.length === 1) return
                         const newTodos = [...todos];
@@ -441,7 +442,7 @@ function CreateNewQuestTodosSection(props: any) {
               }
               <button className="button-icon absolute top-1 right-1" onClick={() => {
                   const newTodos = [...todos];
-                  newTodos[newTodos.length] = ''
+                  newTodos[newTodos.length] = {description: '', doable_id: null}
                   setTodos(newTodos);
                 }
               }><img className="w-3" src="/icons/ui/plus-sign.svg" alt="close-x" /></button>
