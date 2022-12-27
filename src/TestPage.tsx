@@ -28,9 +28,48 @@ function Controller() {
 }
 
 export default function TestPage() {
-  const controller = Controller();
 
-  return  <div className="bg-white">
-            <span className="text-white">teste</span>
+  return  <div className="bg-gray-650 h-full">
+            <div className="flex m-64">
+              
+              <ul className="tey">
+                <ul className="flex flex-col items-center">
+                  <LI />
+                  <ul className="flex m-4">
+                    <LI />
+                    <LI />
+                    <LI />
+                  </ul>
+                </ul>
+              </ul>
+              <ul className="tey">
+                <ul className="flex flex-col items-center">
+                  <LI />
+                  <ul className="flex m-4">
+                    <LI />
+                    <LI />
+                  </ul>
+                </ul>
+              </ul>
+              <ul className="tey">
+                <ul className="flex flex-col items-center">
+                  <LI />
+                  <ul className="flex m-4">
+                    <LI />
+                    <LI />
+                    <LI />
+                  </ul>
+                </ul>
+              </ul>
+            </div>
           </div>
+}
+
+function LI(props: any) {
+  return (
+    <li className={`
+    bg-slate-200 border m-2 border-slate-400 rounded w-12 h-12
+    tey
+    `}>{props.children}</li>
+  )
 }
