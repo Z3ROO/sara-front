@@ -30,46 +30,107 @@ function Controller() {
 export default function TestPage() {
 
   return  <div className="bg-gray-650 h-full">
-            <div className="flex m-64">
-              
-              <ul className="tey">
-                <ul className="flex flex-col items-center">
-                  <LI />
-                  <ul className="flex m-4">
-                    <LI />
-                    <LI />
-                    <LI />
-                  </ul>
-                </ul>
-              </ul>
-              <ul className="tey">
-                <ul className="flex flex-col items-center">
-                  <LI />
-                  <ul className="flex m-4">
-                    <LI />
-                    <LI />
-                  </ul>
-                </ul>
-              </ul>
-              <ul className="tey">
-                <ul className="flex flex-col items-center">
-                  <LI />
-                  <ul className="flex m-4">
-                    <LI />
-                    <LI />
-                    <LI />
-                  </ul>
-                </ul>
-              </ul>
+            <div className="flex m-64 ">
+              <SkillTreeView />
             </div>
           </div>
 }
 
-function LI(props: any) {
+
+function SkillTreeView() {
   return (
-    <li className={`
-    bg-slate-200 border m-2 border-slate-400 rounded w-12 h-12
-    tey
-    `}>{props.children}</li>
+    <SkillBranchedNode head>
+      <SkillBranchedNode>
+        <SkillBranchedNode>
+          <SkillNode />
+        </SkillBranchedNode>   
+      </SkillBranchedNode>
+      <SkillBranchedNode>
+        <EmptySkillBranchedNode>
+          <SkillNode />
+        </EmptySkillBranchedNode>   
+      </SkillBranchedNode>   
+      <SkillBranchedNode>
+        <SkillNode />
+        <SkillBranchedNode>
+          <SkillNode />
+          <SkillNode />
+          <SkillNode />
+        </SkillBranchedNode>
+        <SkillBranchedNode>
+          <SkillNode />
+          <SkillNode />
+        </SkillBranchedNode>   
+      </SkillBranchedNode>
+      <SkillBranchedNode>
+        <SkillNode />
+        <SkillNode />
+      </SkillBranchedNode>      
+      <SkillNode />
+    </SkillBranchedNode>
+  );
+}
+
+function SkillNode(props: any) {
+  const {withBranches, head} = props;
+
+  return (
+    <div className={`flex justify-center overflow-hidden relative ${!withBranches && 'ttt'} ${head && 'skill-head'}`}>
+      <div className={`
+        bg-slate-200 border border-slate-400 rounded w-12 h-12 my-4 mx-4
+        ${head && 'skill-head'}
+        ${withBranches ? 'branched-skill-node' : 'skill-node'}
+      `}>
+
+      </div>
+    </div>
+  )
+}
+
+function SkillBranchedNode(props: any) {
+  const { head } = props;
+  return (
+    <div className={`relative ttt overflow-hidden ${head && 'skill-head'}`}>
+      <SkillNode withBranches head={head}/>
+      {
+        props.children && (
+          <div className="flex">
+            {props.children}
+          </div>
+        )
+      }
+    </div>
+  )
+}
+
+function EmptySkillNode(props: any) {
+  const {withBranches, head} = props;
+
+  return (
+    <div className={`flex justify-center overflow-hidden relative ${!withBranches && 'ttt'} ${head && 'skill-head'}`}>
+      <div className={`
+        bg-slate-200 border-y w-px h-12 my-4 mx-4
+        ${head && 'skill-head'}
+        ${withBranches ? 'branched-skill-node' : 'skill-node'}
+      `}>
+
+      </div>
+    </div>
+  )
+}
+
+function EmptySkillBranchedNode(props: any) {
+  const { head } = props;
+  return (
+    <div className={`relative ttt overflow-hidden ${head && 'skill-head'}`}>
+      <EmptySkillNode withBranches head={head}/>
+      {
+        props.children && (
+          <div className="flex">
+            {props.children}
+          </div>
+        )
+      }
+    </div>
   )
 }
