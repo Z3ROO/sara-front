@@ -8,15 +8,30 @@ export interface ISkillNode {
   emptyNodes?: number
 }
 
-const SkillTreeContext = createContext<any>(null);
+export interface ISkillTree_SC {
+  editMode: boolean
+  toggleEditMode: () => void
+}
+
+const SkillTreeContext = createContext<ISkillTree_SC|null>(null);
+
+export function SkillTree_SC() {
+  const [editMode, setEditMode] = useState(false);
+  const toggleEditMode = () => setEditMode(prev => !prev);
+
+  return {
+    editMode, toggleEditMode
+  }
+}
+
+export const useSkillTree_SC = () => useContext(SkillTreeContext);
 
 export function SkillTreeView(props: {tree: ISkillNode}) {
+  const stateController = SkillTree_SC();
+  
   const { tree } = props;
-
   const treeRef = useRef<HTMLDivElement>(null);
-  const [editMode, toggleEditMode] = useReducer((state:boolean, action?:undefined) => {
-    return !state
-  }, false);
+  const { toggleEditMode } = stateController;
   
   useEffect(() => {
     if (treeRef.current == null)
@@ -38,7 +53,7 @@ export function SkillTreeView(props: {tree: ISkillNode}) {
   },[treeRef.current]);
 
   return (
-    <SkillTreeContext.Provider value={{editMode, toggleEditMode}}>
+    <SkillTreeContext.Provider value={stateController}>
       <div ref={treeRef} className="relative w-full h-full overflow-hidden select-none">
         <div className="w-full h-full absolute p-16 top-0 left-0">
           <SkillBranchedNode skillNode={tree} head />
@@ -82,7 +97,7 @@ function SkillBranchedNode(props: { head?: boolean, skillNode: ISkillNode, empty
 
 function SkillNode(props: any) {
   const {withBranches, head, skill, emptyNodes} = props;
-  const {editMode, toggleEditMode} = useContext(SkillTreeContext);
+  const {editMode, toggleEditMode} = useSkillTree_SC()!;
 
   if (emptyNodes)
     return (
