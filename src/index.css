@@ -123,7 +123,7 @@ pre {
   white-space: pre-wrap;
 }
 
-.skill-node, .branched-skill-node {
+.skill-node, .branched-skill-node, .empty-node {
   position: relative;
 }
 
@@ -132,57 +132,75 @@ pre {
   content: '';
   position: absolute;
   border-left: 1px solid yellow;
-  top: calc(-1rem - 1px);
+  top: calc(-2rem - 1px);
   left: 50%;
-  height: 1rem;
+  height: 2rem;
 }
 
 .branched-skill-node::after  {
   content: '';
   position: absolute;
   border-left: 1px solid yellow;
-  bottom: calc(-1rem - 1px);
+  bottom: calc(-2rem - 1px);
   left: 50%;
-  height: 1rem;
+  height: 2rem;
 }
 
+.empty-node::before  {
+  content: '';
+  position: absolute;
+  border-left: 1px solid yellow;
+  top: calc(-2rem - 1px);
+  left: 50%;
+  height: 100%;
+}
 
-.ttt:not(.skill-head, :only-child):first-child::before {
+.empty-node::after {
+  content: '';
+  position: absolute;
+  border-left: 1px solid yellow;
+  bottom: calc(-2rem - 1px);
+  left: 50%;
+  height: 100%;
+}
+
+.skill-hor-line-down-path:not(.skill-head, :only-child):first-child::before {
   content: '';
   position: absolute;
   border-top: 1px solid yellow;
   top: calc(0 - 1px);
   left: 50%;
-  height: 1rem;
+  height: 2rem;
   width: calc(100% + 3rem);
 }
 
-.ttt:not(:only-child, :first-child, :last-child)::before {
+.skill-hor-line-down-path:not(:only-child, :first-child, :last-child)::before {
   content: '';
   position: absolute;
   border-top: 1px solid yellow;
   top: calc(0 - 1px);
   left: 50%;
-  height: 1rem;
+  height: 2rem;
   width: calc(100% + 3rem);
 }
 
-.ttt:not(:only-child, :first-child, :last-child)::after {
+.skill-hor-line-down-path:not(:only-child, :first-child, :last-child)::after {
   content: '';
   position: absolute;
   border-top: 1px solid yellow;
   top: 0;
   right: 50%;
-  height: 1rem;
+  height: 2rem;
   width: calc(100% + 3rem);
 }
 
-.ttt:not(.skill-head, :only-child):last-child::before {
+.skill-hor-line-down-path:not(.skill-head, :only-child):last-child::before {
   content: '';
   position: absolute;
   border-top: 1px solid yellow;
   top: calc(0 - 1px);
   right: 50%;
-  height: 1rem;
+  height: 2rem;
   width: calc(100% + 3rem);
 }
+
