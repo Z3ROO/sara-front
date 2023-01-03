@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, createContext, useState, useReducer, useContext } from "react";
 import { TripleGear } from "../../../../lib/icons/UI";
 
 export interface ISkillNode {
@@ -8,15 +8,16 @@ export interface ISkillNode {
   emptyNodes?: number
 }
 
-function SkillTreeView() {
-  const tree = {
-    name: '',
-    parents: [],
-    children: []
-  };
+const SkillTreeContext = createContext<any>(null);
 
-  const treeRef = useRef<HTMLDivElement>(null)
+export function SkillTreeView(props: {tree: ISkillNode}) {
+  const { tree } = props;
 
+  const treeRef = useRef<HTMLDivElement>(null);
+  const [editMode, toggleEditMode] = useReducer((state:boolean, action?:undefined) => {
+    return !state
+  }, false);
+  
   useEffect(() => {
     if (treeRef.current == null)
       return
@@ -25,14 +26,11 @@ function SkillTreeView() {
     const tree = treeRef.current.firstChild as HTMLDivElement;
 
     node.onmousedown = (e) => {
-
       node.onmousemove = (ee) => {
-        console.log(ee)
         tree.style.top = Number(tree.style.top.replace(/px|rem|em/g, '')) + (ee.movementY/2)+'px';
         tree.style.left = Number(tree.style.left.replace(/px|rem|em/g, '')) + (ee.movementX/2)+'px';
       }      
     }
-
     node.onmouseup = (e) => {
       node.onmousemove = null;
     }
@@ -40,11 +38,18 @@ function SkillTreeView() {
   },[treeRef.current]);
 
   return (
-    <div ref={treeRef} className="relative w-full h-full overflow-hidden p-16 select-none">
-      <div className="w-full h-full absolute">
-        <SkillBranchedNode skillNode={tree} head />
+    <SkillTreeContext.Provider value={{editMode, toggleEditMode}}>
+      <div ref={treeRef} className="relative w-full h-full overflow-hidden select-none">
+        <div className="w-full h-full absolute p-16 top-0 left-0">
+          <SkillBranchedNode skillNode={tree} head />
+        </div>
+        <button 
+          onClick={toggleEditMode}
+          className="absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 bottom-4 bg-gray-350">
+          edit
+        </button>
       </div>
-    </div>
+    </SkillTreeContext.Provider>
   );
 }
 
@@ -77,6 +82,7 @@ function SkillBranchedNode(props: { head?: boolean, skillNode: ISkillNode, empty
 
 function SkillNode(props: any) {
   const {withBranches, head, skill, emptyNodes} = props;
+  const {editMode, toggleEditMode} = useContext(SkillTreeContext);
 
   if (emptyNodes)
     return (
@@ -104,6 +110,12 @@ function SkillNode(props: any) {
             <TripleGear className={'w-8 fill-red-400'} />
           </div>
         </div>
+        {
+          editMode && (
+            <div className="z-10 absolute -bottom-3 left-[calc(50%_-_.75rem)] rounded-full w-6 h-6 bg-red-400 cursor-pointer">
+            </div>
+          )
+        }
       </div>
     </div>
   )
