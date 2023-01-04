@@ -1,4 +1,4 @@
-export default function Modal(props: {children:JSX.Element, close: () => void}) {
+export default function Modal(props: {children:JSX.Element|JSX.Element[], close: () => void}) {
   const { children, close } = props;
 
   return (
@@ -14,7 +14,7 @@ export default function Modal(props: {children:JSX.Element, close: () => void}) 
   )
 }
 
-export function FullScreenModal(props: {children:JSX.Element, close: () => void}) {
+export function FullScreenModal(props: {children:JSX.Element|JSX.Element[], close: () => void}) {
   const { children, close } = props;
 
   return (
