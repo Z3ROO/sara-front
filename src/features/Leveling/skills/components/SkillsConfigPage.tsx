@@ -8,7 +8,7 @@ export default function SkillsConfigPage() {
   const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);
 
   async function getSkills() {
-    const response = await SkillsAPI.getAllSkills();
+    const response = await SkillsAPI.getSkills();
     setSkills(response);
   }
 

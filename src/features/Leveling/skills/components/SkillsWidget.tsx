@@ -6,7 +6,7 @@ export function SkillsWidget() {
   const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);
 
   useEffect(() => {
-    (async () =>  setSkills(await SkillsAPI.getAllSkills()) )();
+    (async () =>  setSkills(await SkillsAPI.getSkills()) )();
   },[]);
 
   return (

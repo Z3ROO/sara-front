@@ -1,38 +1,90 @@
-import { useRef, useEffect, createContext, useState, useReducer, useContext } from "react";
+import { useRef, useEffect } from "react";
 import { TripleGear } from "../../../../lib/icons/UI";
+import { ISkill, IRootSkill } from "../SkillsAPI";
+import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
 
-export interface ISkillNode {
-  name: string
-  parents: ISkillNode[]
-  children: ISkillNode[]
-  emptyNodes?: number
-}
 
-export interface ISkillTree_SC {
-  editMode: boolean
-  toggleEditMode: () => void
-}
-
-const SkillTreeContext = createContext<ISkillTree_SC|null>(null);
-
-export function SkillTree_SC() {
-  const [editMode, setEditMode] = useState(false);
-  const toggleEditMode = () => setEditMode(prev => !prev);
-
-  return {
-    editMode, toggleEditMode
-  }
-}
-
-export const useSkillTree_SC = () => useContext(SkillTreeContext);
-
-export function SkillTreeView(props: {tree: ISkillNode}) {
+export function SkillTree() {
   const stateController = SkillTree_SC();
+
+  const { skill, toggleEditMode, navigateSkill } = stateController;
+  console.log(skill)
+  let content: JSX.Element;
   
-  const { tree } = props;
+  if (skill && skill.type === 'tree')
+    content = <SkillTreeNodes />
+  else if (skill && (skill.type === 'root' || skill.type === 'div'))
+    content = <SkillTreeDivs />
+  else
+    content = <SkillTreeRoots />
+
+  return (
+    <SkillTreeContext.Provider value={stateController}>
+      <div className="relative w-full h-full">
+        { content }
+        <button 
+          onClick={() => navigateSkill('back')}
+          className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 top-4 bg-gray-350"}>
+          back
+        </button>
+        <button 
+          onClick={toggleEditMode}
+          className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 bottom-4 bg-gray-350"}>
+          edit
+        </button>
+      </div>
+    </SkillTreeContext.Provider>
+  );
+}
+
+function SkillTreeRoots() {
+  const { rootSkills, navigateSkill } = useSkillTree_SC()!;
+
+  return (
+    <div className={`flex w-full h-full items-start p-12`}>
+    {
+      rootSkills.map(skill => {
+        const { _id, name } = skill;
+        
+        return (
+          <div 
+            onClick={() => navigateSkill(_id)}
+            className="m-2 p-4 rounded bg-gray-400 cursor-pointer flex items-center justify-center">
+            <span>{name}</span>
+          </div>
+        )
+      })
+    }
+    </div>
+  )
+}
+
+function SkillTreeDivs() {
+  const { skill, navigateSkill } = useSkillTree_SC()!;
+
+  return (
+    <div className={`flex w-full h-full items-start p-12`}>
+    {
+      skill?.children.map(skill => {
+        const { _id, name } = skill;
+        
+        return (
+          <div 
+            onClick={() => navigateSkill(_id)}
+            className="m-2 p-4 rounded bg-gray-400 cursor-pointer flex items-center justify-center">
+            <span>{name}</span>
+          </div>
+        )
+      })
+    }
+    </div>
+  )
+}
+
+function SkillTreeNodes() {
+  const { skill } = useSkillTree_SC()!;
   const treeRef = useRef<HTMLDivElement>(null);
-  const { toggleEditMode } = stateController;
-  
+
   useEffect(() => {
     if (treeRef.current == null)
       return
@@ -53,22 +105,15 @@ export function SkillTreeView(props: {tree: ISkillNode}) {
   },[treeRef.current]);
 
   return (
-    <SkillTreeContext.Provider value={stateController}>
-      <div ref={treeRef} className="relative w-full h-full overflow-hidden select-none">
-        <div className="w-full h-full absolute p-16 top-0 left-0">
-          <SkillBranchedNode skillNode={tree} head />
-        </div>
-        <button 
-          onClick={toggleEditMode}
-          className="absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 bottom-4 bg-gray-350">
-          edit
-        </button>
+    <div ref={treeRef} className="relative w-full h-full overflow-hidden select-none">
+      <div className="w-full h-full absolute p-16 top-0 left-0">
+        <SkillBranchedNode skillNode={skill!} head />
       </div>
-    </SkillTreeContext.Provider>
-  );
+    </div>
+  )
 }
 
-function SkillBranchedNode(props: { head?: boolean, skillNode: ISkillNode, emptyNodes?: number }) {
+function SkillBranchedNode(props: { head?: boolean, skillNode: ISkill, emptyNodes?: number }) {
   const { head, skillNode, emptyNodes } = props;
   
   if (emptyNodes) 

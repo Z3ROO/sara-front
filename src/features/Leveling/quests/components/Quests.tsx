@@ -391,7 +391,7 @@ function SkillsListing(props: any) {
 
   useEffect(() => {
     (async () => {
-      const data = await SkillsAPI.getAllSkills();
+      const data = await SkillsAPI.getSkills();
       setSkills(data);
       
       if (data[0])
