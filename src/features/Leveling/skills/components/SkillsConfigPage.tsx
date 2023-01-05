@@ -46,7 +46,6 @@ function AddSkills(props: {
         <div className="mt-auto">
           <button className="mb-2 p-1 px-5 bg-gray-600 border border-gray-650 rounded=sm" onClick={
             async () => {
-              await SkillsAPI.addNewSkill({name: nameInput, description: descriptionInput});
               setNameInput('');
               setDescriptionInput('');
               getSkills();

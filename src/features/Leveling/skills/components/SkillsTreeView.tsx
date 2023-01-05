@@ -118,10 +118,10 @@ function SkillTreeNodes() {
         const newTop = currentTop + (ee.movementY/12);
         const newLeft = currentLeft + (ee.movementX/12);
         
-        if (newTop > -99.99 && newTop < 99.99)
+        if (newTop > -99.99 && newTop < 50)
           tree.style.top = newTop+'%';
 
-        if (newLeft > -99.99 && newLeft < 99.99)
+        if (newLeft > -99.99 && newLeft < 50)
           tree.style.left = newLeft+'%';
       }      
     }
@@ -243,6 +243,7 @@ interface IAddSkillProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 function AddSkill(props: IAddSkillProps) {
+  const { addNewSkill } = useSkillTree_SC()!;
   let { parent } = props;
   
   let skillType: TypesOfSkill;
@@ -263,7 +264,7 @@ function AddSkill(props: IAddSkillProps) {
   const [modal, setModal] = useState(false);
   const toggleModal = () => setModal(prev => !prev);
 
-  const [_id, set_id] = useState(parent._id);
+  const [parent_id, setParent_id] = useState(parent._id);
   const [name, setName] = useState('');
   const [type, setType] = useState<TypesOfSkill>(skillType);
   const [description, setDescription] = useState('');
@@ -285,9 +286,9 @@ function AddSkill(props: IAddSkillProps) {
               <h4>{parent.name}</h4>
               
             </div>
-            <form className="flex flex-col w-72">
+            <form id="add-skill-form" className="flex flex-col w-72">
               <Label title="Parent _id: ">
-                <input className="w-full" type="text" value={_id} />
+                <input className="w-full" type="text" value={parent_id} />
               </Label>
               <Label title="Name: ">
                 <input className="w-full" type="text" value={name} onChange={e => setName(e.target.value)} />
@@ -312,6 +313,22 @@ function AddSkill(props: IAddSkillProps) {
               <Label title="Description: ">
                 <textarea className="w-full resize-none" value={description} onChange={e => setDescription(e.target.value)} />
               </Label>
+              <button 
+                form="add-skill-form" type="submit"
+                onClick={async e => {
+                  e.preventDefault();
+                  addNewSkill({
+                    parent_id,
+                    name,
+                    description,
+                    type,
+                    emptyNodes
+                  });
+                  toggleModal();
+                }}
+                className="bg-gray-400 rounded p-2">
+                add
+              </button>
             </form>
           </Modal>
         )

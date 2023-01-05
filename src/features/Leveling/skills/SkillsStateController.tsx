@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react"
-import { IRootSkill, ISkill } from "./SkillsAPI";
+import { INewSkill, IRootSkill, ISkill } from "./SkillsAPI";
 import * as SkillsAPI from "./SkillsAPI";
 
 export interface ISkillTree_SC {
@@ -8,6 +8,7 @@ export interface ISkillTree_SC {
   rootSkills: IRootSkill[]
   skill: ISkill|undefined
   navigateSkill: (_id: string) => void
+  addNewSkill: (skill: INewSkill) => Promise<void>
 }
 
 export const SkillTreeContext = createContext<ISkillTree_SC|null>(null);
@@ -20,11 +21,9 @@ export function SkillTree_SC(): ISkillTree_SC {
 
   const [skill, setSkill] = useState<ISkill>();
   const navigateSkill = (_id: string) => {
-
     if (!skill)
       setSkill(rootSkills.find(child => child._id === _id))
     else if (_id === 'back') {
-      console.log('skill')
       if (skill.type === 'root-skill')
         setSkill(undefined);
       else
@@ -35,6 +34,10 @@ export function SkillTree_SC(): ISkillTree_SC {
   }
 
   const getSkills = async () => setRootSkills(await SkillsAPI.getSkills());
+  const addNewSkill = async (skill: INewSkill) => {
+    await SkillsAPI.addNewSkill(skill);
+    await getSkills();
+  };
 
   useEffect(() => {
     getSkills();
@@ -45,6 +48,7 @@ export function SkillTree_SC(): ISkillTree_SC {
     rootSkills,
     skill,
     navigateSkill,
+    addNewSkill
   }
 }
 

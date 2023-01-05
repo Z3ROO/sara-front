@@ -114,8 +114,11 @@ export interface IRootSkill extends ISkill {
 }
 
 export interface INewSkill {
+  parent_id: string
   name: string
   description: string
+  type: TypesOfSkill
+  emptyNodes?: number
 }
 
 export async function getSkills(): Promise<IRootSkill[]> {
@@ -126,6 +129,8 @@ export async function getSkills(): Promise<IRootSkill[]> {
 }
 
 export async function addNewSkill(skill: INewSkill): Promise<null> {
+  console.log('Skill '+ skill.name +' added');
+  return null;
   const { body } = await Requester.post('/leveling/skills/new', JSON.stringify(skill));
   return body;
 }
