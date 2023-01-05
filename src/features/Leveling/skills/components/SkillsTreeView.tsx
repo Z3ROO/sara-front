@@ -110,8 +110,19 @@ function SkillTreeNodes() {
 
     node.onmousedown = (e) => {
       node.onmousemove = (ee) => {
-        tree.style.top = Number(tree.style.top.replace(/px|rem|em/g, '')) + (ee.movementY/2)+'px';
-        tree.style.left = Number(tree.style.left.replace(/px|rem|em/g, '')) + (ee.movementX/2)+'px';
+        if (tree.style.left === '')
+          tree.style.left = '-25%'
+        
+        const currentTop = Number(tree.style.top.replace(/px|rem|em|%/g, ''));
+        const currentLeft = Number(tree.style.left.replace(/px|rem|em|%/g, ''));
+        const newTop = currentTop + (ee.movementY/12);
+        const newLeft = currentLeft + (ee.movementX/12);
+        
+        if (newTop > -99.99 && newTop < 99.99)
+          tree.style.top = newTop+'%';
+
+        if (newLeft > -99.99 && newLeft < 99.99)
+          tree.style.left = newLeft+'%';
       }      
     }
     node.onmouseup = (e) => {
@@ -122,7 +133,7 @@ function SkillTreeNodes() {
 
   return (
     <div ref={treeRef} className="relative w-full h-full overflow-hidden select-none">
-      <div className="w-full h-full absolute p-16 top-0 left-0">
+      <div className="absolute p-16 top-0 -left-1/4">
         <SkillBranchedNode skillNode={skill!} head />
       </div>
     </div>
