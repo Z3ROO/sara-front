@@ -24,8 +24,8 @@ export function SkillTree_SC(): ISkillTree_SC {
     if (!skill)
       setSkill(rootSkills.find(child => child._id === _id))
     else if (_id === 'back') {
-      console.log(skill)
-      if (skill.type === 'root')
+      console.log('skill')
+      if (skill.type === 'root-skill')
         setSkill(undefined);
       else
         setSkill(skill.parents[0]);
@@ -38,10 +38,10 @@ export function SkillTree_SC(): ISkillTree_SC {
 
   useEffect(() => {
     getSkills();
-  },[]);
+  }, []);
 
   return {
-    editMode, toggleEditMode, 
+    editMode, toggleEditMode,
     rootSkills,
     skill,
     navigateSkill,

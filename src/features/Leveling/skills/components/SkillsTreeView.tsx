@@ -1,6 +1,9 @@
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { TripleGear } from "../../../../lib/icons/UI";
-import { ISkill, IRootSkill } from "../SkillsAPI";
+import { Label } from "../../../../ui/forms";
+import { Loading } from "../../../../ui/Loading";
+import Modal from "../../../../ui/Modal";
+import { ISkill, IRootSkill, TypesOfSkill } from "../SkillsAPI";
 import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
 
 
@@ -13,7 +16,7 @@ export function SkillTree() {
   
   if (skill && skill.type === 'tree')
     content = <SkillTreeNodes />
-  else if (skill && (skill.type === 'root' || skill.type === 'div'))
+  else if (skill && (skill.type === 'root-skill' || skill.type === 'div'))
     content = <SkillTreeDivs />
   else
     content = <SkillTreeRoots />
@@ -38,7 +41,7 @@ export function SkillTree() {
 }
 
 function SkillTreeRoots() {
-  const { rootSkills, navigateSkill } = useSkillTree_SC()!;
+  const { rootSkills, navigateSkill, editMode } = useSkillTree_SC()!;
 
   return (
     <div className={`flex w-full h-full items-start p-12`}>
@@ -49,18 +52,26 @@ function SkillTreeRoots() {
         return (
           <div 
             onClick={() => navigateSkill(_id)}
-            className="m-2 p-4 rounded bg-gray-400 cursor-pointer flex items-center justify-center">
+            className="m-2 p-4 h-16 rounded bg-gray-400 cursor-pointer flex items-center justify-center">
             <span>{name}</span>
           </div>
         )
       })
+    }
+    {
+      editMode && (
+        <AddSkill className="m-2 p-4 flex justify-center items-center h-16" />
+      )
     }
     </div>
   )
 }
 
 function SkillTreeDivs() {
-  const { skill, navigateSkill } = useSkillTree_SC()!;
+  const { skill, navigateSkill, editMode } = useSkillTree_SC()!;
+  
+  if (!skill)
+    return <Loading />
 
   return (
     <div className={`flex w-full h-full items-start p-12`}>
@@ -76,6 +87,11 @@ function SkillTreeDivs() {
           </div>
         )
       })
+    }
+    {
+      editMode && (
+        <AddSkill parent={skill} className="m-2 p-4 flex justify-center items-center h-16" />
+      )
     }
     </div>
   )
@@ -172,8 +188,7 @@ function SkillNode(props: any) {
         </div>
         {
           editMode && (
-            <div className="z-10 absolute -bottom-3 left-[calc(50%_-_.75rem)] rounded-full w-6 h-6 bg-red-400 cursor-pointer">
-            </div>
+            <AddSkill parent={skill} className="z-[2] absolute -bottom-3 left-[calc(50%_-_.75rem)]" />
           )
         }
       </div>
@@ -209,5 +224,87 @@ function EmptySkillNode(props: any) {
       `}>
       </div>
     </div>
+  )
+}
+
+interface IAddSkillProps extends React.HTMLAttributes<HTMLDivElement> {
+  parent?: ISkill
+}
+
+function AddSkill(props: IAddSkillProps) {
+  let { parent } = props;
+  
+  let skillType: TypesOfSkill;
+  if (!parent) {
+    parent = {
+      _id: 'root',
+      name: 'Root',
+      type: 'root',
+      description: '',
+      parents: [],
+      children: []
+    }
+    skillType = 'root-skill'
+  }
+  else
+    skillType = ['root-skill', 'div'].includes(parent.type) ? 'tree' : 'node';
+
+  const [modal, setModal] = useState(false);
+  const toggleModal = () => setModal(prev => !prev);
+
+  const [_id, set_id] = useState(parent._id);
+  const [name, setName] = useState('');
+  const [type, setType] = useState<TypesOfSkill>(skillType);
+  const [description, setDescription] = useState('');
+  const [emptyNodes, setEmptyNodes] = useState(0);
+
+  return (
+    <>
+      <div {...props}>
+        <div 
+          onClick={toggleModal} 
+          className="rounded-full w-6 h-6 bg-red-400 cursor-pointer hover:scale-110"
+        >
+        </div>
+      </div>
+      {
+        modal && (
+          <Modal close={toggleModal}>
+            <div>
+              <h4>{parent.name}</h4>
+              
+            </div>
+            <form className="flex flex-col w-72">
+              <Label title="Parent _id: ">
+                <input className="w-full" type="text" value={_id} />
+              </Label>
+              <Label title="Name: ">
+                <input className="w-full" type="text" value={name} onChange={e => setName(e.target.value)} />
+              </Label>
+              <div className="flex w-full">
+                <Label className="p-2 w-full" title="Type: ">
+                  <select className="w-full" value={type} onChange={e => setType(e.target.value as TypesOfSkill)}>
+                    <option value={'root'}>Root</option>
+                    <option value={'div'}>Div</option>
+                    <option value={'tree'}>Tree</option>
+                    <option value={'node'}>Node</option>
+                  </select>
+                </Label>
+                {
+                  type === 'node' && (
+                    <Label title="Empty nodes: ">
+                      <input className="w-full" type="number" value={emptyNodes} onChange={e => setEmptyNodes(Number(e.target.value))} />
+                    </Label>
+                  )
+                }
+              </div>
+              <Label title="Description: ">
+                <textarea className="w-full resize-none" value={description} onChange={e => setDescription(e.target.value)} />
+              </Label>
+            </form>
+          </Modal>
+        )
+      }
+    </>
   )
 }

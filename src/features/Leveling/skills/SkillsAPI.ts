@@ -7,7 +7,7 @@ const rootSkills: IRootSkill[] = [
     _id: 'fisico123123132132132132132132123',
     name: 'Fisico',
     description: '',
-    type: 'root',
+    type: 'root-skill',
     parents: [],
     children: []
   }
@@ -97,18 +97,20 @@ skillItem5.parents.push(skillDiv2);
 //===================================================================================================
 //===================================================================================================
 
+export type TypesOfSkill = 'root'|'root-skill'|'div'|'tree'|'node'
+
 export interface ISkill {
   _id: string
   name: string
   description: string
-  type: 'root'|'root-tree'|'div'|'tree'|'node'
+  type: TypesOfSkill
   parents: ISkill[]
   children: ISkill[]
   emptyNodes?: number
 }
 
 export interface IRootSkill extends ISkill {
-  type: 'root'|'root-tree'
+  type: 'root-skill'
 }
 
 export interface INewSkill {
