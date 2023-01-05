@@ -8,6 +8,7 @@ import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
 import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext, useQuestsSC } from "../quests/components/Quests";
 import { SkillsWidget } from "../skills/components/SkillsWidget";
 import WeekFeedback from "./components/WeekFeedback";
+import { SkillTree } from "../skills/components/SkillsTreeView";
 
 interface IStatsProps {
   path?: string;
@@ -41,10 +42,11 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
           </InQuestBlur>
           <QuestsWidget />
         </div>
-        <div className="w-full ">
-          <div className="p-8">
+        <div className="w-full h-full flex flex-col items-start">
+          
             <WeekFeedback />
-          </div>
+            <SkillTree />
+          
         </div>
         </QuestsContext>
       </div>
