@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { TripleGear } from "../../../../lib/icons/UI";
+import { TripleGear } from "../../../../ui/icons/UI";
 import { Label } from "../../../../ui/forms";
 import { Loading } from "../../../../ui/Loading";
 import Modal from "../../../../ui/Modal";

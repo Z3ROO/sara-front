@@ -1,4 +1,4 @@
-import * as Icons from '../../../lib/icons/UI'
+import * as Icons from '../../../ui/icons/UI'
 import { Link } from '../../../lib/Router';
 
 export default function MainMenu(props: {close: () => void}) {

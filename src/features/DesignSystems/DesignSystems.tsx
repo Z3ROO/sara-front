@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import * as Icons from '../../lib/icons/UI'
+import * as Icons from '../../ui/icons/UI'
 
 export default function DesignSystems() {
   return (

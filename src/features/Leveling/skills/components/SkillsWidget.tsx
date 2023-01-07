@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import * as SkillsAPI from "../SkillsAPI";
-import * as Icons from '../../../../lib/icons/UI'
+import * as Icons from '../../../../ui/icons/UI'
 
 export function SkillsWidget() {
   const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);

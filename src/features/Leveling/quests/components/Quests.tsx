@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { mlToHours } from "../../../../util/mlToHours";
 import { QuestStatusCaller4Taskbar } from "../../../taskbar/components/StatusIconForTaskBar";
 import * as QuestsAPI from '../QuestsAPI'
-import * as Icons from '../../../../lib/icons/UI'
+import * as Icons from '../../../../ui/icons/UI'
 import { Label } from "../../../../ui/forms";
 import * as SkillsAPI from "../../skills/SkillsAPI";
 import * as QuestlineAPI from '../../questlines/QuestlinesAPI';

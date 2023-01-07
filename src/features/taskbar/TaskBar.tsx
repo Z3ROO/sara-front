@@ -2,7 +2,7 @@ import { GiHillConquest } from 'react-icons/gi';
 import StatsPanelAndDashboard from '../Leveling/stats/Stats';
 import useClock from '../../lib/hooks/useClock';
 import { InboxInputWidget, InboxReviewModal, ReviewedInboxWidget } from '../inbox/components/Inbox';
-import * as Icons from '../../lib/icons/UI';
+import * as Icons from '../../ui/icons/UI';
 import MainMenu from './components/MainMenu';
 import ButtonForTaskBar from './components/ButtonForTaskBar';
 import StatusIconForTaskbar, { QuestStatusCaller4Taskbar } from './components/StatusIconForTaskBar';
