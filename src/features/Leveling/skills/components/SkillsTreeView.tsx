@@ -1,10 +1,11 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useReducer, useMemo } from "react";
 import { TripleGear } from "../../../../ui/icons/UI";
-import { Label } from "../../../../ui/forms";
+import { InputWithOptions, Label } from "../../../../ui/forms";
 import { Loading } from "../../../../ui/Loading";
 import Modal from "../../../../ui/Modal";
-import { ISkill, IRootSkill, TypesOfSkill } from "../SkillsAPI";
+import { ISkill, TypesOfSkill, INewRecord, ISkillNode } from "../SkillsAPI";
 import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
+import { TreeNode } from "../../../../lib/data-structures/GenericTree";
 
 
 export function SkillTree() {
@@ -14,9 +15,9 @@ export function SkillTree() {
   console.log(skill)
   let content: JSX.Element;
   
-  if (skill && skill.type === 'tree')
+  if (skill && skill.value!.type === 'tree')
     content = <SkillTreeNodes />
-  else if (skill && (skill.type === 'root-skill' || skill.type === 'div'))
+  else if (skill && (skill.value!.type === 'root-skill' || skill.value!.type === 'div'))
     content = <SkillTreeDivs />
   else
     content = <SkillTreeRoots />
@@ -41,13 +42,14 @@ export function SkillTree() {
 }
 
 function SkillTreeRoots() {
-  const { rootSkills, navigateSkill, editMode } = useSkillTree_SC()!;
-
+  const { skills, navigateSkill, editMode } = useSkillTree_SC()!;
+  
   return (
     <div className={`flex w-full h-full items-start p-12`}>
     {
-      rootSkills.map(skill => {
-        const { _id, name } = skill;
+      skills?.root.children.map(skill => {
+        
+        const { _id, name } = skill.value!;
         
         return (
           <div 
@@ -77,7 +79,7 @@ function SkillTreeDivs() {
     <div className={`flex w-full h-full items-start p-12`}>
     {
       skill?.children.map(skill => {
-        const { _id, name } = skill;
+        const { _id, name } = skill.value!;
         
         return (
           <div 
@@ -90,7 +92,7 @@ function SkillTreeDivs() {
     }
     {
       editMode && (
-        <AddSkill parent={skill} className="m-2 p-4 flex justify-center items-center h-16" />
+        <AddSkill parent={skill!} className="m-2 p-4 flex justify-center items-center h-16" />
       )
     }
     </div>
@@ -140,7 +142,7 @@ function SkillTreeNodes() {
   )
 }
 
-function SkillBranchedNode(props: { head?: boolean, skillNode: ISkill, emptyNodes?: number }) {
+function SkillBranchedNode(props: { head?: boolean, skillNode: TreeNode<ISkillNode>, emptyNodes?: number }) {
   const { head, skillNode, emptyNodes } = props;
   
   if (emptyNodes) 
@@ -157,9 +159,9 @@ function SkillBranchedNode(props: { head?: boolean, skillNode: ISkill, emptyNode
         {
           skillNode.children.map( skill => {
             if (skill.children.length)
-              return <SkillBranchedNode skillNode={skill} emptyNodes={skill.emptyNodes || undefined} />
+              return <SkillBranchedNode skillNode={skill} emptyNodes={skill.value!.emptyNodes || undefined} />
             else 
-              return <SkillNode skill={skill} emptyNodes={skill.emptyNodes || undefined} />
+              return <SkillNode skill={skill} emptyNodes={skill.value!.emptyNodes || undefined} />
           })
         }
       </div>
@@ -185,7 +187,7 @@ function SkillNode(props: any) {
         ${head && 'skill-head'}
         ${withBranches ? 'branched-skill-node' : 'skill-node'}
       `}>
-        <h4>{skill.name}</h4>
+        <h4>{skill.value.name}</h4>
         <div className="flex items-start">
           <div className="border rounded-sm bg-red-200 p-2 m-2">
             <TripleGear className={'w-8 fill-red-400'} />
@@ -196,6 +198,11 @@ function SkillNode(props: any) {
           <div className="border rounded-sm bg-red-200 p-2 m-2">
             <TripleGear className={'w-8 fill-red-400'} />
           </div>
+          {
+            editMode && (
+              <AddRecord parent_id={skill.value._id} parent_name={skill.value.name} />
+            )
+          }
         </div>
         {
           editMode && (
@@ -239,7 +246,7 @@ function EmptySkillNode(props: any) {
 }
 
 interface IAddSkillProps extends React.HTMLAttributes<HTMLDivElement> {
-  parent?: ISkill
+  parent?: TreeNode<ISkillNode>
 }
 
 function AddSkill(props: IAddSkillProps) {
@@ -248,23 +255,22 @@ function AddSkill(props: IAddSkillProps) {
   
   let skillType: TypesOfSkill;
   if (!parent) {
-    parent = {
+    parent = new TreeNode({
       _id: 'root',
       name: 'Root',
       type: 'root',
       description: '',
-      parents: [],
-      children: []
-    }
+      records: []
+    })
     skillType = 'root-skill'
   }
   else
-    skillType = ['root-skill', 'div'].includes(parent.type) ? 'tree' : 'node';
+    skillType = ['root-skill', 'div'].includes(parent.value!.type) ? 'tree' : 'node';
 
   const [modal, setModal] = useState(false);
   const toggleModal = () => setModal(prev => !prev);
 
-  const [parent_id, setParent_id] = useState(parent._id);
+  const [parent_id, setParent_id] = useState(parent.value!._id);
   const [name, setName] = useState('');
   const [type, setType] = useState<TypesOfSkill>(skillType);
   const [description, setDescription] = useState('');
@@ -283,7 +289,7 @@ function AddSkill(props: IAddSkillProps) {
         modal && (
           <Modal close={toggleModal}>
             <div>
-              <h4>{parent.name}</h4>
+              <h4>{parent.value!.name}</h4>
               
             </div>
             <form id="add-skill-form" className="flex flex-col w-72">
@@ -324,6 +330,92 @@ function AddSkill(props: IAddSkillProps) {
                     type,
                     emptyNodes
                   });
+                  toggleModal();
+                }}
+                className="bg-gray-400 rounded p-2">
+                add
+              </button>
+            </form>
+          </Modal>
+        )
+      }
+    </>
+  )
+}
+
+interface IAddRecordProps extends React.HTMLAttributes<HTMLDivElement> {
+  parent_id: string
+  parent_name: string
+}
+
+const flatObjectStateUpdater = <T,>(update: Partial<T>, updateFN: React.Dispatch<React.SetStateAction<T>>) => updateFN(prev => ({...prev, ...update}));
+
+function AddRecord(props: IAddRecordProps) {
+  const { addNewRecord, skills } = useSkillTree_SC()!;
+  let { parent_id, parent_name } = props;
+
+  const [modal, setModal] = useState(false);
+  const toggleModal = () => setModal(prev => !prev);
+
+  const initialRecord: INewRecord = {
+    skill_id: parent_id,
+    action_skill_id: 'self',
+    name: '',
+    description: '',
+    todos: [],
+    item_type: null,
+    item_id: '',
+    categories: [],
+    progress_cap: 0,
+    level_cap: 0,
+    metric: 'boolean',
+    metric_unit: 'boolean',
+    difficulty: 1,
+    not_before: null,
+    not_after: null,
+    requirements: []
+  }
+  const skillsListing = useMemo(() => {
+    return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}))
+  },[]);
+
+  const [record, setRecord] = useState(initialRecord);
+  const updateRecord = (params: Partial<INewRecord>) => flatObjectStateUpdater<INewRecord>(params, setRecord);
+
+  return (
+    <>
+      <div {...props}>
+        <div 
+          onClick={toggleModal} 
+          className="rounded-full w-6 h-6 bg-red-400 cursor-pointer hover:scale-110"
+        >
+        </div>
+      </div>
+      {
+        modal && (
+          <Modal close={toggleModal}>
+            <div>
+              <h4>{parent_name}</h4>
+              
+            </div>
+            <form id="add-skill-form" className="flex flex-col w-72">
+              <Label title="Action skill: ">
+                <InputWithOptions<string> options={skillsListing||[]} defaultValue={''} setValue={(val) => updateRecord({action_skill_id:val})} />
+              </Label>
+              <Label title="Name: ">
+                <input className="w-full" type="text" value={record.name} onChange={e => updateRecord({name: e.target.value})} />
+              </Label>
+              <Label title="Description: ">
+                <textarea className="w-full resize-none" value={record.description} onChange={e => updateRecord({description: e.target.value})} />
+              </Label>
+              <Label title="">
+
+              </Label>
+              <button 
+                form="add-skill-form" type="submit"
+                onClick={async e => {
+                  e.preventDefault();
+                  addNewRecord(record);
                   toggleModal();
                 }}
                 className="bg-gray-400 rounded p-2">

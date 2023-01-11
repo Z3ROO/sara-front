@@ -1,14 +1,16 @@
-import { createContext, useState, useContext, useEffect } from "react"
-import { INewSkill, IRootSkill, ISkill } from "./SkillsAPI";
+import { createContext, useState, useContext, useEffect, useRef } from "react"
+import { INewSkill, INewRecord, IRootSkill, ISkillNode, IBackendSkill } from "./SkillsAPI";
 import * as SkillsAPI from "./SkillsAPI";
+import { TreeNode, Tree } from "../../../lib/data-structures/GenericTree";
 
 export interface ISkillTree_SC {
   editMode: boolean
   toggleEditMode: () => void
-  rootSkills: IRootSkill[]
-  skill: ISkill|undefined
+  skills: Tree<ISkillNode>|undefined
+  skill: TreeNode<ISkillNode>|undefined
   navigateSkill: (_id: string) => void
   addNewSkill: (skill: INewSkill) => Promise<void>
+  addNewRecord: (record: INewRecord) => Promise<void>
 }
 
 export const SkillTreeContext = createContext<ISkillTree_SC|null>(null);
@@ -17,27 +19,48 @@ export function SkillTree_SC(): ISkillTree_SC {
   const [editMode, setEditMode] = useState(false);
   const toggleEditMode = () => setEditMode(prev => !prev);
 
-  const [rootSkills, setRootSkills] = useState<IRootSkill[]>([]);
+  const skillTreeRef = useRef<Tree<ISkillNode>>();
 
-  const [skill, setSkill] = useState<ISkill>();
-  const navigateSkill = (_id: string) => {
-    if (!skill)
-      setSkill(rootSkills.find(child => child._id === _id))
-    else if (_id === 'back') {
-      if (skill.type === 'root-skill')
+  const [skills, setSkills] = useState<Tree<ISkillNode>>();
+  const [skill, setSkill] = useState<TreeNode<ISkillNode>>();
+
+  const navigateSkill = (node_id: string) => {
+    if (!skillTreeRef.current)
+      return;
+
+    const skillTree = skillTreeRef.current;
+    
+    if (!skill) {
+      const node = skillTree.find(node_id);
+      setSkill(node);
+    }
+    else if (node_id === 'back') {
+      if (skill.value!.type === 'root-skill')
         setSkill(undefined);
       else
-        setSkill(skill.parents[0]);
+        setSkill(skill.parent);
     }
-    else
-      setSkill(skill.children.find(child => child._id === _id))
+    else {
+      const node = skillTree.findFromCurrentNode(node_id);
+      setSkill(node)
+    }
   }
 
-  const getSkills = async () => setRootSkills(await SkillsAPI.getSkills());
+  const getSkills = async () => {
+    const tree = await SkillsAPI.getSkills();
+    skillTreeRef.current = tree;
+    setSkills(tree);
+  };
+  
   const addNewSkill = async (skill: INewSkill) => {
     await SkillsAPI.addNewSkill(skill);
     await getSkills();
   };
+
+  const addNewRecord = async (record: INewRecord) =>  {
+    await SkillsAPI.addNewRecord(record);
+    await getSkills();
+  }
 
   useEffect(() => {
     getSkills();
@@ -45,10 +68,11 @@ export function SkillTree_SC(): ISkillTree_SC {
 
   return {
     editMode, toggleEditMode,
-    rootSkills,
+    skills,
     skill,
     navigateSkill,
-    addNewSkill
+    addNewSkill,
+    addNewRecord
   }
 }
 

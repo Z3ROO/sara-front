@@ -18,7 +18,7 @@ export function Label(
 
 export interface InputWithOptionsAttributes<T> {
   defaultValue: T
-  setValue: React.Dispatch<React.SetStateAction<T>>
+  setValue: (value:T) => void
   options: { title: string, value: T }[]
   className?: string
   ulClassName?: string
@@ -71,7 +71,7 @@ function OptionsDataList<T>(props: {
     liClassName?: string
     ulClassName?: string
     toggleList: () => void
-    setValue: React.Dispatch<React.SetStateAction<T>>
+    setValue: (value: T) => void
     setInputText: React.Dispatch<React.SetStateAction<string>>
   }) {
   const { options, liClassName, ulClassName, toggleList, setValue, setInputText } = props;

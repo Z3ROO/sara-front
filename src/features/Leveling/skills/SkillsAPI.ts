@@ -1,112 +1,106 @@
+import { Tree, TreeNode } from "../../../lib/data-structures/GenericTree";
 import Requester from "../../../lib/Requester";
 
 
 //===================================================================================================
-const rootSkills: IRootSkill[] = [
+const rootSkills: IBackendSkill[] = [
   {
     _id: 'fisico123123132132132132132132123',
     name: 'Fisico',
     description: '',
     type: 'root-skill',
     parents: [],
-    children: []
+    records: []
   }
 ];
 
-const skillTree: ISkill = {
+const skillTree: IBackendSkill = {
   name: 'Combat',
   description: '',
   type: 'tree',
-  parents: [],
-  _id: 'combat123456789123456789123456',
-  children: []
+  parents: [rootSkills[0]._id],
+  _id: 'combat123456789123456789123456',  
+  records: []
 }
-rootSkills[0].children.push(skillTree);
-skillTree.parents.push(rootSkills[0])
 
-const skillDiv1: ISkill = {
+const skillDiv1: IBackendSkill = {
   name: 'Melee',
   description: '',
   type: 'node',
-  parents: [],
-  _id: 'melee123456789123456789123456',
-  children: []
+  parents: [skillTree._id],
+  _id: 'melee123456789123456789123456',  
+  records: []
 }
-const skillDiv2: ISkill = {
+const skillDiv2: IBackendSkill = {
   name: 'Range',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillTree._id],
   _id: 'range123456789123456789123456',
-  children: []
+  records: []
 }
-skillTree.children.push(skillDiv1, skillDiv2)
-skillDiv1.parents.push(skillTree);
-skillDiv2.parents.push(skillTree);
 
-const skillItem1: ISkill = {
+const skillItem1: IBackendSkill = {
   name: 'Body',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillDiv1._id],
   _id: 'body123456789123456789123456',
-  children: []
+  records: []
 }
-const skillItem2: ISkill = {
+const skillItem2: IBackendSkill = {
   name: 'Sword',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillDiv1._id],
   _id: 'sword123456789123456789123456',
-  children: [],
+  records: [],
   emptyNodes: 2
 }
-const skillItem3: ISkill = {
+const skillItem3: IBackendSkill = {
   name: 'Staff',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillDiv1._id],
   _id: 'staff123456789123456789123456',
-  children: [],
+  records: [],
   emptyNodes: 1
 }
-const skillItem4: ISkill = {
+const skillItem4: IBackendSkill = {
   name: 'Firearms',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillDiv2._id],
   _id: 'firearms123456789123456789123456',
-  children: []
+  records: []
 }
-const skillItem5: ISkill = {
+const skillItem5: IBackendSkill = {
   name: 'Archery',
   description: '',
   type: 'node',
-  parents: [],
+  parents: [skillDiv2._id],
   _id: 'archery123456789123456789123456',
-  children: []
+  records: []
 }
-skillDiv1.children.push(skillItem1, skillItem2, skillItem3);
-skillDiv2.children.push(skillItem4, skillItem5);
-skillItem1.parents.push(skillDiv1);
-skillItem2.parents.push(skillDiv1);
-skillItem3.parents.push(skillDiv1);
-skillItem4.parents.push(skillDiv2);
-skillItem5.parents.push(skillDiv2);
 
 //===================================================================================================
 //===================================================================================================
 
 export type TypesOfSkill = 'root'|'root-skill'|'div'|'tree'|'node'
 
-export interface ISkill {
+export interface IBackendSkill {
   _id: string
   name: string
   description: string
   type: TypesOfSkill
+  records: IRecord[]
+  parents: string[]
+  emptyNodes?: number
+}
+
+export interface ISkill extends Omit<IBackendSkill, 'parents'>{
   parents: ISkill[]
   children: ISkill[]
-  emptyNodes?: number
 }
 
 export interface IRootSkill extends ISkill {
@@ -121,9 +115,74 @@ export interface INewSkill {
   emptyNodes?: number
 }
 
-export async function getSkills(): Promise<IRootSkill[]> {
+export type ItemTypes = 'book'|'flashcard'|'song'|null;
 
-  return rootSkills;
+export type MetricUnits = 'unit'|'time'|'distance'|'page'|'boolean';
+
+export type RecordsMetric = 'progress-made'|'total-progress'|'boolean';
+
+export interface IRecord {
+  _id: string
+  skill_id: string
+  action_skill_id: string
+  name: string
+  description: string
+  todos: string[]
+  item_type: ItemTypes
+  item_id: string|null
+  categories: string[]
+  progress: number
+  progressCap: number
+  level: number
+  level_cap: number|null
+  metric: RecordsMetric
+  metric_unit: MetricUnits
+  complete: boolean
+  difficulty: 1|2|3|4|5
+  engageable: {
+    not_before: Date|null
+    not_after: Date|null
+    requirements: string[]
+  }
+  history: {
+    date: Date, 
+    progress: number
+  }[]
+}
+
+export interface INewRecord {
+  skill_id: string
+  action_skill_id: string|'self'
+  name: string
+  description: string
+  todos: string[]
+  item_type: ItemTypes
+  item_id: string|null
+  categories: string[]
+  progress_cap: number
+  level_cap: number|null
+  metric: RecordsMetric
+  metric_unit: MetricUnits
+  difficulty: 1|2|3|4|5
+  not_before: Date|null
+  not_after: Date|null
+  requirements: string[]
+}
+
+export async function getSkills(): Promise<Tree<ISkillNode>> {
+  const parsedTree = mountRoots([
+    ...rootSkills,
+    skillTree,
+    skillDiv1,
+    skillDiv2,
+    skillItem1,
+    skillItem2,
+    skillItem3,
+    skillItem4,
+    skillItem5
+  ]);
+  console.log(parsedTree)
+  return parsedTree;
   const { body } = await Requester.get('/leveling/skills');
   return body;
 }
@@ -144,3 +203,169 @@ export async function deleteSkill(skill_id: string): Promise<null> {
   const { body } = await Requester.delete('/leveling/skills/'+skill_id);
   return body;
 }
+
+export async function addNewRecord(record: INewRecord) {
+  
+}
+
+export interface ISkillNode {
+  _id: string
+  name: string
+  description: string
+  type: TypesOfSkill
+  records: IRecord[]
+  // parents: ISkill[]
+  // children: ISkill[]
+  emptyNodes?: number
+}
+
+function mountRoots(backendSkills: IBackendSkill[]): Tree<ISkillNode> {
+  const skillTree = new Tree<ISkillNode>({
+    _id: 'root',
+    name: '',
+    description: 'Harmony of greatness',
+    type: 'root',
+    records: []
+  });
+
+  backendSkills.forEach((skill) => {
+    if (skill.type !== 'root-skill')
+      return
+
+    const { _id, name, description, type, records, parents, emptyNodes } = skill;
+
+    const skillNode: ISkillNode = {
+      _id, name, description, type, records, emptyNodes
+    };
+
+    skillTree.insertNode('root', skillNode, skillNode._id);
+    
+    populateSkillTree(skillNode._id, backendSkills, skillTree);
+
+  });
+
+  return skillTree;
+}
+
+function populateSkillTree(parent_id: string, arr:IBackendSkill[], skillTree: Tree<ISkillNode>) {
+
+  arr.forEach((skill) => {
+    if (skill.parents.includes(parent_id)){
+      const { _id, name, description, type, records, parents, emptyNodes } = skill;
+
+      const skillNode: ISkillNode = {
+        _id, name, description, type, records, emptyNodes
+      };
+
+      skillTree.insertNode(parent_id, skillNode, skillNode._id);
+
+      populateSkillTree(skill._id,  arr, skillTree);
+    }
+  });
+}
+
+
+// //===================================================================================================
+// const rootSkills: IRootSkill[] = [
+//   {
+//     _id: 'fisico123123132132132132132132123',
+//     name: 'Fisico',
+//     description: '',
+//     type: 'root-skill',
+//     parents: [],
+//     children: [],
+//     records: []
+//   }
+// ];
+
+// const skillTree: ISkill = {
+//   name: 'Combat',
+//   description: '',
+//   type: 'tree',
+//   parents: [],
+//   _id: 'combat123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// // rootSkills[0].children.push(skillTree);
+// // skillTree.parents.push(rootSkills[0])
+
+// const skillDiv1: ISkill = {
+//   name: 'Melee',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'melee123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// const skillDiv2: ISkill = {
+//   name: 'Range',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'range123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// // skillTree.children.push(skillDiv1, skillDiv2)
+// // skillDiv1.parents.push(skillTree);
+// // skillDiv2.parents.push(skillTree);
+
+// const skillItem1: ISkill = {
+//   name: 'Body',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'body123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// const skillItem2: ISkill = {
+//   name: 'Sword',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'sword123456789123456789123456',
+//   children: [],
+//   records: [],
+//   emptyNodes: 2
+// }
+// const skillItem3: ISkill = {
+//   name: 'Staff',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'staff123456789123456789123456',
+//   children: [],
+//   records: [],
+//   emptyNodes: 1
+// }
+// const skillItem4: ISkill = {
+//   name: 'Firearms',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'firearms123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// const skillItem5: ISkill = {
+//   name: 'Archery',
+//   description: '',
+//   type: 'node',
+//   parents: [],
+//   _id: 'archery123456789123456789123456',
+//   children: [],
+//   records: []
+// }
+// // skillDiv1.children.push(skillItem1, skillItem2, skillItem3);
+// // skillDiv2.children.push(skillItem4, skillItem5);
+// // skillItem1.parents.push(skillDiv1);
+// // skillItem2.parents.push(skillDiv1);
+// // skillItem3.parents.push(skillDiv1);
+// // skillItem4.parents.push(skillDiv2);
+// // skillItem5.parents.push(skillDiv2);
+
+// //===================================================================================================
+// //===================================================================================================
