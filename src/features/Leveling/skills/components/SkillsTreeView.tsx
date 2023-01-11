@@ -12,7 +12,6 @@ export function SkillTree() {
   const stateController = SkillTree_SC();
 
   const { skill, toggleEditMode, navigateSkill } = stateController;
-  console.log(skill)
   let content: JSX.Element;
   
   if (skill && skill.value!.type === 'tree')
@@ -400,7 +399,7 @@ function AddRecord(props: IAddRecordProps) {
             </div>
             <form id="add-skill-form" className="flex flex-col w-72">
               <Label title="Action skill: ">
-                <InputWithOptions<string> options={skillsListing||[]} defaultValue={''} setValue={(val) => updateRecord({action_skill_id:val})} />
+                <InputWithOptions<string> className="w-full" options={skillsListing||[]} defaultValue={''} value={record.action_skill_id} setValue={(val) => updateRecord({action_skill_id:val})} />
               </Label>
               <Label title="Name: ">
                 <input className="w-full" type="text" value={record.name} onChange={e => updateRecord({name: e.target.value})} />

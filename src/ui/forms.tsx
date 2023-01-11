@@ -18,6 +18,7 @@ export function Label(
 
 export interface InputWithOptionsAttributes<T> {
   defaultValue: T
+  value: T
   setValue: (value:T) => void
   options: { title: string, value: T }[]
   className?: string
@@ -26,10 +27,10 @@ export interface InputWithOptionsAttributes<T> {
 }
 
 export function InputWithOptions<T>(props: InputWithOptionsAttributes<T>) {
-  let { defaultValue, setValue, options, className, ulClassName, liClassName } = props;
+  let { defaultValue, value, setValue, options, className, ulClassName, liClassName } = props;
   
   const [displayList, setDisplayList] = useState(false);
-  const toggleList = () => setDisplayList(prev => !prev);
+  const toggleList = (state: boolean) => setDisplayList(state);
   
   const [inputText, setInputText] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -43,23 +44,34 @@ export function InputWithOptions<T>(props: InputWithOptionsAttributes<T>) {
   },[inputText]);
 
   return (
-    <div className="relative w-min">
+    <div className="relative">
       <input 
-        value={inputText}
+        className={' '+(className || 'w-64')} 
+        value={inputText} type="text"
         onChange={(e) => {
-          setDisplayList(true);
-
           const textContent = e.target.value;
           setInputText(textContent);
 
           const option = options.find(opt => textContent === opt.title);
-          if (option)
+          if (option) {
             setValue(option.value);
-          else
+            toggleList(false);
+          }
+          else {
             setValue(defaultValue);
+            toggleList(true);
+          }
         }}
-        type="text" onFocus={toggleList}
-        className={' '+(className || 'w-64')} 
+        onFocus={() => {
+          if (value === defaultValue)
+            toggleList(true)
+        }} 
+        onBlur={
+          (e) => setTimeout(()=> {
+            if (document.activeElement !== e.target)
+              toggleList(false);
+          }, 150)
+        }
       />
       { displayList && <OptionsDataList<T> {...{setInputText, setValue, liClassName, ulClassName, options:filteredOptions, toggleList}}/> }
     </div>
@@ -70,23 +82,15 @@ function OptionsDataList<T>(props: {
     options: { title: string, value: T }[]
     liClassName?: string
     ulClassName?: string
-    toggleList: () => void
+    toggleList: (state: boolean) => void
     setValue: (value: T) => void
     setInputText: React.Dispatch<React.SetStateAction<string>>
   }) {
   const { options, liClassName, ulClassName, toggleList, setValue, setInputText } = props;
-  const ulRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    window.onclick = (e) => {
-      if ((e.target as HTMLElement).nodeName !== 'INPUT')
-        toggleList();
-    }
-    return () => { window.onclick = null };
-  },[]);
 
   return (
-    <ul ref={ulRef} className={'absolute top-full left-0 overflow-auto '+ (ulClassName || 'bg-white border border-gray-650 border-t-transparent w-full max-h-48')}>
+    <ul
+    className={'text-input-data-list absolute top-full left-0 overflow-auto '+ (ulClassName || 'bg-white border border-gray-650 border-t-transparent w-full max-h-48')}>
       {
         options.map(option => {
           const { title, value } = option;
@@ -97,7 +101,7 @@ function OptionsDataList<T>(props: {
                 e.stopPropagation();
                 setValue(value);
                 setInputText(title);
-                toggleList();
+                toggleList(false);
               }}
             >{title}</li>
           )
