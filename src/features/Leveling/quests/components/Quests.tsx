@@ -6,6 +6,7 @@ import * as Icons from '../../../../ui/icons/UI'
 import { Label } from "../../../../ui/forms";
 import * as SkillsAPI from "../../skills/SkillsAPI";
 import * as QuestlineAPI from '../../questlines/QuestlinesAPI';
+import { Tree, TreeNode } from "../../../../lib/data-structures/GenericTree";
 
 // Quests exist to record the details of the action, basicly what I did in this brief period of time.
 export interface IQuest {
@@ -387,15 +388,15 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
 
 function SkillsListing(props: any) {
   const { skill_id, setSkill_id } = props;
-  const [skills, setSkills] = useState<SkillsAPI.ISkill[]>([]);
+  const [skills, setSkills] = useState<Tree<SkillsAPI.ISkillNode>[]>([]);
 
   useEffect(() => {
     (async () => {
-      const data = await SkillsAPI.getSkills();
-      setSkills(data);
+      // const data = await SkillsAPI.getSkills();
+      // setSkills(data.root.children);
       
-      if (data[0])
-        setSkill_id(data[0]._id)
+      // if (data[0])
+      //   setSkill_id(data[0].root.node_id)
     })();
   },[])
 
