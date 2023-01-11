@@ -3,7 +3,7 @@ import { TripleGear } from "../../../../ui/icons/UI";
 import { InputWithOptions, Label } from "../../../../ui/forms";
 import { Loading } from "../../../../ui/Loading";
 import Modal from "../../../../ui/Modal";
-import { ISkill, TypesOfSkill, INewRecord, ISkillNode } from "../SkillsAPI";
+import { TypesOfSkill, INewRecord, ISkillNode } from "../SkillsAPI";
 import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
 import { TreeNode } from "../../../../lib/data-structures/GenericTree";
 

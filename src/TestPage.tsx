@@ -1,7 +1,5 @@
 import React, { useEffect, useState, createContext, useContext, useRef } from "react"
 import { SkillTree } from "./features/Leveling/skills/components/SkillsTreeView";
-import { ISkill } from "./features/Leveling/skills/SkillsAPI";
-import { InputWithOptions } from "./ui/forms";
 
 const ThemeContext = createContext<ControllerType|null>(null);
 
@@ -47,11 +45,8 @@ const options = [
 
 
 export default function TestPage() {
-  const [input, setInput] = useState('');
 
   return  <div className="bg-gray-650 h-full w-screen">
-            {/* <h4>{input}</h4> */}
-            {/* <InputWithOptions<string> options={options} defaultValue={''} setValue={setInput} /> */}
             <SkillTree />
           </div>
 }

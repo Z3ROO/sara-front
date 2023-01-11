@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect, useRef } from "react"
-import { INewSkill, INewRecord, IRootSkill, ISkillNode, IBackendSkill } from "./SkillsAPI";
+import { INewSkill, INewRecord, ISkillNode } from "./SkillsAPI";
 import * as SkillsAPI from "./SkillsAPI";
 import { TreeNode, Tree } from "../../../lib/data-structures/GenericTree";
 
