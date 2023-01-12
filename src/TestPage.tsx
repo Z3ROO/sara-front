@@ -1,5 +1,6 @@
 import React, { useEffect, useState, createContext, useContext, useRef } from "react"
 import { SkillTree } from "./features/Leveling/skills/components/SkillsTreeView";
+import { InputList } from "./ui/forms";
 
 const ThemeContext = createContext<ControllerType|null>(null);
 
@@ -43,10 +44,14 @@ const options = [
   {title: 'onze', value: 'sonze'}
 ]
 
-
 export default function TestPage() {
+  const [input, setInput] = useState<string[]>([]);
 
   return  <div className="bg-gray-650 h-full w-screen">
-            <SkillTree />
+            <InputList value={input} setValue={(val) => setInput(val)} />
+            {/* <SkillTree /> */}
+            <div className="text-white">
+              {input.toString()}
+            </div>
           </div>
 }

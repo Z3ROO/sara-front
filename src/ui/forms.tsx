@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { IconType } from "./icons/UI"
 
 export function Label(
   props:{
@@ -108,5 +109,58 @@ function OptionsDataList<T>(props: {
         })
       }
     </ul>
+  )
+}
+
+export function InputList(props: { value: string[], setValue: (value:string[]) => void }) {
+  const { value, setValue } = props;
+
+  useEffect(() => {
+    setValue([''])
+  },[])
+
+  return  <div className="relative px-4 py-8">
+            {
+              value.map((item, index) => {
+                return  (
+                  <InputListItem {...{value, setValue, index}} />
+                  )
+                })
+              }
+              <button className="button-icon absolute top-1 right-1" onClick={() => {
+                  const updatedList = [...value];
+                  updatedList[updatedList.length] = '';
+                  setValue(updatedList);
+                }
+              }><img className="w-3" src="/icons/ui/plus-sign.svg" alt="plus-sign" /></button>
+            </div>
+}
+
+function InputListItem(props: {
+  value: string[]
+  setValue: (value: string[]) => void
+  index: number
+}) {
+  const { value, setValue, index } = props;
+  const [inputText, setInputText] = useState('');
+
+  return (
+    <div className="flex p-2 pt-1 pr-1">
+      <input className="w-full text-black" type="text" value={inputText}
+        onChange={({target}) => {
+          setInputText(target.value);
+          value[index] = target.value;
+          setValue([...value]);
+        }}/>
+      <button className="button-icon bg-red-600" onClick={() => {
+          if (value.length === 1) return
+          const newTodos = [...value];
+          newTodos.splice(index, 1);
+          setValue(newTodos);
+        }
+      }>
+        <img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" />
+      </button>
+    </div>
   )
 }
