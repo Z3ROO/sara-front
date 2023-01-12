@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useReducer, useMemo } from "react";
 import { TripleGear } from "../../../../ui/icons/UI";
-import { InputWithOptions, Label } from "../../../../ui/forms";
+import { InputList, InputWithOptions, Label } from "../../../../ui/forms";
 import { Loading } from "../../../../ui/Loading";
 import Modal from "../../../../ui/Modal";
 import { TypesOfSkill, INewRecord, ISkillNode } from "../SkillsAPI";
@@ -399,7 +399,7 @@ function AddRecord(props: IAddRecordProps) {
             </div>
             <form id="add-skill-form" className="flex flex-col w-72">
               <Label title="Action skill: ">
-                <InputWithOptions<string> className="w-full" options={skillsListing||[]} defaultValue={''} value={record.action_skill_id} setValue={(val) => updateRecord({action_skill_id:val})} />
+                <InputWithOptions<string> className="w-full" options={skillsListing||[]} initValue={'self'} value={record.action_skill_id} setValue={(val) => updateRecord({action_skill_id:val})} />
               </Label>
               <Label title="Name: ">
                 <input className="w-full" type="text" value={record.name} onChange={e => updateRecord({name: e.target.value})} />
@@ -407,13 +407,14 @@ function AddRecord(props: IAddRecordProps) {
               <Label title="Description: ">
                 <textarea className="w-full resize-none" value={record.description} onChange={e => updateRecord({description: e.target.value})} />
               </Label>
-              <Label title="">
-
+              <Label title="To-do list">
+                <InputList value={record.todos} setValue={val => updateRecord({todos: val})} />
               </Label>
               <button 
                 form="add-skill-form" type="submit"
                 onClick={async e => {
                   e.preventDefault();
+                  console.log(record)
                   addNewRecord(record);
                   toggleModal();
                 }}

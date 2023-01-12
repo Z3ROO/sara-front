@@ -18,7 +18,7 @@ export function Label(
 }
 
 export interface InputWithOptionsAttributes<T> {
-  defaultValue: T
+  initValue: T
   value: T
   setValue: (value:T) => void
   options: { title: string, value: T }[]
@@ -28,7 +28,7 @@ export interface InputWithOptionsAttributes<T> {
 }
 
 export function InputWithOptions<T>(props: InputWithOptionsAttributes<T>) {
-  let { defaultValue, value, setValue, options, className, ulClassName, liClassName } = props;
+  let { initValue, value, setValue, options, className, ulClassName, liClassName } = props;
   
   const [displayList, setDisplayList] = useState(false);
   const toggleList = (state: boolean) => setDisplayList(state);
@@ -59,12 +59,12 @@ export function InputWithOptions<T>(props: InputWithOptionsAttributes<T>) {
             toggleList(false);
           }
           else {
-            setValue(defaultValue);
+            setValue(initValue);
             toggleList(true);
           }
         }}
         onFocus={() => {
-          if (value === defaultValue)
+          if (value === initValue)
             toggleList(true)
         }} 
         onBlur={
