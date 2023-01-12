@@ -3,7 +3,7 @@ import { TripleGear } from "../../../../ui/icons/UI";
 import { InputList, InputWithOptions, Label } from "../../../../ui/forms";
 import { Loading } from "../../../../ui/Loading";
 import Modal from "../../../../ui/Modal";
-import { TypesOfSkill, INewRecord, ISkillNode } from "../SkillsAPI";
+import { TypesOfSkill, INewRecord, ISkillNode, RecordsMetric, MetricUnits, METRIC_UNITS, RECORDS_METRIC } from "../SkillsAPI";
 import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
 import { TreeNode } from "../../../../lib/data-structures/GenericTree";
 
@@ -364,7 +364,7 @@ function AddRecord(props: IAddRecordProps) {
     todos: [],
     item_type: null,
     item_id: '',
-    categories: [],
+    categories: '',
     progress_cap: 0,
     level_cap: 0,
     metric: 'boolean',
@@ -373,9 +373,18 @@ function AddRecord(props: IAddRecordProps) {
     not_before: null,
     not_after: null,
     requirements: []
-  }
+  };
+
   const skillsListing = useMemo(() => {
-    return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}))
+    return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}));
+  },[]);
+
+  const metric_unitListing = useMemo(() => {
+    return METRIC_UNITS.map(unit => ({ title: unit, value: unit}));
+  },[]);
+
+  const record_metricListing = useMemo(() => {
+    return RECORDS_METRIC.map(unit => ({ title: unit, value: unit}));
   },[]);
 
   const [record, setRecord] = useState(initialRecord);
@@ -393,35 +402,54 @@ function AddRecord(props: IAddRecordProps) {
       {
         modal && (
           <Modal close={toggleModal}>
-            <div>
-              <h4>{parent_name}</h4>
-              
+              <div>
+                <h4>{parent_name}</h4>
+                
+              </div>
+            <div className="overflow-auto max-h-96">
+              <form id="add-skill-form" className="w-72 p-2">
+                <Label title="Action skill: ">
+                  <InputWithOptions<string> className="w-full" options={skillsListing||[]} initValue={'self'} value={record.action_skill_id} setValue={(val) => updateRecord({action_skill_id:val})} />
+                </Label>
+                <Label title="Name: ">
+                  <input className="w-full" type="text" value={record.name} onChange={e => updateRecord({name: e.target.value})} />
+                </Label>
+                <Label title="Description: ">
+                  <textarea className="w-full resize-none" value={record.description} onChange={e => updateRecord({description: e.target.value})} />
+                </Label>
+                <Label title="To-do list: ">
+                  <InputList value={record.todos} setValue={val => updateRecord({todos: val})} />
+                </Label>
+                <Label title="Metric: ">
+                  <InputWithOptions<RecordsMetric> className="w-full" options={record_metricListing} initValue={'boolean'} value={record.metric} setValue={(val) => updateRecord({metric:val})} />
+                </Label>
+                <Label title="Metric Unit: ">
+                  <InputWithOptions<MetricUnits> className="w-full" options={metric_unitListing} initValue={'boolean'} value={record.metric_unit} setValue={(val) => updateRecord({metric_unit:val})} />
+                </Label>
+                <Label title="Progress cap: ">
+                  <input className="w-full" type="number" value={record.progress_cap} onChange={e => updateRecord({progress_cap: Number(e.target.value)})} />
+                </Label>
+                <Label title="Level cap: ">
+                  <input className="w-full" type="number" value={record.level_cap} onChange={e => updateRecord({level_cap: Number(e.target.value)})} />
+                </Label>
+                <Label title="Categories: ">
+                  <input className="w-full" type="text" value={record.categories} onChange={e => updateRecord({categories: e.target.value})} />
+                </Label>
+                <Label title="Dificulty: ">
+                  <InputWithOptions<1|2|3|4|5> className="w-full" options={[{title: 'easy', value: 1}, {title: 'medium', value: 2}]} initValue={1} value={record.difficulty} setValue={(val) => updateRecord({difficulty:val})} />
+                </Label>
+                <button 
+                  form="add-skill-form" type="submit"
+                  onClick={async e => {
+                    e.preventDefault();
+                    addNewRecord(record);
+                    toggleModal();
+                  }}
+                  className="bg-gray-400 rounded p-2">
+                  add
+                </button>
+              </form>
             </div>
-            <form id="add-skill-form" className="flex flex-col w-72">
-              <Label title="Action skill: ">
-                <InputWithOptions<string> className="w-full" options={skillsListing||[]} initValue={'self'} value={record.action_skill_id} setValue={(val) => updateRecord({action_skill_id:val})} />
-              </Label>
-              <Label title="Name: ">
-                <input className="w-full" type="text" value={record.name} onChange={e => updateRecord({name: e.target.value})} />
-              </Label>
-              <Label title="Description: ">
-                <textarea className="w-full resize-none" value={record.description} onChange={e => updateRecord({description: e.target.value})} />
-              </Label>
-              <Label title="To-do list">
-                <InputList value={record.todos} setValue={val => updateRecord({todos: val})} />
-              </Label>
-              <button 
-                form="add-skill-form" type="submit"
-                onClick={async e => {
-                  e.preventDefault();
-                  console.log(record)
-                  addNewRecord(record);
-                  toggleModal();
-                }}
-                className="bg-gray-400 rounded p-2">
-                add
-              </button>
-            </form>
           </Modal>
         )
       }

@@ -118,9 +118,26 @@ export interface INewSkill {
 
 export type ItemTypes = 'book'|'flashcard'|'song'|null;
 
-export type MetricUnits = 'unit'|'time'|'distance'|'page'|'boolean';
+export type MetricUnits = 'unit'|'step'|'second'|'minute'|'hour'|'day'|'page'|'boolean';
+
+export const METRIC_UNITS: MetricUnits[] = [
+  'unit',
+  'step',
+  'second',
+  'minute',
+  'hour',
+  'day',
+  'page',
+  'boolean'
+]
 
 export type RecordsMetric = 'progress-made'|'total-progress'|'boolean';
+
+export const RECORDS_METRIC: RecordsMetric[] = [
+  'progress-made',
+  'total-progress',
+  'boolean'
+]
 
 export interface IRecord {
   _id: string
@@ -135,7 +152,7 @@ export interface IRecord {
   progress: number
   progressCap: number
   level: number
-  level_cap: number|null
+  level_cap: number
   metric: RecordsMetric
   metric_unit: MetricUnits
   complete: boolean
@@ -159,9 +176,9 @@ export interface INewRecord {
   todos: string[]
   item_type: ItemTypes
   item_id: string|null
-  categories: string[]
+  categories: string
   progress_cap: number
-  level_cap: number|null
+  level_cap: number
   metric: RecordsMetric
   metric_unit: MetricUnits
   difficulty: 1|2|3|4|5
@@ -205,7 +222,8 @@ export async function deleteSkill(skill_id: string): Promise<null> {
 }
 
 export async function addNewRecord(record: INewRecord) {
-  
+  console.log('Record added');
+  console.log(record);
 }
 
 function mountRoots(backendSkills: IRawSkillNode[]): Tree<ISkillNode> {
