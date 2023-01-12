@@ -9,6 +9,7 @@ import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext, useQuestsSC }
 import { SkillsWidget } from "../skills/components/SkillsWidget";
 import WeekFeedback from "./components/WeekFeedback";
 import { SkillTree } from "../skills/components/SkillsTreeView";
+import { Deeds } from "../deeds/deeds";
 
 interface IStatsProps {
   path?: string;
@@ -20,6 +21,8 @@ export const useStatsController = () => useContext(StatsControllerContext);
 export default function StatsPanelAndDashboard(props:IStatsProps) {
   const AppController = useMainStateController()!;
   const controller = StatsController({AppController});
+
+  const [skillOrDeeds, setSkillOrDeeds] = useState(true);
 
   useEffect(() => {
     console.log('effeeect');
@@ -43,10 +46,18 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
           <QuestsWidget />
         </div>
         <div className="w-full h-full flex flex-col items-start">
-          
             <WeekFeedback />
-            <SkillTree />
-          
+            <div className="relative w-full h-full">
+              {
+                skillOrDeeds ?
+                <SkillTree /> :
+                <Deeds />
+              }
+              <button className="absolute top-4 left-1/2 p-2 px-4 bg-gray-500 text-white"
+              onClick={() => setSkillOrDeeds(prev => !prev)}>
+                { skillOrDeeds ? 'Deeds' : 'Skill Tree' }
+              </button>
+            </div>
         </div>
         </QuestsContext>
       </div>
