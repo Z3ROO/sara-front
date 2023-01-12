@@ -127,7 +127,8 @@ export function InputList(props: { value: string[], setValue: (value:string[]) =
                   )
                 })
               }
-              <button className="button-icon absolute top-1 right-1" onClick={() => {
+              <button className="button-icon absolute top-1 right-1" onClick={(e) => {
+                  e.preventDefault()
                   const updatedList = [...value];
                   updatedList[updatedList.length] = '';
                   setValue(updatedList);
@@ -152,7 +153,8 @@ function InputListItem(props: {
           value[index] = target.value;
           setValue([...value]);
         }}/>
-      <button className="button-icon bg-red-600" onClick={() => {
+      <button className="button-icon bg-red-600" onClick={(e) => {
+          e.preventDefault();
           if (value.length === 1) return
           const newTodos = [...value];
           newTodos.splice(index, 1);
