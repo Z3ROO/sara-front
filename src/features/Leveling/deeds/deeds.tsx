@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InputList, InputWithOptions, Label } from "../../../ui/forms";
 import Modal from "../../../ui/Modal";
 import { useSkillTree_SC } from "../skills/SkillsStateController";
@@ -11,10 +11,13 @@ export interface IDeed {
   complete: boolean
   history: {
     date: Date
+    todos: { date: Date, state: boolean }[]
   }[]
 }
 
 export type INewDeed = Omit<IDeed, '_id'|'history'|'complete'>
+
+
 
 export function Deeds() {
   const { deeds } = useSkillTree_SC()!;
@@ -22,17 +25,17 @@ export function Deeds() {
   return (
     <div className="w-full h-full relative">
       <AddDeed/>
-      <div className="w-full h-full p-8 pt-20">
+      <div className="w-full h-full p-8 pt-20 flex flex-wrap content-start">
         {
-        deeds.map(deed => {
-          const { description } = deed;
+          deeds.map(deed => {
+            const { description } = deed;
 
-          return (
-            <div className="w-48 h-16 bg-gray-300 border border-gray-500 rounded-sm mr-4 mb-4 inline-block">
-              {description}
-            </div>
-          )
-        })
+            return (
+              <div className="w-48 h-16 bg-gray-300 border border-gray-500 rounded-sm  m-4">
+                {description}
+              </div>
+            )
+          })
         }
       </div>
     </div>
@@ -40,12 +43,20 @@ export function Deeds() {
 }
 
 function AddDeed() {
-  const { addNewDeed } = useSkillTree_SC()!;
+  const { getDeeds, addNewDeed, skills } = useSkillTree_SC()!;
   const [displayModal, setDisplayModal] = useState(false);
 
   const [action_skill_id, setAction_skill_id] = useState('');
   const [description, setDescription] = useState<string>('');
   const [todos, setTodos] = useState<string[]>(['']);
+
+  const skillsListing = useMemo(() => {
+    return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}));
+  },[]);
+
+  useEffect(() => {
+    getDeeds();
+  },[])
 
   return (
     <>
@@ -67,7 +78,7 @@ function AddDeed() {
                 <textarea maxLength={51} value={description} onChange={e => setDescription(e.target.value)} />
               </Label>
               <Label title="Action Skill: ">
-                <InputWithOptions options={[]} initValue={''} value={action_skill_id} setValue={setAction_skill_id} />
+                <InputWithOptions options={skillsListing!} initValue={''} value={action_skill_id} setValue={setAction_skill_id} />
               </Label>
               <Label title="To-do list: ">
                 <InputList value={todos} setValue={val => setTodos(val)} /> 
@@ -81,7 +92,8 @@ function AddDeed() {
                   description,
                   action_skill_id,
                   todos
-                })
+                });
+                setDisplayModal(false);
               }}
             >
               Create

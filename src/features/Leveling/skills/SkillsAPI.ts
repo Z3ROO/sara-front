@@ -241,9 +241,57 @@ export async function addNewRecord(record: INewRecord) {
 export async function getDeeds(): Promise<IDeed[]> {
   const mock: IDeed[] = [
     {
-      _id: '',
-      description: '',
-      action_skill_id: '',
+      _id: '13213215465465',
+      description: 'Fazer aquela coisa',
+      action_skill_id: '321321321321',
+      todos: ['Começar com isso', 'Dai fazer isso', 'e finalizar com isso'],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
+      todos: [],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
+      todos: [],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
+      todos: [],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
+      todos: [],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
+      todos: [],
+      complete: false,
+      history: []
+    },
+    {
+      _id: '4564657897321321',
+      description: 'Conseguir aquela coisa porque sim',
+      action_skill_id: '456465489798798321321',
       todos: [],
       complete: false,
       history: []
