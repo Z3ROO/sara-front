@@ -8,7 +8,7 @@ import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
 import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext, useQuestsSC } from "../quests/components/Quests";
 import { SkillsWidget } from "../skills/components/SkillsWidget";
 import WeekFeedback from "./components/WeekFeedback";
-import { SkillTree } from "../skills/components/SkillsTreeView";
+import { SkillTree, SkillTreeContextScope } from "../skills/components/SkillsTreeView";
 import { Deeds } from "../deeds/deeds";
 
 interface IStatsProps {
@@ -46,6 +46,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
           <QuestsWidget />
         </div>
         <div className="w-full h-full flex flex-col items-start">
+          <SkillTreeContextScope>
             <WeekFeedback />
             <div className="relative w-full h-full">
               {
@@ -58,6 +59,7 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
                 { skillOrDeeds ? 'Deeds' : 'Skill Tree' }
               </button>
             </div>
+          </SkillTreeContextScope>
         </div>
         </QuestsContext>
       </div>

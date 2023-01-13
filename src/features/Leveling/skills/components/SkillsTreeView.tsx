@@ -7,11 +7,19 @@ import { TypesOfSkill, INewRecord, ISkillNode, RecordsMetric, MetricUnits, METRI
 import { SkillTreeContext, SkillTree_SC, useSkillTree_SC } from "../SkillsStateController";
 import { TreeNode } from "../../../../lib/data-structures/GenericTree";
 
-
-export function SkillTree() {
+export function SkillTreeContextScope(props: { children: JSX.Element|JSX.Element[] }) {
+  const { children } = props;
   const stateController = SkillTree_SC();
 
-  const { skill, toggleEditMode, navigateSkill } = stateController;
+  return (
+    <SkillTreeContext.Provider value={stateController}>
+      {children}
+    </SkillTreeContext.Provider>
+  )
+}
+
+export function SkillTree() {
+  const { skill, toggleEditMode, navigateSkill } = useSkillTree_SC()!;
   let content: JSX.Element;
   
   if (skill && skill.value!.type === 'tree')
@@ -22,21 +30,21 @@ export function SkillTree() {
     content = <SkillTreeRoots />
 
   return (
-    <SkillTreeContext.Provider value={stateController}>
-      <div className="relative w-full h-full">
-        { content }
-        <button 
-          onClick={() => navigateSkill('back')}
-          className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 top-4 bg-gray-350"}>
-          back
-        </button>
-        <button 
-          onClick={toggleEditMode}
-          className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 bottom-4 bg-gray-350"}>
-          edit
-        </button>
-      </div>
-    </SkillTreeContext.Provider>
+    
+    <div className="relative w-full h-full">
+      { content }
+      <button 
+        onClick={() => navigateSkill('back')}
+        className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 top-4 bg-gray-350"}>
+        back
+      </button>
+      <button 
+        onClick={toggleEditMode}
+        className={"absolute p-1 text-sm opacity-60 hover:opacity-90 hover:scale-110 transition-all rounded cursor-pointer left-4 bottom-4 bg-gray-350"}>
+        edit
+      </button>
+    </div>
+    
   );
 }
 

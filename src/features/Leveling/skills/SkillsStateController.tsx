@@ -2,6 +2,7 @@ import { createContext, useState, useContext, useEffect, useRef } from "react"
 import { INewSkill, INewRecord, ISkillNode } from "./SkillsAPI";
 import * as SkillsAPI from "./SkillsAPI";
 import { TreeNode, Tree } from "../../../lib/data-structures/GenericTree";
+import { IDeed, INewDeed } from "../deeds/deeds";
 
 export interface ISkillTree_SC {
   editMode: boolean
@@ -11,6 +12,9 @@ export interface ISkillTree_SC {
   navigateSkill: (_id: string) => void
   addNewSkill: (skill: INewSkill) => Promise<void>
   addNewRecord: (record: INewRecord) => Promise<void>
+  deeds: IDeed[]
+  getDeeds(): Promise<void>
+  addNewDeed(deed: INewDeed): Promise<void>
 }
 
 export const SkillTreeContext = createContext<ISkillTree_SC|null>(null);
@@ -62,6 +66,17 @@ export function SkillTree_SC(): ISkillTree_SC {
     await getSkills();
   }
 
+  const [deeds, setDeeds] = useState<IDeed[]>([]);
+
+  async function getDeeds() {
+    const response = await SkillsAPI.getDeeds();
+    setDeeds(response);
+  }
+
+  async function addNewDeed(deed: INewDeed) {
+    await SkillsAPI.addNewDeed(deed);
+  }
+
   useEffect(() => {
     getSkills();
   }, []);
@@ -72,7 +87,10 @@ export function SkillTree_SC(): ISkillTree_SC {
     skill,
     navigateSkill,
     addNewSkill,
-    addNewRecord
+    addNewRecord,
+    deeds,
+    getDeeds,
+    addNewDeed
   }
 }
 
