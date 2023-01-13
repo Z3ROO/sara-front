@@ -9,6 +9,7 @@ export interface IDeed {
   description: string
   todos: string[]
   complete: boolean
+  difficulty: 1|2|3|4|5
   history: {
     date: Date
     todos: { date: Date, state: boolean }[]
@@ -49,6 +50,7 @@ function AddDeed() {
   const [action_skill_id, setAction_skill_id] = useState('');
   const [description, setDescription] = useState<string>('');
   const [todos, setTodos] = useState<string[]>(['']);
+  const [difficulty, setDifficulty] = useState<1|2|3|4|5>(1);
 
   const skillsListing = useMemo(() => {
     return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}));
@@ -80,6 +82,9 @@ function AddDeed() {
               <Label title="Action Skill: ">
                 <InputWithOptions options={skillsListing!} initValue={''} value={action_skill_id} setValue={setAction_skill_id} />
               </Label>
+              <Label title="Difficulty: ">
+                <InputWithOptions options={[]} initValue={1} value={difficulty} setValue={setDifficulty} />
+              </Label>
               <Label title="To-do list: ">
                 <InputList value={todos} setValue={val => setTodos(val)} /> 
               </Label>
@@ -91,6 +96,7 @@ function AddDeed() {
                 addNewDeed({
                   description,
                   action_skill_id,
+                  difficulty,
                   todos
                 });
                 setDisplayModal(false);

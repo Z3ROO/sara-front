@@ -245,6 +245,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Fazer aquela coisa',
       action_skill_id: '321321321321',
       todos: ['Começar com isso', 'Dai fazer isso', 'e finalizar com isso'],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -253,6 +254,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -261,6 +263,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -269,6 +272,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -277,6 +281,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -285,6 +290,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     },
@@ -293,6 +299,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
+      difficulty: 2,
       complete: false,
       history: []
     }
