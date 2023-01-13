@@ -189,7 +189,7 @@ export interface INewRecord {
 }
 
 export async function getSkills(): Promise<Tree<ISkillNode>> {
-  const parsedTree = mountRoots([
+  const rawSkillNodes = [
     ...rootSkills,
     skillTree,
     skillDiv1,
@@ -199,8 +199,19 @@ export async function getSkills(): Promise<Tree<ISkillNode>> {
     skillItem3,
     skillItem4,
     skillItem5
-  ]);
-  return parsedTree;
+  ];
+
+  const tree = new Tree<ISkillNode>({
+    _id: 'root',
+    name: '',
+    description: 'Harmony of greatness',
+    type: 'root',
+    records: []
+  });
+
+  tree.populate(rawSkillNodes);
+  
+  return tree;
   const { body } = await Requester.get('/leveling/skills');
   return body;
 }
@@ -225,54 +236,6 @@ export async function deleteSkill(skill_id: string): Promise<null> {
 export async function addNewRecord(record: INewRecord) {
   console.log('Record added');
   console.log(record);
-}
-
-function mountRoots(backendSkills: IRawSkillNode[]): Tree<ISkillNode> {
-  const skillTree = new Tree<ISkillNode>({
-    _id: 'root',
-    name: '',
-    description: 'Harmony of greatness',
-    type: 'root',
-    records: []
-  });
-
-  skillTree.populate(backendSkills);
-
-  return skillTree;
-  backendSkills.forEach((skill) => {
-    if (skill.type !== 'root-skill')
-      return
-
-    const { _id, name, description, type, records, parents, emptyNodes } = skill;
-
-    const skillNode: ISkillNode = {
-      _id, name, description, type, records, emptyNodes
-    };
-
-    skillTree.insertNode('root', skillNode, skillNode._id);
-    
-    populateSkillTree(skillNode._id, backendSkills, skillTree);
-
-  });
-
-  return skillTree;
-}
-
-function populateSkillTree(parent_id: string, arr:IRawSkillNode[], skillTree: Tree<ISkillNode>) {
-
-  arr.forEach((skill) => {
-    if (skill.parents.includes(parent_id)){
-      const { _id, name, description, type, records, parents, emptyNodes } = skill;
-
-      const skillNode: ISkillNode = {
-        _id, name, description, type, records, emptyNodes
-      };
-
-      skillTree.insertNode(parent_id, skillNode, skillNode._id);
-
-      populateSkillTree(skill._id,  arr, skillTree);
-    }
-  });
 }
 
 export async function getDeeds(): Promise<IDeed[]> {
