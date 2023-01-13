@@ -122,15 +122,16 @@ export class Tree<T extends {_id: string}> {
   }
 
   #populateTree(parent_id: string, arr:IRawNodes[]) {
+    console.log(parent_id)
     arr.forEach((node) => {
       if (node.parents?.includes(parent_id)){
-        const newNode: any = node;
-        delete newNode.parents;
-
+        const { parents , ...rest } = node;
+        const newNode = rest as T;
+        
         this.insertNode(parent_id, newNode);
 
-        parent_id = node._id;
-        this.#populateTree(parent_id,  arr);
+        const newParent_id = node._id;
+        this.#populateTree(newParent_id,  arr);
       }
     });
   }

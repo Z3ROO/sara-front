@@ -1,5 +1,6 @@
 import { Tree, TreeNode } from "../../../lib/data-structures/GenericTree";
 import Requester from "../../../lib/Requester";
+import { IDeed, INewDeed } from "../deeds/deeds";
 
 
 //===================================================================================================
@@ -9,7 +10,7 @@ const rootSkills: IRawSkillNode[] = [
     name: 'Fisico',
     description: '',
     type: 'root-skill',
-    parents: [],
+    parents: ['root'],
     records: []
   }
 ];
@@ -235,6 +236,9 @@ function mountRoots(backendSkills: IRawSkillNode[]): Tree<ISkillNode> {
     records: []
   });
 
+  skillTree.populate(backendSkills);
+
+  return skillTree;
   backendSkills.forEach((skill) => {
     if (skill.type !== 'root-skill')
       return
@@ -269,4 +273,25 @@ function populateSkillTree(parent_id: string, arr:IRawSkillNode[], skillTree: Tr
       populateSkillTree(skill._id,  arr, skillTree);
     }
   });
+}
+
+export async function getDeeds(): Promise<IDeed[]> {
+  const mock: IDeed[] = [
+    {
+      _id: '',
+      description: '',
+      action_skill_id: '',
+      todos: [],
+      complete: false,
+      history: []
+    }
+  ]
+
+  return mock;
+}
+
+export async function addNewDeed(deed: INewDeed): Promise<void> {
+  console.log('Deed added');
+  console.log(deed);
+  return;
 }
