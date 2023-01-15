@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { InputList, InputWithOptions, Label } from "../../../ui/forms";
 import Modal from "../../../ui/Modal";
+import { useQuestsSC } from "../quests/components/Quests";
+import { IDoableHistory } from "../skills/SkillsAPI";
 import { useSkillTree_SC } from "../skills/SkillsStateController";
 
 export interface IDeed {
@@ -9,18 +11,15 @@ export interface IDeed {
   description: string
   todos: string[]
   complete: boolean
-  difficulty: 1|2|3|4|5
-  history: {
-    date: Date
-    todos: { date: Date, state: boolean }[]
-  }[]
+  timecap: number
+  history: IDoableHistory[]
 }
 
 export type INewDeed = Omit<IDeed, '_id'|'history'|'complete'>
 
 
-
 export function Deeds() {
+  const { questCreation, includeDoableItem } = useQuestsSC()!;
   const { deeds } = useSkillTree_SC()!;
 
   return (
@@ -29,10 +28,19 @@ export function Deeds() {
       <div className="w-full h-full p-8 pt-20 flex flex-wrap content-start">
         {
           deeds.map(deed => {
-            const { description } = deed;
+            const { _id ,description } = deed;
 
             return (
-              <div className="w-48 h-16 bg-gray-300 border border-gray-500 rounded-sm  m-4">
+              <div 
+                onClick={() => {
+                  if (questCreation) {
+                    includeDoableItem({
+                      doable_id: _id,
+                      description
+                    })
+                  }
+                }}
+                className="w-48 h-16 bg-gray-300 border border-gray-500 rounded-sm  m-4">
                 {description}
               </div>
             )
@@ -50,7 +58,7 @@ function AddDeed() {
   const [action_skill_id, setAction_skill_id] = useState('');
   const [description, setDescription] = useState<string>('');
   const [todos, setTodos] = useState<string[]>(['']);
-  const [difficulty, setDifficulty] = useState<1|2|3|4|5>(1);
+  const [timecap, setTimecap] = useState(0);
 
   const skillsListing = useMemo(() => {
     return skills?.listing.map(skill => ({ title: skill.value!.name, value: skill.value!._id}));
@@ -82,11 +90,11 @@ function AddDeed() {
               <Label title="Action Skill: ">
                 <InputWithOptions options={skillsListing!} initValue={''} value={action_skill_id} setValue={setAction_skill_id} />
               </Label>
-              <Label title="Difficulty: ">
-                <InputWithOptions options={[]} initValue={1} value={difficulty} setValue={setDifficulty} />
-              </Label>
               <Label title="To-do list: ">
                 <InputList value={todos} setValue={val => setTodos(val)} /> 
+              </Label>
+              <Label title="Timecap: ">
+                <input type="number" value={timecap} onChange={e => setTimecap(Number(e.target.value))} />
               </Label>
             </form>
             <button
@@ -96,8 +104,8 @@ function AddDeed() {
                 addNewDeed({
                   description,
                   action_skill_id,
-                  difficulty,
-                  todos
+                  todos,
+                  timecap
                 });
                 setDisplayModal(false);
               }}

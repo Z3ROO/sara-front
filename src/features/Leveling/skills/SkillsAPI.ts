@@ -140,13 +140,21 @@ export const RECORDS_METRIC: RecordsMetric[] = [
   'boolean'
 ]
 
+export interface IDoableHistory {
+  complete: boolean
+  started_at: Date
+  finished_at: Date
+  progress: number
+  todo_list: { date: Date, state: boolean }[]
+}
+
 export interface IRecord {
   _id: string
   skill_id: string
   action_skill_id: string
   name: string
   description: string
-  todos: string[]
+  todo_list: string[]
   item_type: ItemTypes
   item_id: string|null
   categories: string[]
@@ -163,10 +171,7 @@ export interface IRecord {
     not_after: Date|null
     requirements: string[]
   }
-  history: {
-    date: Date, 
-    progress: number
-  }[]
+  history: IDoableHistory[]
 }
 
 export interface INewRecord {
@@ -245,7 +250,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Fazer aquela coisa',
       action_skill_id: '321321321321',
       todos: ['Começar com isso', 'Dai fazer isso', 'e finalizar com isso'],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -254,7 +259,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -263,7 +268,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -272,7 +277,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -281,7 +286,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -290,7 +295,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     },
@@ -299,7 +304,7 @@ export async function getDeeds(): Promise<IDeed[]> {
       description: 'Conseguir aquela coisa porque sim',
       action_skill_id: '456465489798798321321',
       todos: [],
-      difficulty: 2,
+      timecap: 13123123,
       complete: false,
       history: []
     }

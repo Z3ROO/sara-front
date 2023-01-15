@@ -14,7 +14,7 @@ export async function handleQuestTodo(todoInfo: {quest_id: string, todoDescripti
   await Requester.post(`/leveling/quest/handle-todo`, JSON.stringify(todoInfo));
 }
 
-export async function finishQuest(info: {quest_id:string, focusScore: number}) {
+export async function finishQuest(info: {quest_id:string, focus_quality: number}) {
   await Requester.post(`/leveling/quest/finish`, JSON.stringify(info));
 }
 

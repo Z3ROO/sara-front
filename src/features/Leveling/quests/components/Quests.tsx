@@ -7,49 +7,48 @@ import { Label } from "../../../../ui/forms";
 import * as SkillsAPI from "../../skills/SkillsAPI";
 import * as QuestlineAPI from '../../questlines/QuestlinesAPI';
 import { Tree, TreeNode } from "../../../../lib/data-structures/GenericTree";
+import { IDeed } from "../../deeds/deeds";
 
 // Quests exist to record the details of the action, basicly what I did in this brief period of time.
 export interface IQuest {
   _id: string
   questline_id: string|null
-  record_id: string|null
   mission_id: string|null
   title: string
-  description: string 
-  todos: ITodo[]
-  progress: number
+  steps: IQuestStep[]
   state: 'active'|'finished'|'invalidated'
   timecap: number|string
   pause: {
     start: Date
     finish: Date
   }[]
-  focus_score: number|null
-  distraction_score: Date[]
   created_at: Date
+  distraction_score: number
+  focus_quality: number
   finished_at: Date|null
   xp: number|null
 }
 
-export type ITodo = {
-  doable_id?: string|null
+export type IQuestStep = {
+  doable_id: string
+  type: 'deed'|'record'
+  title: string
   description: string
-  state: 'active'|'finished'|'invalidated'
-  finished_at: Date|null
+  todo_list: string[]
+  metric?: SkillsAPI.RecordsMetric
+  history: SkillsAPI.IDoableHistory
 };
 
-export type INewTodo = {
-  doable_id?: string|null
+export type INewQuestStep = {
+  doable_id: string
   description: string
 }
 
 export interface INewQuest {
   questline?: boolean
-  record_id?: string
   mission_id?: string
   title: string
-  description: string
-  todos: INewTodo[]
+  steps: INewQuestStep[]
   timecap: number|string
 }
 
@@ -66,8 +65,13 @@ export interface IQuestsStateController {
   activeQuest: IQuest|null|undefined
   createNewQuest(props: INewQuest): Promise<void>
   handleQuestTodo(description: string, action: 'finish' | 'invalidate'): Promise<void>
-  finishQuest(focusScore: number): Promise<void>
+  finishQuest(focus_quality: number): Promise<void>
   sendDistractionPoint(): Promise<void>
+  doablesMEM: INewQuestStep[]
+  setDoablesMEM: React.Dispatch<React.SetStateAction<INewQuestStep[]>>
+  includeDoableItem: (doable: INewQuestStep) => void
+  questCreation: boolean, 
+  setQuestCreation: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const QuestsStateControllerContext = createContext<IQuestsStateController|null>(null);
@@ -75,6 +79,7 @@ export const useQuestsSC = () => useContext(QuestsStateControllerContext);
 
 export function QuestStateController(): IQuestsStateController {
   const [activeQuest, setActiveQuest] = useState<IQuest|null>();
+  const [questCreation, setQuestCreation] = useState(false);
 
   async function getActiveQuest() {
     const data = await QuestsAPI.getActiveQuest();
@@ -95,22 +100,18 @@ export function QuestStateController(): IQuestsStateController {
   async function createNewQuest(props: INewQuest) {
     const {
       questline,
-      record_id,
       mission_id,
       title,
-      description,
       timecap,
-      todos
+      steps
     } = props;
 
     const data = await QuestsAPI.createQuest({
       questline,
-      record_id,
       mission_id,
       title,
-      description,
       timecap,
-      todos
+      steps
     });
 
     await getActiveQuest();
@@ -131,18 +132,23 @@ export function QuestStateController(): IQuestsStateController {
     getActiveQuest();
   }
 
-  async function finishQuest(focusScore: number) {
+  async function finishQuest(focus_quality: number) {
     if (!activeQuest)
       return
 
     const quest_id = activeQuest._id;
-    const response = await QuestsAPI.finishQuest({quest_id, focusScore});
+    const response = await QuestsAPI.finishQuest({quest_id, focus_quality});
 
     getActiveQuest();
   }
 
   async function sendDistractionPoint() {
     await QuestsAPI.insertDistractionPoint();
+  }
+  const [doablesMEM, setDoablesMEM] = useState<INewQuestStep[]>([]);
+
+  function includeDoableItem(doable: INewQuestStep) {
+    setDoablesMEM(prev => [...prev, doable]);
   }
   
   useEffect(() => {
@@ -154,7 +160,11 @@ export function QuestStateController(): IQuestsStateController {
     createNewQuest,
     handleQuestTodo,
     finishQuest,
-    sendDistractionPoint
+    sendDistractionPoint,
+    doablesMEM,
+    setDoablesMEM,
+    includeDoableItem,
+    questCreation, setQuestCreation
   }
 }
 
@@ -196,14 +206,10 @@ function QuestTodosSection() {
 
   return  <div className="p-2">
             {
-              activeQuest && activeQuest.todos.map(
-                (todo) => (
+              activeQuest && activeQuest.steps.map(
+                (step) => (
                   <div>
-                    <input type="checkbox" checked={todo.state==='finished'} onClick={() => handleQuestTodo(todo.description, 'finish')}/>
-                    <span className={`${todoStyleClasses(todo.state)} mx-3 text-lg`}>{todo.description}</span>
-                    <button onClick={() => handleQuestTodo(todo.description, 'invalidate')}>
-                      <Icons.Xclose className="w-3 fill-red-400 opacity-20 hover:opacity-100" />
-                    </button>
+                    
                   </div>
                 )
               )
@@ -213,16 +219,16 @@ function QuestTodosSection() {
 
 function QuestFinishSection() {
   const { activeQuest, finishQuest } = useQuestsSC()!;
-  const [focusScore, setFocusScore] = useState<number>(0);
+  const [focus_quality, setFocus_quality] = useState<number>(0);
 
-  if (!activeQuest?.todos.every((todo:any) => todo.state !== 'active'))
+  if (!activeQuest?.steps.every((step:any) => step.state !== 'active'))
     return <></>
 
   return  <div className="flex flex-col items-center p-2">
             <div>
-              {Array(11).fill(true).map((x, ind) => <button className={`button-sm ${focusScore === ind && 'bg-gray-500'} border-gray-550`} onClick={() => setFocusScore(ind)}>{ind}</button>)}
+              {Array(11).fill(true).map((x, ind) => <button className={`button-sm ${focus_quality === ind && 'bg-gray-500'} border-gray-550`} onClick={() => setFocus_quality(ind)}>{ind}</button>)}
             </div>
-            <button className="button-md border-gray-550" onClick={() => finishQuest(focusScore)} disabled={focusScore === 0}>Finalizar quest.</button>
+            <button className="button-md border-gray-550" onClick={() => finishQuest(focus_quality)} disabled={focus_quality === 0}>Finalizar quest.</button>
           </div>
 }
 
@@ -338,22 +344,21 @@ export function CreateNewQuest(props: any) {
 
 function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() => void}) {
   const {type, setType} = props;
-  const { createNewQuest } = useQuestsSC()!;
+  const { createNewQuest, doablesMEM, includeDoableItem, setDoablesMEM, setQuestCreation } = useQuestsSC()!;
 
   const [questTitle, setQuestTitle] = useState<string>('');
   const [questDescription, setQuestDescription] = useState<string>('');
   const [questHoras, setQuestHoras] = useState<number>(0);
   const [questMinutes, setQuestMinutes] = useState<number>(0);
-  const [todos, setTodos] = useState<INewTodo[]>([]);
 
-  const [record_id, setRecord_id] = useState('');
+  useEffect(() => {
+    setQuestCreation(true);
+    return () => setQuestCreation(false);
+  },[])
   
   return  <div>
             <h4>Criar Quest:</h4>
             <div className="flex flex-col">
-              {
-                type === 'practice' && <SkillsListing className='m-2 w-3/6 self-end text-black' {...{record_id, setRecord_id}}/>
-              }
               <Label title="Titulo: ">
                 <input className="w-full text-black" type="text" value={questTitle} onChange={e => setQuestTitle(e.target.value)}/>
               </Label>
@@ -368,16 +373,15 @@ function NewQuestForms(props: { type: 'main'|'practice'|'mission', setType:() =>
                   <input className="w-full text-black" type="number" value={questMinutes} onChange={e => setQuestMinutes(Number(e.target.value))}/>
                 </Label>
               </div>
-              <CreateNewQuestTodosSection todos={todos} setTodos={setTodos} />
+              <CreateNewQuestStepsSection steps={doablesMEM} setSteps={setDoablesMEM} />
               <div className="flex justify-end my-4">
                 <button className="m-2 py-1 px-2 border rounded cursor-pointer" onClick={setType} >Cancelar</button>
                 <button className="m-2 py-1 px-4 border rounded cursor-pointer" onClick={() => {
                     createNewQuest({
                       questline: type === 'main',
-                      record_id, 
-                      title: questTitle, description: questDescription, 
+                      title: questTitle,
                       timecap: ((questHoras * 60) + questMinutes) * 60 * 1000, 
-                      todos
+                      steps: doablesMEM
                     });
                   setType();
                 }}>Criar</button>
@@ -413,26 +417,23 @@ function SkillsListing(props: any) {
   )
 }
 
-function CreateNewQuestTodosSection(props: { todos: INewTodo[], setTodos: React.Dispatch<React.SetStateAction<INewTodo[]>> }) {
-  const { todos, setTodos } = props;
-
-  useEffect(() => {
-    setTodos([{description: '', doable_id: null}]);
-  }, [])
+function CreateNewQuestStepsSection(props: { steps: INewQuestStep[], setSteps: React.Dispatch<React.SetStateAction<INewQuestStep[]>> }) {
+  const { steps, setSteps } = props;
 
   return  <div className="relative">
             <h5>To-do list: </h5>
             {
-              todos.map((todo, ind) => {
+              steps.map((step, ind) => {
+                const { description } = step;
                 return  (
                   <div className="flex p-2 pt-1 pr-1">
-                    <input className="w-full text-black" type="text" value={todo.description} placeholder={`To-do #${ind}`}
-                      onChange={({target}) => setTodos((current) => {current[ind].description = target.value; return [...current]})}/>
+                    <div>{description}</div>
                     <button className="button-icon bg-red-600" onClick={() => {
-                        if (todos.length === 1) return
-                        const newTodos = [...todos];
-                        newTodos.splice(ind, 1);
-                        setTodos(newTodos);
+                        setSteps(prev => {
+                          const newSteps = [...prev];
+                          newSteps.splice(ind, 1);
+                          return newSteps;
+                        });
                       }
                     }>
                       <img className="w-3" src="/icons/ui/close-x.svg" alt="close-x" />
@@ -441,11 +442,5 @@ function CreateNewQuestTodosSection(props: { todos: INewTodo[], setTodos: React.
                   )
                 })
               }
-              <button className="button-icon absolute top-1 right-1" onClick={() => {
-                  const newTodos = [...todos];
-                  newTodos[newTodos.length] = {description: '', doable_id: null}
-                  setTodos(newTodos);
-                }
-              }><img className="w-3" src="/icons/ui/plus-sign.svg" alt="close-x" /></button>
             </div>
 }
