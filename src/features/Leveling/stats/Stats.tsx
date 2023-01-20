@@ -8,6 +8,8 @@ import {QuestlinesWidget} from "../questlines/components/QuestlinesWidget";
 import QuestsWidget, { CreateNewQuest, InQuestBlur, QuestsContext, useQuestsSC } from "../quests/components/Quests";
 import { SkillsWidget } from "../skills/components/SkillsWidget";
 import WeekFeedback from "./components/WeekFeedback";
+import { SkillTree, SkillTreeContextScope } from "../skills/components/SkillsTreeView";
+import { Deeds } from "../deeds/deeds";
 
 interface IStatsProps {
   path?: string;
@@ -20,6 +22,8 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
   const AppController = useMainStateController()!;
   const controller = StatsController({AppController});
 
+  const [skillOrDeeds, setSkillOrDeeds] = useState(true);
+
   useEffect(() => {
     console.log('effeeect');
   },[]);
@@ -28,24 +32,35 @@ export default function StatsPanelAndDashboard(props:IStatsProps) {
     <StatsControllerContext.Provider value={controller}>
       <div className="h-screen w-full flex bg-gray-800 bg-opacity-30" style={{backdropFilter:'blur(8px)'}}>
         <QuestsContext>
-        <div className="h-screen relative flex flex-col p-3 max-w-md text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
-          <InQuestBlur className="flex flex-col h-full">
-            <PlayerInfo />
-            <div className="overflow-auto scrollbar-hide h-full">
-              <Hashiras />
-              <SkillsWidget />
-              <QuestlinesWidget />
-              <CreateNewQuest />
-              <History />
-            </div>
-          </InQuestBlur>
-          <QuestsWidget />
-        </div>
-        <div className="w-full ">
-          <div className="p-8">
-            <WeekFeedback />
+          <div className="h-screen relative flex flex-col p-3 max-w-md text-white bg-gray-800 bg-opacity-80 slidein-ltr-animation">
+            <InQuestBlur className="flex flex-col h-full">
+              <PlayerInfo />
+              <div className="overflow-auto scrollbar-hide h-full">
+                <Hashiras />
+                <SkillsWidget />
+                <QuestlinesWidget />
+                <CreateNewQuest />
+                <History />
+              </div>
+            </InQuestBlur>
+            <QuestsWidget />
           </div>
-        </div>
+          <div className="w-full h-full flex flex-col items-start">
+            <SkillTreeContextScope>
+              <WeekFeedback />
+              <div className="relative w-full h-full">
+                {
+                  skillOrDeeds ?
+                  <SkillTree /> :
+                  <Deeds />
+                }
+                <button className="absolute top-4 left-1/2 p-2 px-4 bg-gray-500 text-white"
+                onClick={() => setSkillOrDeeds(prev => !prev)}>
+                  { skillOrDeeds ? 'Deeds' : 'Skill Tree' }
+                </button>
+              </div>
+            </SkillTreeContextScope>
+          </div>
         </QuestsContext>
       </div>
     </StatsControllerContext.Provider>

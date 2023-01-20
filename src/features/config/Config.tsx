@@ -1,5 +1,4 @@
 import { Link, Route, Routes } from "../../lib/Router";
-import SkillsConfigPage from "../Leveling/skills/components/SkillsConfigPage";
 import PillsConfigPage from "../pills/components/PillsConfigPage";
 
 export interface IConfigRoute {
@@ -22,12 +21,6 @@ const routesTree: IConfigRoute[] = [{
     }
   ]
 }]
-
-routesTree.push({
-  route: 'skills',
-  name: 'Skills',
-  element:<SkillsConfigPage/>,
-  children:[]});
 
 routesTree.push({
   route: 'pills',
