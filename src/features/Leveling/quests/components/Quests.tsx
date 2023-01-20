@@ -191,7 +191,7 @@ export default function QuestsWidget(props:any) {
       <div className="relative w-96">
         <div className="bg-gradient-to-br to-gray-800 from-gray-650 rounded p-2">
           <h3 className="text-lg p-2">{activeQuest.title}</h3>
-          <QuestTodosSection />
+          <QuestStepsSection />
           <QuestFinishSection />
           <QuestFooter activeQuest={activeQuest} />
         </div>
@@ -201,17 +201,42 @@ export default function QuestsWidget(props:any) {
   )
 }
 
-function QuestTodosSection() {
+function QuestStepsSection() {
   const { activeQuest, handleQuestTodo } = useQuestsSC()!;
 
   return  <div className="p-2">
             {
               activeQuest && activeQuest.steps.map(
-                (step) => (
-                  <div>
-                    
-                  </div>
-                )
+                (step) => {
+                  const { doable_id, type, title, description, todo_list, metric, history } = step;
+
+                  if (type === 'deed')
+                    return (
+                      <div>
+                        <h5>{title}</h5>
+                        <div>
+                          {
+                            todo_list.map(todo => {
+                              return (
+                                <div>
+                                  <input type="checkbox" checked={} onChange={e => {}}/>
+                                  <span>{todo}</span>
+                                  <span> X </span>
+                                </div>
+                              )
+                            })
+                          }
+                        </div>
+                      </div>
+                    )
+
+                  if (type === 'record')
+                    return (
+                      <div>
+                        
+                      </div>
+                    )
+                }
               )
             }
           </div>
